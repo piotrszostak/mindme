@@ -5,20 +5,20 @@
 
 Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich):
 
-| plik | obszar |
-|---|---|
-| `parser.spec.js` | Markdown ⇄ model, wiele korzeni, round-trip |
-| `layout.spec.js`, `wrap.spec.js` | układy, brak nakładania, zawijanie, emoji w tekście |
-| `topbar.spec.js` | pasek, przełącznik Markdown/mapa, menu „…” |
-| `menu.spec.js` | menu podręczne, kopiuj/wytnij/wklej/usuń |
-| `selection.spec.js` | odznaczanie, praca bez zaznaczenia |
-| `edit.spec.js` | edycja w węźle |
-| `keys.spec.js` | **wszystkie skróty** (zwykły + vim), także w **Firefoksie** |
-| `navigation.spec.js` | strzałki zgodne z układem, Alt+strzałki |
-| `dnd.spec.js`, `touch.spec.js` | przeciąganie myszą, gesty dotykowe |
-| `animation.spec.js` | sprężyny, wyrastanie/chowanie węzłów |
-| `style.spec.js`, `emoji.spec.js`, `multiroot.spec.js`, `view.spec.js` | panel wyglądu, emoji, wiele korzeni, pomoc i widok |
-| `pwa.spec.js` | `sw.js` ma w cache każdy plik z `index.html` |
+| plik                                                                  | obszar                                                      |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `parser.spec.js`                                                      | Markdown ⇄ model, wiele korzeni, round-trip                 |
+| `layout.spec.js`, `wrap.spec.js`                                      | układy, brak nakładania, zawijanie, emoji w tekście         |
+| `topbar.spec.js`                                                      | pasek, przełącznik Markdown/mapa, menu „…”                  |
+| `menu.spec.js`                                                        | menu podręczne, kopiuj/wytnij/wklej/usuń                    |
+| `selection.spec.js`                                                   | odznaczanie, praca bez zaznaczenia                          |
+| `edit.spec.js`                                                        | edycja w węźle                                              |
+| `keys.spec.js`                                                        | **wszystkie skróty** (zwykły + vim), także w **Firefoksie** |
+| `navigation.spec.js`                                                  | strzałki zgodne z układem, Alt+strzałki                     |
+| `dnd.spec.js`, `touch.spec.js`                                        | przeciąganie myszą, gesty dotykowe                          |
+| `animation.spec.js`                                                   | sprężyny, wyrastanie/chowanie węzłów                        |
+| `style.spec.js`, `emoji.spec.js`, `multiroot.spec.js`, `view.spec.js` | panel wyglądu, emoji, wiele korzeni, pomoc i widok          |
+| `pwa.spec.js`                                                         | `sw.js` ma w cache każdy plik z `index.html`                |
 
 Wspólne pomocniki (`box`, `act`, `texts`, `MD`…) są w `helpers.js`.
 

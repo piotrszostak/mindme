@@ -1,29 +1,148 @@
 # Mapa myśli
-Aplikacja w `www/` (PWA bez budowania: `index.html`, `css/app.css`, `js/*.js`). Testy: `npm test`, formatowanie: `npm run format`. Notatki dla agenta: `CLAUDE.md`.
-## PWA (Android/Arch)
-Wrzuć `www/` na HTTPS (GitHub Pages/Netlify) → Chrome: „Zainstaluj aplikację”. Lokalnie: `npx serve www`.
-## Android APK (Capacitor)
-npm i && npx cap add android && npm run android → Build > Build APK w Android Studio.
-Uwaga: WebView nie ma File System Access API → otwieranie/zapis działa przez picker i pobieranie. Do natywnego zapisu dodaj @capacitor/filesystem albo użyj Syncthing + otwórz plik z folderu.
-## Arch (Tauri → AppImage)
-npm i && npx tauri init (frontendDist=../www, bez dev servera) && npm run tauri
-## Kontener (Podman)
-    podman build -t mindmap -f Containerfile .
-    podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap bash
-    # w kontenerze: npx serve www -l 3000   → na hoście http://localhost:3000
-`-p` musi być przy `podman run` – Containerfile może tylko zadeklarować `EXPOSE 3000`.
+
+Lekka aplikacja do map myśli, która zapisuje mapy jako zwykłe pliki **Markdown**. Działa w przeglądarce i offline (PWA), na komputerze i na telefonie. Obsługuje mysz, dotyk i klawiaturę, także skróty w stylu **vim**.
+
+![Zrzut ekranu: mapa w układzie „na obie strony”](docs/screenshot.png)
+
+- **Plik `.md` jako mapa** – czytelny w każdym edytorze, dobrze współpracuje z gitem i Syncthingiem.
+- **Edycja bezpośrednio w węźle**, zawijanie długiego tekstu, emoji.
+- **Przeciąganie gałęzi** z animacją: sąsiednie węzły robią miejsce, gałąź „rozciąga się” za kursorem.
+- **4 układy**: w prawo, w lewo, na obie strony, w dół; wiele map (korzeni) w jednym pliku.
+- **Wygląd każdej mapy**: czcionka, linie, obramowania, wypełnienia, odstępy, 8 palet kolorów. Ustawienia zapisują się w pliku.
+- **Bez frameworka i bez budowania** – czysty JavaScript sprawdzany przez TypeScript, testy w Playwright.
+
+## Szybki start
+
+```bash
+npx serve www -l 3000
+```
+
+Otwórz http://localhost:3000. Przykładową mapę wczytasz z [`docs/przyklad.md`](docs/przyklad.md) (menu `…` → _Otwórz plik…_).
+
+Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zapisuje ją do pliku. W Chrome i Edge zapis trafia bezpośrednio do otwartego pliku, w pozostałych przeglądarkach plik jest pobierany.
+
 ## Obsługa
-- Mysz: klik – zaznacz, dwuklik – edycja w węźle, PPM – menu (na węźle zaznacza go, na tle dotyczy zaznaczonego), przeciągnij węzeł – przenieś (prawa część węzła = dziecko, lewa góra/dół = brat przed/za, Esc anuluje), przeciągnij tło – przesuń, kółko – zoom, dwuklik na tle lub Esc – odznacz.
-- Dotyk: stuknij – zaznacz, przytrzymaj węzeł – menu (jak PPM), przytrzymaj tło – odznacz, stuknij 2× węzeł – edycja, stuknij 2× tło – menu, przeciągnij węzeł – przenieś, przeciągnij tło – przesuń, dwa palce – zoom.
-- Edycja: Enter/Esc zatwierdza i zostawia węzeł zaznaczony, kolejny Enter dodaje brata; Tab zatwierdza i dodaje dziecko.
-- Jedno menu podręczne (to samo na komputerze i telefonie, ze skrótami), zawsze dla zaznaczonego węzła: dodaj brata (przy korzeniu – nowy korzeń), dodaj dziecko, emoji (na końcu tekstu), zwiń/rozwiń, kopiuj, wytnij, wklej, usuń, dopasuj widok, rozwiń/zwiń wszystko.
-- Bez zaznaczenia: Enter i wklejanie tworzą nowy korzeń (brata korzeni), strzałki zaczynają od pierwszego korzenia.
-- Klawiatura: dla każdej czynności skrót zwykły i vim, np. strzałki | hjkl, F2 | i, Enter | o (brat), Tab | a (dziecko), Ctrl+C | yy (kopiuj), Ctrl+X | dd (wytnij), Del | x (usuń bez kopiowania), Ctrl+V | p (wklej), Spacja | za, Alt+strzałki | JKLH, Ctrl+Z | u, Ctrl+Y | Ctrl+R, Ctrl+F | /. Pełna lista: F1 lub `?`.
-- Pasek: po lewej „…” (otwórz, zapisz, nowa mapa, eksport, motyw, pomoc), cofnij, ponów, układ, dopasuj widok, Markdown/mapa; po prawej tylko panel „Wygląd mapy”.
-- Panel „Wygląd mapy”: czcionka (systemowa, szeryfowa, maszynowa, zaokrąglona, odręczna, wąska) i jej grubość, rozmiar i szerokość tekstu, grubość i kształt linii, obramowanie, zaokrąglenie, wypełnienie, odstępy, kolory gałęzi z 8 palet (paletę można edytować – zmiany pamięta urządzenie). Wygląd zapisuje się w pliku mapy (`<!--style:{…}-->`) i jest cofalny (Ctrl+Z).
-- Emoji: Ctrl+. albo „Wstaw emoji” w menu (na końcu tekstu węzła), w edycji także przycisk 😊 przy polu (w miejscu kursora).
-- Animacje wyłącza systemowe „ogranicz ruch” (prefers-reduced-motion).
-## Komendy
-:w :e :new :test :text :fit :layout right|left|both|down :export svg|png :theme dark|light
-## Format
-`# Tytuł`, opcjonalnie `<!--layout:both-->`, zagnieżdżone listy `- `; `<!--c-->` = zwinięty. Każdy kolejny nagłówek `# …` to osobny korzeń (wiele map w jednym pliku).
+
+|                      | Mysz                    | Dotyk                                        |
+| -------------------- | ----------------------- | -------------------------------------------- |
+| zaznacz              | klik                    | stuknięcie                                   |
+| edytuj tekst         | dwuklik węzła           | podwójne stuknięcie węzła                    |
+| menu podręczne       | prawy przycisk          | przytrzymanie węzła, podwójne stuknięcie tła |
+| odznacz              | dwuklik tła             | przytrzymanie tła                            |
+| przenieś gałąź       | przeciągnij węzeł       | przeciągnij węzeł                            |
+| przesuń widok / zoom | przeciągnij tło / kółko | przeciągnij tło / dwa palce                  |
+
+**Przenoszenie:** węzeł upuszczony na prawej części innego węzła zostaje jego dzieckiem, a upuszczony na lewej górnej lub dolnej części staje się bratem przed nim lub za nim. Esc anuluje przeciąganie, Ctrl+Z cofa przeniesienie.
+
+**Edycja w węźle:** Enter lub Esc zatwierdza, a kolejny Enter dodaje brata. Tab zatwierdza i dodaje dziecko. Ctrl+. albo przycisk 😊 wstawia emoji.
+
+### Klawiatura
+
+Każda czynność ma skrót zwykły i skrót vim:
+
+| Czynność                                | Zwykły                | vim                                      |
+| --------------------------------------- | --------------------- | ---------------------------------------- |
+| poruszanie (zgodnie z układem)          | strzałki              | `h` `j` `k` `l` (z licznikiem, np. `3j`) |
+| pierwszy / ostatni węzeł                | Home / End            | `gg` / `G`                               |
+| edytuj                                  | F2                    | `i`                                      |
+| brat poniżej / powyżej                  | Enter / Shift+Enter   | `o` / `O`                                |
+| dziecko                                 | Tab                   | `a`                                      |
+| kopiuj / wytnij / usuń (bez kopiowania) | Ctrl+C / Ctrl+X / Del | `yy` / `dd` / `x`                        |
+| wklej jako dziecko / brata              | Ctrl+V / Ctrl+Shift+V | `p` / `P`                                |
+| zwiń / rozwiń                           | Spacja                | `za` (wszystko: `zM` / `zR`)             |
+| przesuń, wsuń, wysuń                    | Alt+strzałki          | `K` `J`, `L`, `H`                        |
+| cofnij / ponów                          | Ctrl+Z / Ctrl+Y       | `u` / Ctrl+R                             |
+| szukaj, następne, poprzednie            | Ctrl+F, F3, Shift+F3  | `/`, `n`, `N`                            |
+| menu podręczne / odznacz                | Shift+F10 / Esc       |                                          |
+| dopasuj widok / emoji / pomoc           | `=` / Ctrl+. / F1     | `?`                                      |
+
+Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
+
+Komendy wpisywane po `:`: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod F1.
+
+## Format pliku
+
+```markdown
+# Pierwsza mapa
+
+<!--layout:both-->
+<!--style:{"edgeStyle":"elbow","palette":"Ocean","colors":["#0077b6","#00a6c8","#023e8a","#48cae4","#0096c7","#5e60ce"]}-->
+
+- Gałąź
+  - Dziecko
+  - Zwinięty węzeł <!--c-->
+    - ukryte dziecko
+
+# Druga mapa w tym samym pliku
+
+- …
+```
+
+- `# Tytuł` zaczyna mapę. Każdy kolejny nagłówek `#` to osobna mapa (korzeń).
+- Węzły to lista `-`, `*` albo `+`. Każde wcięcie o 2 spacje (lub tabulator) oznacza poziom niżej.
+- `<!--c-->` na końcu linii oznacza zwinięty węzeł.
+- `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd. W pliku są tylko ustawienia różne od domyślnych.
+
+## Instalacja
+
+### PWA (telefon i komputer)
+
+Opublikuj katalog `www/` przez HTTPS, np. na GitHub Pages lub Netlify. W Chrome lub Edge wybierz _Zainstaluj aplikację_, a na Androidzie _Dodaj do ekranu głównego_. Aplikacja działa wtedy offline.
+
+### Android (APK przez Capacitor)
+
+```bash
+npm install
+npx cap add android
+npm run android          # otwiera Android Studio → Build > Build APK
+```
+
+WebView na Androidzie nie ma File System Access API, więc pliki otwiera się przez systemowe okno wyboru, a zapis to pobranie pliku. Bezpośredni zapis wymaga dodania `@capacitor/filesystem`.
+
+### Linux (AppImage przez Tauri)
+
+```bash
+npm install
+npx tauri init           # frontendDist = ../www, bez serwera deweloperskiego
+npm run tauri
+```
+
+Wymaga Rusta i `webkit2gtk`.
+
+## Rozwój
+
+```
+www/
+  index.html, css/app.css    strona i style
+  js/*.js                    kod (zwykłe skrypty, ładowane po kolei – opis każdego w 1. linii)
+  sw.js, manifest.webmanifest  tryb offline (PWA)
+types/globals.d.ts           typy wspólne (węzeł mapy, styl, elementy strony)
+tests/*.spec.js              testy Playwright, jeden plik = jeden obszar (opis w tests/README.md)
+docs/                        zrzut ekranu i przykładowa mapa
+```
+
+| Polecenie        | Co robi                                                                   |
+| ---------------- | ------------------------------------------------------------------------- |
+| `npm run serve`  | podgląd na http://localhost:3000                                          |
+| `npm run check`  | sprawdzanie typów TypeScriptem (JSDoc, tryb `strict`)                     |
+| `npm test`       | testy Playwright: Chromium, a skróty klawiszowe także w Firefoksie        |
+| `npm run format` | formatowanie (Prettier)                                                   |
+| `npm run verify` | typy + formatowanie + wszystkie testy (uruchamiane przed commitem i w CI) |
+
+Pierwsze uruchomienie testów wymaga przeglądarek: `npx playwright install --with-deps chromium firefox`.
+
+**Dlaczego JavaScript, a nie TypeScript?** Aplikacja nie ma etapu budowania: pliki z `www/` działają od razu jako PWA, w Capacitorze i w Tauri. TypeScript sprawdza ten sam kod na podstawie adnotacji JSDoc (`npm run check`), więc korzyści z typów zostają, a kompilacji nie ma.
+
+**Pliki skryptów są zwykłymi skryptami, a nie modułami ES.** Dzielą jeden zakres globalny, więc ich kolejność w `index.html` ma znaczenie. Nowy plik trzeba dopisać także do listy cache w `www/sw.js`. Pilnuje tego test `tests/pwa.spec.js`.
+
+### Kontener (Podman / Docker)
+
+```bash
+podman build -t mindmap -f Containerfile .
+podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap bash
+# w kontenerze: npm install && npm run verify && npm run serve
+```
+
+Opcja `-p 3000:3000` musi być podana przy `run`, bo sam `Containerfile` deklaruje tylko `EXPOSE 3000`.
+
+Wskazówki dla agentów AI (mapa kodu, zasady, znane pułapki) są w [`CLAUDE.md`](CLAUDE.md).
