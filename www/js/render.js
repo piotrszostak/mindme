@@ -1,14 +1,21 @@
 /* Rysowanie SVG i animacja (sprężyny, „duchy” zwijanych węzłów), widok, dopasowanie. */
 /* ---- animacja: pozycja wyświetlana (sprężyna) dąży do pozycji z układu ---- */
-const pos = new Map(),
-  RM = matchMedia('(prefers-reduced-motion: reduce)');
-let drawN = [],
-  drawE = [],
-  raf = 0,
-  lastT = 0,
-  dnd = null,
-  lastPar = new Map(),
-  ghosts = [];
+/** @type {Map<number, Pos>} pozycje wyświetlane węzłów */
+const pos = new Map();
+const RM = matchMedia('(prefers-reduced-motion: reduce)');
+/** @type {DrawNode[]} */
+let drawN = [];
+/** @type {DrawEdge[]} */
+let drawE = [];
+let raf = 0;
+let lastT = 0;
+/** @type {DragState | null} */
+let dnd = null;
+/** @type {Map<number, number>} rodzic każdego węzła z poprzedniej klatki (dla duchów) */
+let lastPar = new Map();
+/** @type {Ghost[]} */
+let ghosts = [];
+/** pozycja wyświetlana węzła (tworzona przy pierwszym użyciu) @param {MapNode} n @returns {Pos} */
 function P(n) {
   let p = pos.get(n.id);
   if (!p) {
@@ -18,6 +25,7 @@ function P(n) {
   return p;
 }
 /* krzywa między pozycjami wyświetlanymi; strona liczona z położenia, więc gałąź „rozciąga się” za przeciąganym węzłem */
+/** ścieżka SVG krawędzi rodzic → dziecko @param {MapNode} p @param {MapNode} c */
 function edgeD(p, c) {
   const a = P(p),
     b = P(c),
@@ -40,6 +48,7 @@ function edgeD(p, c) {
   if (es === 'elbow') return `M${x1} ${a.y}H${x1 + (x2 - x1) / 2}V${b.y}H${x2}`;
   return `M${x1} ${a.y}C${x1 + m * s} ${a.y} ${x2 - m * s} ${b.y} ${x2} ${b.y}`;
 }
+/** @param {MapNode} n @param {string} col kolor gałęzi @param {string} [extra] dodatkowe klasy */
 function nodeHTML(n, col, extra = '') {
   const cl = col || 'var(--acc)';
   if (n.ph)
@@ -53,14 +62,21 @@ function nodeHTML(n, col, extra = '') {
     tf = on && ST.fill === 'solid' ? ' style="fill:#fff"' : '';
   return `<g class="${cls}" data-id="${n.id}"><title>${esc(n.text)}</title><rect x="${n.x}" y="${n.y - n.h / 2}" width="${n.w}" height="${n.h}" rx="${ST.radius}" stroke="${cl}"${fs}/><text${tf}>${ts}</text></g>`;
 }
+/** układ + przebudowa SVG; `keepView` – nie przesuwaj widoku do zaznaczenia @param {boolean} [keepView] */
 function render(keepView) {
   lay();
-  let nd = '',
-    band = null;
-  const E = [],
-    N = [],
-    par = new Map(),
-    C = new Map();
+  let nd = '';
+  /** @type {[MapNode, string] | null} rodzic miejsca upuszczenia i jego kolor */
+  let band = null;
+  /** @type {[MapNode, MapNode, string, string][]} krawędzie: rodzic, dziecko, kolor, klasa */
+  const E = [];
+  /** @type {MapNode[]} */
+  const N = [];
+  /** @type {Map<number, number>} */
+  const par = new Map();
+  /** @type {Map<number, string>} */
+  const C = new Map();
+  /** @param {MapNode} n @param {string} col @param {MapNode} p */
   const w = (n, col, p) => {
     par.set(n.id, p.id);
     C.set(n.id, col);
@@ -80,23 +96,26 @@ function render(keepView) {
   }; /* przyszły rodzic podświetlony */
   root.children.forEach(r => w(r, '', root));
   if (dnd) {
+    const d = dnd;
+    /** @param {MapNode} n @param {number} p */
     const v = (n, p) => {
       par.set(n.id, p);
-      C.set(n.id, dnd.col);
+      C.set(n.id, d.col);
       const ch = n.collapsed ? [] : n.children;
       ch.forEach(c => {
-        E.push([n, c, dnd.col, '']);
+        E.push([n, c, d.col, '']);
         v(c, n.id);
       });
       N.push(n);
-      nd += nodeHTML(n, dnd.col, ' dragging');
+      nd += nodeHTML(n, d.col, ' dragging');
     };
-    v(dnd.node, 0);
-    if (band) E.push([band[0], dnd.node, band[1], 'band']);
+    v(d.node, 0);
+    if (band) E.push([band[0], d.node, band[1], 'band']);
   }
   /* duchy: węzły, które były widoczne, a teraz nie są – jadą do najbliższego widocznego przodka */
-  const live = new Set(N.map(n => n.id)),
-    G = new Map();
+  const live = new Set(N.map(n => n.id));
+  /** @type {Map<number, Ghost>} */
+  const G = new Map();
   if (!RM.matches) {
     for (const g of ghosts) G.set(g.n.id, g);
     for (const d of drawN) if (d.n.id > 0 && !d.ghost && !live.has(d.n.id)) G.set(d.n.id, { n: d.n, col: d.col });
@@ -110,27 +129,29 @@ function render(keepView) {
     if (!f) continue;
     g.anc = f.n;
     ghosts.push(g);
-    par.set(id, lastPar.get(id));
+    const pp = lastPar.get(id);
+    if (pp !== undefined) par.set(id, pp);
   }
   lastPar = par;
-  const GE = ghosts.map(g => [g.anc, g.n, g.col, 'leave']),
+  const GE = ghosts.map(g => /** @type {[MapNode, MapNode, string, string]} */ ([g.anc, g.n, g.col, 'leave'])),
     AE = GE.concat(E);
   $('g').innerHTML =
     AE.map(e => `<path class="${e[3]}" fill="none" stroke="${e[2]}" stroke-width="${ST.edge}"/>`).join('') +
     ghosts.map(g => nodeHTML(g.n, g.col, ' leave')).join('') +
     nd;
   const ps = $('g').querySelectorAll('path'),
-    gs = $('g').querySelectorAll('g.n');
+    gs = /** @type {NodeListOf<SVGGElement>} */ ($('g').querySelectorAll('g.n'));
   drawE = AE.map((e, i) => ({ p: e[0], c: e[1], el: ps[i], ghost: i < GE.length ? ghosts[i] : null }));
-  drawN = ghosts
-    .map(g => ({ n: g.n, col: g.col, ghost: g }))
-    .concat(N.map(n => ({ n, col: C.get(n.id) })))
-    .map((d, i) => ((d.g = gs[i]), d));
+  /** @type {{n: MapNode, col: string, ghost?: Ghost}[]} */
+  const all = ghosts.map(g => ({ n: g.n, col: g.col, ghost: g }));
+  for (const n of N) all.push({ n, col: C.get(n.id) || '' });
+  drawN = all.map((d, i) => ({ ...d, g: gs[i] }));
   if (!keepView) ensureVisible();
   apply();
   kick();
 }
 /* cel węzła: pozycja z układu, a w trakcie przeciągania – kursor (+ przesunięcie potomków) */
+/** @param {MapNode} n @returns {[number, number]} */
 function target(n) {
   if (dnd) {
     if (n === dnd.node) return [dnd.gx, dnd.gy];
@@ -139,6 +160,7 @@ function target(n) {
   }
   return [n.x, n.y];
 }
+/** krok sprężyn; zwraca true, jeśli coś się jeszcze rusza @param {number} dt [s] @param {boolean} [snap] od razu do celu */
 function step(dt, snap) {
   let moving = false;
   const K = 260,
@@ -149,8 +171,9 @@ function step(dt, snap) {
       gh = d.ghost;
     let gx, gy;
     if (gh) {
-      const a = P(gh.anc);
-      gx = a.x + (gh.anc.w - n.w) / 2;
+      const anc = /** @type {MapNode} */ (gh.anc),
+        a = P(anc);
+      gx = a.x + (anc.w - n.w) / 2;
       gy = a.y;
     } else [gx, gy] = target(n);
     if (snap || (dnd && n === dnd.node)) {
@@ -189,11 +212,11 @@ function draw() {
   for (const d of drawN) {
     const p = P(d.n);
     d.g.setAttribute('transform', `translate(${p.x - d.n.x} ${p.y - d.n.y})`);
-    if (d.ghost) d.g.style.opacity = d.ghost.done ? 0 : (d.ghost.k ?? 1);
+    if (d.ghost) d.g.style.opacity = String(d.ghost.done ? 0 : (d.ghost.k ?? 1));
   }
   for (const e of drawE) {
     e.el.setAttribute('d', edgeD(e.p, e.c));
-    if (e.ghost) e.el.style.opacity = e.ghost.done ? 0 : (e.ghost.k ?? 1);
+    if (e.ghost) e.el.style.opacity = String(e.ghost.done ? 0 : (e.ghost.k ?? 1));
   }
   placeEd();
 }
@@ -216,6 +239,7 @@ function kick() {
     raf = requestAnimationFrame(frame);
   }
 }
+/** @param {number} t czas z requestAnimationFrame */
 function frame(t) {
   raf = 0;
   const dt = Math.min(1 / 30, Math.max(0, (t - lastT) / 1000)) || 1 / 60;
@@ -266,6 +290,7 @@ function fitView() {
   ty = r.height / 2 - ((b.y0 + b.y1) / 2) * k;
   apply();
 }
+/** po zmianie modelu: render + autozapis @param {boolean} [keepView] */
 function changed(keepView) {
   render(keepView);
   dirty = true;
@@ -275,8 +300,7 @@ function changed(keepView) {
 }
 function showSel() {
   let f = S();
-  if (!f) return;
-  while (f.p) {
+  while (f && f.p) {
     if (f.p.collapsed) f.p.collapsed = false;
     f = find(f.p.id);
   }

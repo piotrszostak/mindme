@@ -1,1 +1,25 @@
-{"name":"mindmap","version":"0.3.0","private":true,"scripts":{"serve":"npx serve www","android":"cap sync android && cap open android","tauri":"tauri build --bundles appimage","test":"playwright test","format":"prettier --write www/js www/css www/sw.js tests playwright.config.js"},"devDependencies":{"@capacitor/cli":"^6","@playwright/test":"1.65.1","@tauri-apps/cli":"^2","prettier":"^3.10.1"},"dependencies":{"@capacitor/android":"^6","@capacitor/core":"^6"}}
+{
+  "name": "mindmap",
+  "version": "0.3.0",
+  "private": true,
+  "scripts": {
+    "serve": "npx serve www",
+    "android": "cap sync android && cap open android",
+    "tauri": "tauri build --bundles appimage",
+    "test": "playwright test",
+    "format": "prettier --write www types tests playwright.config.js tsconfig.json tsconfig.sw.json",
+    "check": "tsc -p tsconfig.json && tsc -p tsconfig.sw.json",
+    "verify": "npm run check && prettier --check www types tests playwright.config.js && playwright test"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6",
+    "@playwright/test": "1.65.1",
+    "@tauri-apps/cli": "^2",
+    "prettier": "^3.10.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6",
+    "@capacitor/core": "^6"
+  }
+}

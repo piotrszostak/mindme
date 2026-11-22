@@ -1,5 +1,6 @@
 /* Pomoc: treść (HELP) i panel. */
 /* ---- pomoc ---- */
+/** @type {Record<string, [string, string][]>} sekcja → [klawisze rozdzielone „|”, opis] */
 const HELP = {
   Mysz: [
     ['klik', 'zaznacz'],
@@ -77,7 +78,8 @@ const HELP = {
 function buildHelp() {
   const touch = matchMedia('(hover: none)').matches,
     order = Object.keys(HELP);
-  if (touch) order.sort((a, b) => (b === 'Dotyk') - (a === 'Dotyk')); /* na telefonie najpierw gesty dotykowe */
+  if (touch)
+    order.sort((a, b) => Number(b === 'Dotyk') - Number(a === 'Dotyk')); /* na telefonie najpierw gesty dotykowe */
   $('help').innerHTML =
     `<div class="hh"><b>Pomoc</b><span>Esc lub ? – zamknij</span><button id="hx" type="button" aria-label="Zamknij pomoc" title="Zamknij (Esc)">${icon('close')}</button></div><div class="hb">` +
     order
@@ -105,8 +107,8 @@ function toggleHelp() {
   if (open) {
     const hh = h.getBoundingClientRect().height,
       mh = $('main').getBoundingClientRect().height;
-    h.dataset.shift = hh < mh - 2 ? hh / 2 : 0;
+    h.dataset.shift = String(hh < mh - 2 ? hh / 2 : 0);
   }
-  ty += (open ? -1 : 1) * (+h.dataset.shift || 0);
+  ty += (open ? -1 : 1) * (Number(h.dataset.shift) || 0);
   apply();
 }

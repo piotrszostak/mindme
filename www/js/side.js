@@ -1,4 +1,5 @@
 /* Panel „Wygląd mapy”: czcionki, linie, węzły, odstępy, palety kolorów. */
+/** @type {[string, SideItem[]][]} sekcje panelu: [nagłówek, pozycje] */
 const SIDE = [
   [
     'Tekst',
@@ -57,6 +58,7 @@ const SIDE = [
   ],
 ];
 /* palety: wbudowane presety + własne poprawki użytkownika (zapamiętane na urządzeniu) */
+/** @type {Record<string, string[]>} */
 const PAL0 = {
   Domyślna: DEF.colors,
   Pastelowa: ['#f4a6a6', '#9fd8a8', '#a6c4f4', '#e6a8d7', '#f7c99a', '#93d3d6'],
@@ -67,24 +69,34 @@ const PAL0 = {
   Neon: ['#ff006e', '#fb5607', '#e0a800', '#3a86ff', '#8338ec', '#06b88a'],
   Monochromatyczna: Array(6).fill('#2f6fed'),
 };
+/** @type {Record<string, string[]>} własne poprawki palet (localStorage) */
 let palOv = {};
 try {
   palOv = JSON.parse(localStorage.getItem('mm.pal') || '{}');
 } catch (e) {}
+/** kolory palety (z poprawkami użytkownika) @param {string} n */
 const pal = n => (palOv[n] || PAL0[n] || DEF.colors).slice();
-let sideSnap = false,
-  palEdit = false;
+/** jeden krok cofania na całe przeciągnięcie suwaka */
+let sideSnap = false;
+let palEdit = false;
+function savePalOv() {
+  try {
+    localStorage.setItem('mm.pal', JSON.stringify(palOv));
+  } catch (e) {}
+}
+/** @param {StyleKey} k @param {MapStyle[StyleKey]} v @param {boolean} [commit] koniec gestu */
 function setStyle(k, v, commit) {
   if (!sideSnap) {
     snap();
     sideSnap = true;
   }
   if (commit) sideSnap = false;
-  ST[k] = v;
+  /** @type {any} */ (ST)[k] = v; // klucz i wartość pochodzą z opisu panelu (SIDE)
   stDirty = true;
   changed(true);
   syncSide();
 }
+/** @param {string} n nazwa palety */
 function choosePal(n) {
   sideSnap = false;
   snap();
@@ -94,21 +106,25 @@ function choosePal(n) {
   changed(true);
   syncSide();
 }
+/** elementy panelu według selektora @template {HTMLElement} T @param {string} sel @returns {T[]} */
+const sideAll = sel => /** @type {T[]} */ ([...$('side').querySelectorAll(sel)]);
+/** @param {HTMLElement} el */
+const styleKey = el => /** @type {StyleKey} */ (el.dataset.k);
+/** @param {SideItem} it */
+function sideItemHTML(it) {
+  if (it.opts)
+    return `<label>${it.t}</label><div class="seg${it.font ? ' fonts' : ''}" data-k="${it.k}">${it.opts
+      .map(
+        ([v, l]) =>
+          `<button type="button" data-v="${v}"${it.font ? ` style='font-family:${FONTS[v][1]}'` : ''}>${l}</button>`
+      )
+      .join('')}</div>`;
+  return `<label for="st-${it.k}">${it.t}<output id="so-${it.k}"></output></label><input type="range" id="st-${it.k}" data-k="${it.k}" min="${it.min}" max="${it.max}" step="${it.step}">`;
+}
 function buildSide() {
-  const sd = $('side');
-  sd.innerHTML =
+  $('side').innerHTML =
     `<div class="hh"><b>Wygląd mapy</b><button id="sx" type="button" aria-label="Zamknij" title="Zamknij (Esc)">${icon('close')}</button></div><div class="sb">` +
-    SIDE.map(
-      ([h, items]) =>
-        `<h3>${h}</h3>` +
-        items
-          .map(it =>
-            it.opts
-              ? `<label>${it.t}</label><div class="seg${it.font ? ' fonts' : ''}" data-k="${it.k}">${it.opts.map(([v, l]) => `<button type="button" data-v="${v}"${it.font ? ` style='font-family:${FONTS[v][1]}'` : ''}>${l}</button>`).join('')}</div>`
-              : `<label for="st-${it.k}">${it.t}<output id="so-${it.k}"></output></label><input type="range" id="st-${it.k}" data-k="${it.k}" min="${it.min}" max="${it.max}" step="${it.step}">`
-          )
-          .join('')
-    ).join('') +
+    SIDE.map(([h, items]) => `<h3>${h}</h3>` + items.map(sideItemHTML).join('')).join('') +
     `<h3>Kolory gałęzi</h3><div class="pals">${Object.keys(PAL0)
       .map(
         n =>
@@ -119,44 +135,38 @@ function buildSide() {
     `<button type="button" id="palreset" class="wide">Przywróć oryginalną paletę</button></div>` +
     `<button type="button" class="reset" id="sreset">Przywróć domyślne</button></div>`;
   $('sx').onclick = toggleSide;
-  sd.querySelectorAll('input[type=range]').forEach(r => {
-    r.oninput = () => setStyle(r.dataset.k, +r.value);
-    r.onchange = () => {
+  for (const r of sideAll('input[type=range]')) {
+    const el = /** @type {HTMLInputElement} */ (r);
+    el.oninput = () => setStyle(styleKey(el), +el.value);
+    el.onchange = () => (sideSnap = false);
+  }
+  for (const b of sideAll('.seg button')) {
+    const seg = /** @type {HTMLElement} */ (b.closest('.seg'));
+    b.onclick = () => {
       sideSnap = false;
+      setStyle(styleKey(seg), b.dataset.v || '', true);
     };
-  });
-  sd.querySelectorAll('.seg button').forEach(
-    b =>
-      (b.onclick = () => {
-        sideSnap = false;
-        setStyle(b.parentNode.dataset.k, b.dataset.v, true);
-      })
-  );
-  sd.querySelectorAll('[data-pal]').forEach(b => (b.onclick = () => choosePal(b.dataset.pal)));
+  }
+  for (const b of sideAll('[data-pal]')) b.onclick = () => choosePal(b.dataset.pal || '');
   $('paledit').onclick = () => {
     palEdit = !palEdit;
     syncSide();
   };
   /* edycja zmienia preset (na tym urządzeniu) i kolory bieżącej mapy */
-  sd.querySelectorAll('input[type=color]').forEach(c => {
-    c.oninput = () => {
+  for (const c of sideAll('input[type=color]')) {
+    const el = /** @type {HTMLInputElement} */ (c);
+    el.oninput = () => {
       const a = ST.colors.slice();
-      a[+c.dataset.ci] = c.value;
+      a[Number(el.dataset.ci)] = el.value;
       palOv[ST.palette] = a;
-      try {
-        localStorage.setItem('mm.pal', JSON.stringify(palOv));
-      } catch (e) {}
+      savePalOv();
       setStyle('colors', a);
     };
-    c.onchange = () => {
-      sideSnap = false;
-    };
-  });
+    el.onchange = () => (sideSnap = false);
+  }
   $('palreset').onclick = () => {
     delete palOv[ST.palette];
-    try {
-      localStorage.setItem('mm.pal', JSON.stringify(palOv));
-    } catch (e) {}
+    savePalOv();
     choosePal(ST.palette);
   };
   $('sreset').onclick = () => {
@@ -170,34 +180,41 @@ function buildSide() {
   };
   syncSide();
 }
+/** pola panelu ← bieżący styl */
 function syncSide() {
-  const sd = $('side');
-  if (!sd.firstChild) return;
-  sd.querySelectorAll('input[type=range]').forEach(r => {
-    r.value = ST[r.dataset.k];
-    $('so-' + r.dataset.k).textContent = ST[r.dataset.k] + ' px';
-  });
-  sd.querySelectorAll('.seg').forEach(g =>
-    g.querySelectorAll('button').forEach(b => b.classList.toggle('on', ST[g.dataset.k] === b.dataset.v))
-  );
-  sd.querySelectorAll('[data-pal]').forEach(b => {
-    const n = b.dataset.pal;
+  if (!$('side').firstChild) return;
+  for (const r of sideAll('input[type=range]')) {
+    const el = /** @type {HTMLInputElement} */ (r),
+      key = styleKey(el);
+    el.value = String(ST[key]);
+    $(`so-${key}`).textContent = ST[key] + ' px';
+  }
+  for (const g of sideAll('.seg')) {
+    const key = styleKey(g);
+    g.querySelectorAll('button').forEach(b => b.classList.toggle('on', ST[key] === b.dataset.v));
+  }
+  for (const b of sideAll('[data-pal]')) {
+    const n = b.dataset.pal || '',
+      sw = b.querySelector('.sw');
     b.classList.toggle('on', ST.palette === n);
-    b.querySelector('.sw').innerHTML = (n === ST.palette ? ST.colors : pal(n))
-      .map(x => `<i style="background:${x}"></i>`)
-      .join('');
-  });
+    if (sw) sw.innerHTML = (n === ST.palette ? ST.colors : pal(n)).map(x => `<i style="background:${x}"></i>`).join('');
+  }
   $('paledit').textContent = (palEdit ? '▾ ' : '▸ ') + 'Edytuj paletę „' + ST.palette + '”';
   $('paled').hidden = !palEdit;
   $('palreset').hidden = !palOv[ST.palette];
-  sd.querySelectorAll('input[type=color]').forEach(c => (c.value = ST.colors[+c.dataset.ci] || '#888888'));
+  for (const c of sideAll('input[type=color]'))
+    /** @type {HTMLInputElement} */ (c).value = ST.colors[Number(c.dataset.ci)] || '#888888';
 }
 function toggleSide() {
   closeMenu();
   const o = $('side').classList.toggle('open');
   $('bp').classList.toggle('on', o);
   if (o) {
-    $('help').classList.contains('open') && toggleHelp();
+    if ($('help').classList.contains('open')) toggleHelp();
     syncSide();
-  } else if ($('side').contains(document.activeElement)) document.activeElement.blur();
-} /* fokus nie może zostać w ukrytym panelu */
+    return;
+  }
+  /* fokus nie może zostać w ukrytym panelu (połykałby skróty) */
+  const a = document.activeElement;
+  if (a instanceof HTMLElement && $('side').contains(a)) a.blur();
+}

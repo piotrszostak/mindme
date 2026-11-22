@@ -6,8 +6,12 @@ Użytkownik nie jest frontendowcem – tłumacz krótko, proponuj rozwiązania.
 ## Polecenia
 - `npx serve www -l 3000` – podgląd (http://localhost:3000)
 - `npx playwright test tests/menu.spec.js` – jeden obszar w trakcie pracy; `-g "nazwa"` – jeden test
-- `npm test` – całość (Chromium + `keys.spec.js` w Firefoksie) **przed commitem**
-- `npm run format` – Prettier (zawsze przed commitem)
+- `npm run check` – TypeScript (JSDoc, tryb strict) – szybki, uruchamiaj po każdej zmianie
+- `npm run format` – Prettier; `npm run verify` – typy + format + wszystkie testy (**przed commitem**)
+
+## Typy
+Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types/globals.d.ts` (`MapNode`, `Found`, `MapStyle`, `DragState`, `Elements`…).
+`$('id')` zwraca typ z mapy `Elements` – nowy element z id dopisz tam. Nie wyciszaj błędów `any` bez potrzeby.
 
 ## Mapa plików `www/js/` (zwykłe skrypty, NIE moduły – wspólny zakres globalny, kolejność w index.html ma znaczenie)
 | plik | zawartość |

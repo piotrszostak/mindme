@@ -3,9 +3,11 @@ buildHelp();
 buildSide();
 /* ---- górny pasek: tylko ikony + objaśnienia ---- */
 document.querySelectorAll('[data-ic]').forEach(b => {
-  b.innerHTML = icon(b.dataset.ic);
-  b.setAttribute('aria-label', b.dataset.tip);
+  if (!(b instanceof HTMLElement)) return;
+  b.innerHTML = icon(b.dataset.ic || '');
+  b.setAttribute('aria-label', b.dataset.tip || '');
 });
+/** punkt pod przyciskiem (pozycja menu) @param {Element} b @returns {[number, number]} */
 const below = b => {
   const r = b.getBoundingClientRect();
   return [r.left, r.bottom + 4];
@@ -15,8 +17,8 @@ $('bu').onclick = undo;
 $('br').onclick = redo;
 $('bf').onclick = fitView;
 $('bt').onclick = toggleText;
-$('bl').onclick = e => {
-  const [x, y] = below(e.currentTarget);
+$('bl').onclick = () => {
+  const [x, y] = below($('bl'));
   openMenu(
     Object.keys(LAY).map(d => ({
       ic: LAY[d][0],
@@ -29,8 +31,8 @@ $('bl').onclick = e => {
     y
   );
 };
-$('bm').onclick = e => {
-  const [x, y] = below(e.currentTarget);
+$('bm').onclick = () => {
+  const [x, y] = below($('bm'));
   moreMenu(x, y);
 };
 try {

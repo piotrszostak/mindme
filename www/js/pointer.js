@@ -1,17 +1,20 @@
 /* Zdarzenia myszy i dotyku: klik, dwuklik, przytrzymanie, PPM, zoom, pinch. */
 /* ---- zdarzenia: mysz i dotyk ---- */
-let drag = null,
-  moved = 0,
-  hold = null,
-  lastTap = { t: 0, id: 0 },
+/** @type {PointerDrag | null} */
+let drag = null;
+let moved = 0;
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let hold;
+let lastTap = { t: 0, id: 0 },
   pd = 0,
   lastMod = 0,
   lastPT = 'mouse';
 document.addEventListener(
   'pointerdown',
   e => {
-    if (menuOpen && !$('menu').contains(e.target)) closeMenu();
-    if (emoOpen && !$('emo').contains(e.target) && e.target !== $('edemo')) closeEmoji();
+    const t = e.target instanceof Node ? e.target : null;
+    if (menuOpen && !$('menu').contains(t)) closeMenu();
+    if (emoOpen && !$('emo').contains(t) && t !== $('edemo')) closeEmoji();
   },
   true
 );
@@ -179,17 +182,19 @@ setInterval(async () => {
     info('przeładowano zmiany z pliku');
   } catch (e) {}
 }, 2000);
+/** pobierz plik @param {Blob} b @param {string} n nazwa */
 function dl(b, n) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(b);
   a.download = n;
   a.click();
 }
+/** eksport mapy @param {string} t svg | png */
 function exportImg(t) {
   if (editing) endEdit();
   settle();
   const b = bounds();
-  const v = p => getComputedStyle(document.documentElement).getPropertyValue(p).trim(),
+  const v = (/** @type {string} */ p) => getComputedStyle(document.documentElement).getPropertyValue(p).trim(),
     P = 20,
     w = b.x1 - b.x0 + 2 * P,
     h = b.y1 - b.y0 + 2 * P;
@@ -204,9 +209,10 @@ function exportImg(t) {
       c.width = w * 2;
       c.height = h * 2;
       const x = c.getContext('2d');
+      if (!x) return;
       x.scale(2, 2);
       x.drawImage(im, 0, 0);
-      c.toBlob(bl => dl(bl, 'mapa.png'));
+      c.toBlob(bl => bl && dl(bl, 'mapa.png'));
     };
     im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
   } else dl(new Blob([s], { type: 'image/svg+xml' }), 'mapa.svg');

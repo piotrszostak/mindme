@@ -1,40 +1,64 @@
-<!DOCTYPE html>
-<html lang="pl"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#2f6fed"><link rel="icon" href="icon-192.png"><title>Mapa myśli</title>
-<link rel="stylesheet" href="css/app.css">
-</head><body>
-<div id="top">
- <button id="bm" data-ic="more" data-tip="Menu: otwórz, zapisz, nowa mapa, eksport, motyw, pomoc"></button>
- <span class="sep"></span>
- <button id="bu" data-ic="undo" data-tip="Cofnij (Ctrl+Z, u)"></button>
- <button id="br" data-ic="redo" data-tip="Ponów (Ctrl+Y, Ctrl+R)"></button>
- <span class="sep"></span>
- <button id="bl" data-ic="lright" data-tip="Układ mapy"></button>
- <button id="bf" data-ic="fit" data-tip="Dopasuj widok do ekranu (=)"></button>
- <span class="sep"></span>
- <button id="bt" data-ic="text" data-tip="Edytuj jako tekst Markdown (:text)"></button>
- <span style="flex:1"></span>
- <button id="bp" class="tr" data-ic="sliders" data-tip="Wygląd mapy: tekst, linie, węzły, odstępy, kolory"></button>
-</div>
-<div id="main"><svg id="sv"><g id="g"></g></svg><textarea id="txt" spellcheck="false"></textarea><textarea id="ed" rows="1" spellcheck="false" enterkeyhint="next"></textarea><div id="help"></div><aside id="side" aria-label="Wygląd mapy"></aside><button id="edemo" type="button" title="Wstaw emoji (Ctrl+.)" aria-label="Wstaw emoji">😊</button></div>
-<div id="st"><span id="mode">NORMAL</span><input id="cmd"><span id="info"></span><span id="hint"></span><span id="save"></span></div>
-<div id="menu" role="menu"></div><div id="emo" role="dialog" aria-label="Wybór emoji"></div>
-<!-- skrypty zwykłe (nie moduły): dzielą jeden zakres globalny; kolejność ma znaczenie -->
-<script src="js/core.js"></script>
-<script src="js/icons.js"></script>
-<script src="js/layout.js"></script>
-<script src="js/render.js"></script>
-<script src="js/edit.js"></script>
-<script src="js/ops.js"></script>
-<script src="js/emoji.js"></script>
-<script src="js/menu.js"></script>
-<script src="js/keys.js"></script>
-<script src="js/files.js"></script>
-<script src="js/help.js"></script>
-<script src="js/side.js"></script>
-<script src="js/dnd.js"></script>
-<script src="js/pointer.js"></script>
-<script src="js/main.js"></script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
-</body></html>
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#2f6fed" />
+    <link rel="icon" href="icon-192.png" />
+    <title>Mapa myśli</title>
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div id="top">
+      <button id="bm" data-ic="more" data-tip="Menu: otwórz, zapisz, nowa mapa, eksport, motyw, pomoc"></button>
+      <span class="sep"></span>
+      <button id="bu" data-ic="undo" data-tip="Cofnij (Ctrl+Z, u)"></button>
+      <button id="br" data-ic="redo" data-tip="Ponów (Ctrl+Y, Ctrl+R)"></button>
+      <span class="sep"></span>
+      <button id="bl" data-ic="lright" data-tip="Układ mapy"></button>
+      <button id="bf" data-ic="fit" data-tip="Dopasuj widok do ekranu (=)"></button>
+      <span class="sep"></span>
+      <button id="bt" data-ic="text" data-tip="Edytuj jako tekst Markdown (:text)"></button>
+      <span style="flex: 1"></span>
+      <button
+        id="bp"
+        class="tr"
+        data-ic="sliders"
+        data-tip="Wygląd mapy: tekst, linie, węzły, odstępy, kolory"
+      ></button>
+    </div>
+    <div id="main">
+      <svg id="sv"><g id="g"></g></svg><textarea id="txt" spellcheck="false"></textarea
+      ><textarea id="ed" rows="1" spellcheck="false" enterkeyhint="next"></textarea>
+      <div id="help"></div>
+      <aside id="side" aria-label="Wygląd mapy"></aside>
+      <button id="edemo" type="button" title="Wstaw emoji (Ctrl+.)" aria-label="Wstaw emoji">😊</button>
+    </div>
+    <div id="st">
+      <span id="mode">NORMAL</span><input id="cmd" /><span id="info"></span><span id="hint"></span
+      ><span id="save"></span>
+    </div>
+    <div id="menu" role="menu"></div>
+    <div id="emo" role="dialog" aria-label="Wybór emoji"></div>
+    <!-- skrypty zwykłe (nie moduły): dzielą jeden zakres globalny; kolejność ma znaczenie -->
+    <script src="js/core.js"></script>
+    <script src="js/icons.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/edit.js"></script>
+    <script src="js/ops.js"></script>
+    <script src="js/emoji.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/keys.js"></script>
+    <script src="js/files.js"></script>
+    <script src="js/help.js"></script>
+    <script src="js/side.js"></script>
+    <script src="js/dnd.js"></script>
+    <script src="js/pointer.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+    </script>
+  </body>
+</html>

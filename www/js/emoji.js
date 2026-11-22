@@ -1,5 +1,6 @@
 /* Okienko wyboru emoji. */
 /* ---- emoji: okienko z kategoriami i ostatnio użytymi ---- */
+/** @type {Record<string, string>} kategoria → emoji rozdzielone spacją */
 const EMO = {
   Buźki: '😀 😃 😄 😁 😆 😅 😂 🙂 😉 😊 😇 😍 🤩 😘 😎 🤓 🤔 🤨 😐 🙄 😴 😮 😲 😬 😢 😭 😡 🤯 🥳 🤗 🥺 😷',
   Gesty: '👍 👎 👌 ✌️ 🤞 👏 🙌 🙏 💪 👀 🧠 👋 ✋ 👉 👈 👆 👇 🤝 🫶 ✍️ 🧑‍💻 👥 🏃 🧘',
@@ -9,9 +10,10 @@ const EMO = {
   Natura: '🌱 🌳 🌸 🌻 🍀 🌍 ☀️ 🌙 ☁️ ⛈️ ❄️ 🌈 🌊 🐶 🐱 🐞 🦋 🐝 🍎 🍋 🍕 ☕ 🍰 🥗',
   Rzeczy: '🏠 🏢 🚗 ✈️ 🚲 🎵 🎨 📚 🎓 🏆 🎁 💰 💳 🛒 🧳 ⚽ 🎮 🏥 💊 🧹 🔧 🔋 📷 🎬',
 };
-let emoOpen = false,
-  emoTab = '',
-  emoRecent = [];
+let emoOpen = false;
+let emoTab = '';
+/** @type {string[]} */
+let emoRecent = [];
 try {
   emoRecent = JSON.parse(localStorage.getItem('mm.emo') || '[]');
 } catch (e) {}
@@ -23,7 +25,9 @@ function drawEmoji() {
     `<div class="tabs">${cats.map(c => `<button type="button" data-tab="${c}" title="${c}"${c === emoTab ? ' class="on"' : ''}>${c === 'Ostatnie' ? '🕘' : EMO[c].split(' ')[0]}</button>`).join('')}</div>` +
     `<div class="cap">${c2(emoTab)}</div><div class="grid">${list.map(e => `<button type="button" data-e="${e}">${e}</button>`).join('')}</div>`;
 }
+/** @param {string} t */
 const c2 = t => (t === 'Ostatnie' ? 'Ostatnio użyte' : t);
+/** @param {number} x @param {number} y */
 function openEmoji(x, y) {
   closeMenu();
   const m = $('emo');
@@ -41,6 +45,7 @@ function closeEmoji() {
   $('emo').classList.remove('open');
 }
 /* w edycji: w miejscu kursora; poza edycją: na początku tekstu zaznaczonego węzła */
+/** w edycji – w miejscu kursora; poza nią – na końcu tekstu węzła @param {string} em */
 function insertEmoji(em) {
   emoRecent = [em].concat(emoRecent.filter(x => x !== em)).slice(0, 16);
   try {
@@ -66,13 +71,13 @@ function insertEmoji(em) {
   $('edemo').addEventListener(t, e => e.preventDefault());
 }); /* nie zabieraj fokusu polu edycji */
 $('emo').addEventListener('click', e => {
-  const t = e.target.closest('button');
+  const t = asEl(e.target)?.closest('button');
   if (!t) return;
   if (t.dataset.tab) {
     emoTab = t.dataset.tab;
     return drawEmoji();
   }
-  insertEmoji(t.dataset.e);
+  if (t.dataset.e) insertEmoji(t.dataset.e);
 });
 $('edemo').addEventListener('click', () => {
   if (emoOpen) return closeEmoji();

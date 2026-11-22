@@ -8,7 +8,13 @@ let H = 30,
 /* zawijanie: maks. szerokość tekstu MAXT px, wysokość linii LH; pomiar przez canvas */
 let LH = 18,
   MAXT = 220;
-const cv = document.createElement('canvas').getContext('2d');
+/** kontekst 2D do pomiaru tekstu (zawsze dostępny w przeglądarkach) */
+function ctx2d() {
+  const c = document.createElement('canvas').getContext('2d');
+  if (!c) throw new Error('Brak obsługi canvas 2D');
+  return c;
+}
+const cv = ctx2d();
 cv.font = '14px system-ui,sans-serif';
 /* przelicz stałe układu ze stylu (domyślnie: tekst 14 px → węzeł 30 px, linia 18 px, margines 11 px) */
 function applyStyle() {
@@ -26,7 +32,7 @@ function applyStyle() {
   cvE.font = ST.fs + 'px ' + EMOJI_FONTS;
   wc.clear();
   const g = $('g');
-  g.style.setProperty('--nb', ST.nb);
+  g.style.setProperty('--nb', String(ST.nb));
   g.style.setProperty('--fs', ST.fs + 'px');
   g.style.setProperty('--ff', ff());
   g.style.setProperty('--fw', fw());
@@ -34,26 +40,31 @@ function applyStyle() {
 /* emoji mierzone i rysowane kolorową czcionką emoji (czcionka tekstu bywa z czarno-białymi wersjami, np. DejaVu) */
 const EMO_RE =
   /(\p{Regional_Indicator}{2}|[#*0-9]️?⃣|\p{Extended_Pictographic}(?:️|\p{Emoji_Modifier}|‍\p{Extended_Pictographic}️?)*)/u;
-const cvE = document.createElement('canvas').getContext('2d');
+const cvE = ctx2d();
+/** tekst → odcinki [tekst, czyEmoji] @type {(s: string) => [string, boolean][]} */
 const segs = s =>
   s
     .split(EMO_RE)
-    .map((t, i) => [t, i % 2 === 1])
+    .map((t, i) => /** @type {[string, boolean]} */ ([t, i % 2 === 1]))
     .filter(x => x[0]); /* [tekst, czy emoji] */
+/** szerokość tekstu w px @param {string} s */
 const tw = s => {
   if (!EMO_RE.test(s)) return cv.measureText(s).width;
   let w = 0;
   for (const [t, e] of segs(s)) w += (e ? cvE : cv).measureText(t).width;
   return w;
 };
+/** linia węzła jako SVG (emoji w osobnych tspan) @param {string} l */
 const lineHTML = l =>
   segs(l)
     .map(([t, e]) => (e ? `<tspan class="emo">${t}</tspan>` : esc(t)))
     .join('');
+/** @type {(w: string) => string[]} */
 const graphemes = w =>
   window.Intl && Intl.Segmenter
     ? [...new Intl.Segmenter('pl', { granularity: 'grapheme' }).segment(w)].map(x => x.segment)
     : Array.from(w);
+/** zawija tekst do szerokości MAXT @param {string} s @returns {string[]} */
 function wrap(s) {
   const out = [];
   let line = '';
@@ -82,7 +93,9 @@ function wrap(s) {
   if (line || !out.length) out.push(line);
   return out;
 }
+/** @type {Map<string, {L: string[], w: number, h: number}>} pamięć pomiaru tekstu */
 const wc = new Map();
+/** rozmiar węzła i jego linie (z pamięci `wc`) @param {MapNode} n */
 function fit(n) {
   if (n.ph) {
     n.lines = [];
@@ -101,13 +114,16 @@ function fit(n) {
   n.h = r.h;
   return r;
 }
+/** @param {MapNode} n */
 function W(n) {
   return fit(n).w;
 }
+/** przesuń gałąź w pionie @param {MapNode} n @param {number} d */
 function shY(n, d) {
   n.y += d;
   if (!n.collapsed) n.children.forEach(c => shY(c, d));
 }
+/** układ poziomy gałęzi; zwraca jej wysokość @param {MapNode} n @param {number} x @param {number} y @param {number} s strona @returns {number} */
 function layN(n, x, y, s) {
   n.x = x;
   n.s = s;
@@ -125,6 +141,7 @@ function layN(n, x, y, s) {
   n.y = (ch[0].y + ch[ch.length - 1].y) / 2;
   return t;
 }
+/** układ rodzeństwa @param {MapNode[]} list @param {number} px @param {number} pw @param {number} y @param {number} s */
 function grp(list, px, pw, y, s) {
   let t = 0;
   for (const c of list) {
@@ -134,19 +151,24 @@ function grp(list, px, pw, y, s) {
   }
   return t - GAP;
 }
+/** szerokość gałęzi w układzie „dół” @param {MapNode} n @returns {number} */
 function sw(n) {
   n.w = W(n);
   const ch = n.collapsed ? [] : n.children;
   return Math.max(n.w, ch.reduce((a, c) => a + sw(c), 0) + Math.max(0, ch.length - 1) * (ST.gapY + 6));
 }
-let RT = [],
-  RH = []; /* układ w dół: górna krawędź i wysokość każdego rzędu (poziomu) */
+/** @type {number[]} */
+let RT = [];
+/** @type {number[]} */
+let RH = []; /* układ w dół: górna krawędź i wysokość każdego rzędu (poziomu) */
+/** wysokości rzędów w układzie „dół” @param {MapNode} n @param {number} d @param {number[]} a @returns {number[]} */
 function rows(n, d, a) {
   W(n);
   a[d] = Math.max(a[d] || 0, n.h);
   if (!n.collapsed) n.children.forEach(c => rows(c, d + 1, a));
   return a;
 }
+/** układ „dół” @param {MapNode} n @param {number} l lewa krawędź @param {number} d poziom */
 function layD(n, l, d) {
   n.s = 0;
   const w = sw(n),
@@ -159,6 +181,7 @@ function layD(n, l, d) {
     x += sw(c) + ST.gapY + 6;
   }
 }
+/** układ jednego drzewa (korzeń w x=0) @param {MapNode} r */
 function layTree(r) {
   r.w = W(r);
   r.s = 1;
@@ -170,8 +193,9 @@ function layTree(r) {
     RH.reduce((y, h, i) => ((RT[i] = y), y + h + ST.gapX - 4), 0);
     return layD(r, 0, 0);
   }
-  let R = ch,
-    L = [];
+  let R = ch;
+  /** @type {MapNode[]} lewa strona (układy left/both) */
+  let L = [];
   if (dir === 'left') {
     R = [];
     L = ch;
@@ -187,6 +211,7 @@ function layTree(r) {
   L.forEach(c => shY(c, (T - hl) / 2));
   r.y = T / 2;
 }
+/** @param {MapNode} n @param {number} dx @param {number} dy */
 function shXY(n, dx, dy) {
   n.x += dx;
   n.y += dy;

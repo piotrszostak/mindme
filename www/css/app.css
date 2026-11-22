@@ -350,13 +350,6 @@ svg {
   padding: 4px;
   min-width: 200px;
 }
-#menu .row {
-  display: flex;
-  gap: 2px;
-  padding: 4px 0 0;
-  margin-top: 4px;
-  border-top: 1px solid var(--line);
-}
 #menu .mh {
   box-sizing: border-box;
   width: 0;
@@ -370,25 +363,7 @@ svg {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#menu .row button {
-  flex: 1;
-  min-width: 44px;
-  height: 42px;
-  padding: 0 4px;
-  border: 0;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-#menu .row small {
-  font-size: 10px;
-  opacity: 0.8;
-  white-space: nowrap;
-}
-#menu .row button.on {
+#menu button.on {
   color: var(--acc);
   background: var(--bar);
 }
@@ -422,9 +397,6 @@ svg {
   margin: 4px 0;
 }
 @media (hover: none) {
-  #menu .row button {
-    height: 48px;
-  }
   #menu .mi {
     padding: 11px 10px;
   }

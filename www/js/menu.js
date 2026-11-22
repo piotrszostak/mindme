@@ -1,24 +1,21 @@
 /* Menu: podręczne (PPM / przytrzymanie / Shift+F10), „…”, układ. */
 /* ---- menu kontekstowe (PPM / długie przytrzymanie / klawisz Menu) ---- */
+/** @param {MenuEntry[]} items @param {number} x @param {number} y @param {boolean} [touch] otwarte palcem */
 function openMenu(items, x, y, touch) {
   closeMenu();
   const m = $('menu');
   m.innerHTML = '';
-  const btn = (it, cls) => {
+  /** @param {MenuItem} it */
+  const btn = it => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = cls;
+    b.className = 'mi';
     b.setAttribute('role', 'menuitem');
     if (it.id) b.dataset.act = it.id;
     if (it.tip) b.title = it.tip;
     b.disabled = !!it.off;
     if (it.on) b.classList.add('on');
-    if (cls === 'mi') b.innerHTML = icon(it.ic) + `<span>${esc(it.t)}</span>` + (it.k ? `<kbd>${esc(it.k)}</kbd>` : '');
-    else {
-      b.innerHTML = icon(it.ic) + `<small>${esc(it.s || it.t)}</small>`;
-      b.dataset.tip = it.t + (it.k ? ' (' + it.k + ')' : '');
-      b.setAttribute('aria-label', it.t);
-    }
+    b.innerHTML = icon(it.ic) + `<span>${esc(it.t)}</span>` + (it.k ? `<kbd>${esc(it.k)}</kbd>` : '');
     b.onclick = () => {
       closeMenu();
       it.f();
@@ -30,21 +27,14 @@ function openMenu(items, x, y, touch) {
       m.appendChild(document.createElement('hr'));
       continue;
     }
-    if (it.head) {
+    if ('head' in it) {
       const h = document.createElement('div');
       h.className = 'mh';
       h.textContent = it.head;
       m.appendChild(h);
       continue;
     }
-    if (it.row) {
-      const r = document.createElement('div');
-      r.className = 'row';
-      it.row.forEach(x => r.appendChild(btn(x, '')));
-      m.appendChild(r);
-      continue;
-    }
-    m.appendChild(btn(it, 'mi'));
+    m.appendChild(btn(it));
   }
   m.style.display = 'block';
   m.style.left = m.style.top = '0px';
@@ -58,16 +48,18 @@ function openMenu(items, x, y, touch) {
   }
   menuOpen = true;
   const first = m.querySelector('button:not(:disabled)');
-  if (first && !touch) first.focus({ preventScroll: true });
+  if (!(first instanceof HTMLElement)) return;
+  if (!touch) first.focus({ preventScroll: true });
 }
 function closeMenu() {
   if (!menuOpen) return;
   menuOpen = false;
   $('menu').style.display = 'none';
 }
+/** klawiatura w otwartym menu @param {KeyboardEvent} ev */
 function menuKey(ev) {
-  const bs = [...$('menu').querySelectorAll('button:not(:disabled)')],
-    i = bs.indexOf(document.activeElement);
+  const bs = [...$('menu').querySelectorAll('button:not(:disabled)')].filter(b => b instanceof HTMLElement),
+    i = bs.findIndex(b => b === document.activeElement);
   if (ev.key === 'Escape') {
     ev.preventDefault();
     closeMenu();
@@ -80,6 +72,7 @@ function menuKey(ev) {
     bs[(i + (ev.shiftKey ? -1 : 1) + bs.length) % bs.length].focus();
   }
 }
+/** jedno menu podręczne – zawsze dla zaznaczonego węzła @param {number} x @param {number} y @param {boolean} [touch] */
 function ctxMenu(x, y, touch) {
   const f = S(),
     n = f && f.n,
@@ -120,7 +113,7 @@ function ctxMenu(x, y, touch) {
         ic: 'paste',
         t: n ? 'Wklej jako dziecko' : 'Wklej jako nowy korzeń',
         k: 'Ctrl+V',
-        f: () => paste(1),
+        f: () => paste(true),
         off: !yank,
         id: 'paste',
       },
@@ -143,6 +136,7 @@ function ctxMenu(x, y, touch) {
     touch
   );
 }
+/** @param {number} x @param {number} y */
 function moreMenu(x, y) {
   openMenu(
     [
@@ -160,6 +154,7 @@ function moreMenu(x, y) {
     y
   );
 }
+/** środek zaznaczonego węzła na ekranie (albo środek widoku) @returns {[number, number]} */
 function nodeScreen() {
   const f = S(),
     r = $('sv').getBoundingClientRect();
@@ -167,6 +162,7 @@ function nodeScreen() {
   const n = f.n;
   return [r.left + (n.x + n.w / 2) * k + tx, r.top + (n.y + n.h / 2) * k + ty];
 }
+/** @param {string} d right | left | both | down */
 function setLayout(d) {
   if (!LAY[d]) return;
   dir = d;

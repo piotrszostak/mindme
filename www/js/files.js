@@ -31,16 +31,20 @@ async function save() {
   }
   if (window.showSaveFilePicker && !fh) {
     try {
-      fh = await showSaveFilePicker({ suggestedName: 'mapa.md', types: [{ accept: { 'text/markdown': ['.md'] } }] });
+      fh = await window.showSaveFilePicker({
+        suggestedName: 'mapa.md',
+        types: [{ accept: { 'text/markdown': ['.md'] } }],
+      });
       return autosave();
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (isAbort(e)) return;
     }
   }
   if (fh) return autosave();
   dl(new Blob([serialize(root)], { type: 'text/markdown' }), 'mapa.md');
   $('save').textContent = '✓ pobrano mapa.md';
 }
+/** wczytaj mapę z Markdownu (cofalne) @param {string} txt */
 function load(txt) {
   if (editing) endEdit();
   snap();
@@ -54,13 +58,14 @@ function load(txt) {
 async function openFile() {
   if (window.showOpenFilePicker) {
     try {
-      [fh] = await showOpenFilePicker({ types: [{ accept: { 'text/markdown': ['.md', '.txt'] } }] });
-      const f = await fh.getFile();
+      const [h] = await window.showOpenFilePicker({ types: [{ accept: { 'text/markdown': ['.md', '.txt'] } }] });
+      fh = h;
+      const f = await h.getFile();
       lastMod = f.lastModified;
       load(await f.text());
       return;
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (isAbort(e)) return;
       fh = null;
     }
   }
@@ -68,7 +73,8 @@ async function openFile() {
   i.type = 'file';
   i.accept = '.md,.txt';
   i.onchange = async () => {
-    if (i.files[0]) load(await i.files[0].text());
+    const file = i.files && i.files[0];
+    if (file) load(await file.text());
   };
   i.click();
 }
@@ -98,7 +104,7 @@ function syncText() {
   b.dataset.tip = tv ? 'Wróć do mapy (Esc)' : 'Edytuj jako tekst Markdown (:text)';
   b.setAttribute('aria-label', b.dataset.tip);
   b.classList.toggle('on', tv);
-  ['bu', 'br', 'bl', 'bf'].forEach(i => ($(i).disabled = tv));
+  /** @type {const} */ (['bu', 'br', 'bl', 'bf']).forEach(i => ($(i).disabled = tv));
 }
 $('txt').addEventListener('keydown', e => {
   e.stopPropagation();
@@ -108,6 +114,7 @@ $('txt').addEventListener('keydown', e => {
   }
 });
 /* ---- motyw ---- */
+/** @param {string} [v] dark | light; bez argumentu – przełącz */
 function toggleTheme(v) {
   const d = document.documentElement,
     now = d.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');

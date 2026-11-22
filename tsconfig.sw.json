@@ -1,0 +1,13 @@
+{
+  // Service Worker działa w innym środowisku (WebWorker) niż strona – osobna konfiguracja.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "WebWorker"],
+    "skipLibCheck": true
+  },
+  "include": ["www/sw.js"]
+}

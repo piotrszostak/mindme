@@ -1,5 +1,5 @@
 // Najpierw sieć (zawsze świeża wersja po aktualizacji), cache tylko jako zapas offline.
-const C = 'mm-v4',
+const C = 'mm-v5',
   A = [
     './',
     'index.html',
@@ -23,23 +23,25 @@ const C = 'mm-v4',
     'js/pointer.js',
     'js/main.js',
   ]; // przy nowym pliku dopisz go tutaj
-self.addEventListener('install', e =>
+/** @type {ServiceWorkerGlobalScope} */
+const sw = /** @type {any} */ (self);
+sw.addEventListener('install', e =>
   e.waitUntil(
     caches
       .open(C)
       .then(c => c.addAll(A))
-      .then(() => self.skipWaiting())
+      .then(() => sw.skipWaiting())
   )
 );
-self.addEventListener('activate', e =>
+sw.addEventListener('activate', e =>
   e.waitUntil(
     caches
       .keys()
       .then(k => Promise.all(k.filter(x => x !== C).map(x => caches.delete(x))))
-      .then(() => self.clients.claim())
+      .then(() => sw.clients.claim())
   )
 );
-self.addEventListener('fetch', e => {
+sw.addEventListener('fetch', e => {
   const q = e.request;
   if (q.method !== 'GET' || new URL(q.url).origin !== location.origin) return;
   e.respondWith(
@@ -51,6 +53,9 @@ self.addEventListener('fetch', e => {
         }
         return r;
       })
-      .catch(() => caches.match(q, { ignoreSearch: true }).then(r => r || caches.match('index.html')))
+      .catch(
+        async () =>
+          (await caches.match(q, { ignoreSearch: true })) || (await caches.match('index.html')) || Response.error()
+      )
   );
 });

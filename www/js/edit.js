@@ -29,6 +29,13 @@ function placeEd() {
   eb.style.left = Math.min(mw - bw - 4, (q.x + n.w) * k + tx + 6) + 'px';
   eb.style.top = q.y * k + ty - bw / 2 + 'px';
 } /* 2 px zapasu po prawej; przeglądarka potrafi przewinąć pole do kursora przed powiększeniem */
+/**
+ * Edycja tekstu w węźle.
+ * @param {number} id
+ * @param {boolean} [isNew] nowy węzeł (pusty zostanie usunięty)
+ * @param {number} [back] co zaznaczyć, jeśli nowy węzeł zniknie
+ * @param {boolean} [selectAll]
+ */
 function startEdit(id, isNew, back, selectAll) {
   if (!id) return;
   if (editing) {
@@ -56,6 +63,7 @@ function startEdit(id, isNew, back, selectAll) {
   hint('Enter / Esc / klik obok – zatwierdź · Tab – zatwierdź i dodaj dziecko');
 }
 /* zwraca true, jeśli węzeł został (pusty nowy węzeł jest usuwany) */
+/** zatwierdź edycję; zwraca true, jeśli węzeł został @param {boolean} [keepFocus] @returns {boolean} */
 function endEdit(keepFocus) {
   if (!editing) return false;
   const ed = editing,
@@ -103,7 +111,9 @@ ed.addEventListener('input', () => {
     render();
   }
 });
+/** klawisze w polu edycji; true = obsłużony @param {string} key @param {boolean} [shift] */
 function edKey(key, shift) {
+  if (!editing) return false;
   const id = editing.id;
   if (key === 'Escape') {
     endEdit();
@@ -140,21 +150,23 @@ ed.addEventListener('keydown', ev => {
 ed.addEventListener('blur', () => {
   if (editing && document.hasFocus()) endEdit();
 });
+/** nowy brat (dla kontenera / korzenia bez rodzica – dziecko) @param {number} id @param {boolean | number} after */
 function addSib(id, after) {
   const f = find(id);
-  if (!f.p) {
-    return addChild(id);
-  }
+  if (!f) return;
+  const p = f.p;
+  if (!p) return addChild(id);
   const back = sel;
   snap();
   const n = mk('');
-  const i = f.p.children.indexOf(f.n);
-  f.p.children.splice(i + (after ? 1 : 0), 0, n);
+  p.children.splice(p.children.indexOf(f.n) + (after ? 1 : 0), 0, n);
   startEdit(n.id, true, back);
 }
+/** @param {number} id */
 function addChild(id) {
   const f = find(id),
     back = sel;
+  if (!f) return;
   snap();
   const n = mk('');
   f.n.children.push(n);

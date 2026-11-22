@@ -1,6 +1,7 @@
 /* Klawiatura (tryb Normal: skrót zwykły + vim), wiersz poleceń „:” i wyszukiwanie „/”. */
 /* ---- tryb Normal (klawiatura) ---- */
 /* Skróty: dla każdej czynności jeden standardowy (Ctrl/klawisz specjalny) i jeden vim – bez duplikatów. */
+/** tryb Normal: wszystkie skróty mapy @param {KeyboardEvent} ev */
 function normal(ev) {
   if (dnd) return;
   const c = ev.key,
@@ -8,7 +9,8 @@ function normal(ev) {
     sh = ev.shiftKey;
   if (ctrl) {
     const k = c.length === 1 ? c.toLowerCase() : c;
-    const m = {
+    /** @type {Record<string, (() => unknown) | null>} */
+    const ctrlKeys = {
       z: sh ? null : undo,
       y: redo,
       r: redo,
@@ -22,7 +24,8 @@ function normal(ev) {
         const [x, y] = nodeScreen();
         openEmoji(x, y);
       },
-    }[k];
+    };
+    const m = ctrlKeys[k];
     if (m) {
       ev.preventDefault();
       m();
@@ -30,7 +33,9 @@ function normal(ev) {
     return;
   }
   if (ev.altKey) {
-    const m = { ArrowLeft: outdent, ArrowRight: indent, ArrowDown: () => moveSib(1), ArrowUp: () => moveSib(-1) }[c];
+    /** @type {Record<string, () => void>} */
+    const alt = { ArrowLeft: outdent, ArrowRight: indent, ArrowDown: () => moveSib(1), ArrowUp: () => moveSib(-1) };
+    const m = alt[c];
     if (m) {
       ev.preventDefault();
       m();
@@ -82,7 +87,7 @@ function normal(ev) {
       }
       for (let i = 0; i < n; i++) {
         const q = S();
-        if (q.p !== root) sel = q.p.id;
+        if (q && q.p && q.p !== root) sel = q.p.id;
       }
       render();
       break;
@@ -91,7 +96,10 @@ function normal(ev) {
         go(first().id);
         break;
       }
-      for (let i = 0; i < n; i++) toChild(S().n);
+      for (let i = 0; i < n; i++) {
+        const q = S();
+        if (q) toChild(q.n);
+      }
       render();
       break;
     case 'ArrowUp':
@@ -135,10 +143,10 @@ function normal(ev) {
       del();
       break;
     case 'p':
-      paste(1);
+      paste(true);
       break;
     case 'P':
-      paste(0);
+      paste(false);
       break;
     case ' ':
       fold();
@@ -191,6 +199,7 @@ function normal(ev) {
   ev.preventDefault();
 }
 /* ---- Command / wyszukiwanie ---- */
+/** @param {string} p ':' albo '/' */
 function openCmd(p) {
   setMode(p === ':' ? 'COMMAND' : 'SEARCH');
   const c = $('cmd');
@@ -216,10 +225,11 @@ $('cmd').addEventListener('keydown', ev => {
     v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1));
   }
 });
+/** @param {string} q */
 function search(q) {
   q = q.toLowerCase();
   hits = q
-    ? (function w(n, a = []) {
+    ? (function w(/** @type {MapNode} */ n, /** @type {number[]} */ a = []) {
         if (n.text.toLowerCase().includes(q)) a.push(n.id);
         n.children.forEach(c => w(c, a));
         return a;
@@ -229,6 +239,7 @@ function search(q) {
   info(hits.length + ' trafień');
   jump(1);
 }
+/** następne (1) / poprzednie (−1) trafienie @param {number} d */
 function jump(d) {
   if (!hits.length) return;
   hi = (hi + d + hits.length) % hits.length;
@@ -236,6 +247,7 @@ function jump(d) {
   showSel();
   go(sel);
 }
+/** komenda „:” @param {string} c */
 function exec(c) {
   const [a, ...r] = c.split(/\s+/);
   if (a === 'w' || a === 'write') save();
@@ -261,7 +273,7 @@ window.addEventListener('keydown', ev => {
     ev.preventDefault();
     return closeEmoji();
   }
-  if ($('side').classList.contains('open') && ev.target.closest && ev.target.closest('#side')) {
+  if ($('side').classList.contains('open') && asEl(ev.target)?.closest('#side')) {
     if (ev.key === 'Escape') {
       ev.preventDefault();
       toggleSide();

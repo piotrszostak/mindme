@@ -1,5 +1,6 @@
 /* Ikony SVG (24×24, kreska w kolorze tekstu) i nazwy układów. */
 /* ---- ikony (SVG 24×24, kreska w kolorze tekstu) ---- */
+/** @type {Record<string, string | [string, string?]>} */
 const IC = {
   open: 'M3 7h6l2 2h10v10H3z',
   save: 'M5 3h11l3 3v15H5z M8 3v5h8V3 M8 14h8v7H8z',
@@ -35,11 +36,13 @@ const IC = {
   lboth: ['M9 12h6 M9 12c-3 0-3-6-6-6 M9 12c-3 0-3 6-6 6 M15 12c3 0 3-6 6-6 M15 12c3 0 3 6 6 6'],
   ldown: ['M3 12h4 M7 12c4 0 4-6 8-6h6 M7 12h14 M7 12c4 0 4 6 8 6h6', 'rotate(90 12 12)'],
 };
+/** @param {string} n nazwa ikony z `IC` */
 const icon = n => {
   const v = IC[n],
     [d, t] = Array.isArray(v) ? v : [v];
   return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"${t ? ` transform="${t}"` : ''}/></svg>`;
 };
+/** @type {Record<string, [string, string]>} układ: [ikona, opis] */
 const LAY = {
   right: ['lright', 'w prawo'],
   left: ['lleft', 'w lewo'],
