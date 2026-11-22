@@ -1,0 +1,9 @@
+# zależności i wyniki testów
+node_modules/
+test-results/
+playwright-report/
+# biblioteki przeglądarek pobrane lokalnie (kontener bez roota)
+.pw-libs/
+# Capacitor / Tauri – generowane
+android/
+src-tauri/target/

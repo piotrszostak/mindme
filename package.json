@@ -1,0 +1,1 @@
+{"name":"mindmap","version":"0.3.0","private":true,"scripts":{"serve":"npx serve www","android":"cap sync android && cap open android","tauri":"tauri build --bundles appimage","test":"playwright test"},"devDependencies":{"@capacitor/cli":"^6","@playwright/test":"1.65.1","@tauri-apps/cli":"^2"},"dependencies":{"@capacitor/android":"^6","@capacitor/core":"^6"}}

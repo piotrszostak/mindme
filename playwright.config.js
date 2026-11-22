@@ -1,0 +1,29 @@
+// @ts-check
+const { defineConfig } = require('@playwright/test');
+const fs = require('fs'), path = require('path');
+// Kontener bez roota: biblioteki przeglądarek rozpakowane lokalnie z .deb (zob. tests/README.md)
+const libs = path.join(__dirname, '.pw-libs/root');
+// Firefox ma własne (nowsze) NSS – jego katalog musi być na ścieżce przed bibliotekami z Debiana.
+// Ustawiamy w procesie testów, bo Playwright tym środowiskiem sprawdza też zależności przeglądarek.
+if (fs.existsSync(libs)) {
+  let ffDir = [];
+  try { ffDir = [path.dirname(require('playwright-core').firefox.executablePath())]; } catch (e) {}
+  process.env.LD_LIBRARY_PATH = [...ffDir, libs + '/usr/lib/x86_64-linux-gnu', libs + '/lib/x86_64-linux-gnu', process.env.LD_LIBRARY_PATH].filter(Boolean).join(':');
+}
+
+module.exports = defineConfig({
+  testDir: 'tests',
+  use: {
+    baseURL: 'http://localhost:3000',
+    serviceWorkers: 'block', // bez cache SW – zawsze świeży index.html
+    reducedMotion: 'reduce', // animacje natychmiastowe; testy animacji włączają ruch same
+    viewport: { width: 1280, height: 800 },
+  },
+  webServer: { command: 'npx serve www -l 3000', url: 'http://localhost:3000', reuseExistingServer: true },
+  projects: [
+    { name: 'chromium', use: { browserName: 'chromium' } },
+    // Firefox: skróty klawiszowe przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”
+    { name: 'firefox', testMatch: /keys\.spec\.js/, use: { browserName: 'firefox',
+      launchOptions: { firefoxUserPrefs: { 'accessibility.typeaheadfind': true, 'accessibility.typeaheadfind.manual': true } } } },
+  ],
+});
