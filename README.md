@@ -1,5 +1,5 @@
 # Mapa myśli
-Aplikacja w `www/` (jeden plik index.html + PWA).
+Aplikacja w `www/` (PWA bez budowania: `index.html`, `css/app.css`, `js/*.js`). Testy: `npm test`, formatowanie: `npm run format`. Notatki dla agenta: `CLAUDE.md`.
 ## PWA (Android/Arch)
 Wrzuć `www/` na HTTPS (GitHub Pages/Netlify) → Chrome: „Zainstaluj aplikację”. Lokalnie: `npx serve www`.
 ## Android APK (Capacitor)
