@@ -1,6 +1,7 @@
 // Tryb offline: Service Worker musi mieć w cache każdy plik, który ładuje index.html.
 const { test, expect } = require('@playwright/test');
-const fs = require('fs'), path = require('path');
+const fs = require('fs'),
+  path = require('path');
 const www = path.join(__dirname, '..', 'www');
 
 test('sw.js ma w cache wszystkie skrypty i style z index.html', () => {

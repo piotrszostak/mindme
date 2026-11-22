@@ -3,28 +3,47 @@ const { open } = require('./helpers');
 
 test.beforeEach(async ({ page }) => open(page));
 
-const tree = (page, md) => page.evaluate(m => {
-  const strip = n => ({ text: n.text, ...(n.collapsed ? { collapsed: true } : {}), children: n.children.map(strip) });
-  const f = parse(m);
-  return { root: strip(f.children[0]), roots: f.children.map(strip), dir };
-}, md);
+const tree = (page, md) =>
+  page.evaluate(m => {
+    const strip = n => ({ text: n.text, ...(n.collapsed ? { collapsed: true } : {}), children: n.children.map(strip) });
+    const f = parse(m);
+    return { root: strip(f.children[0]), roots: f.children.map(strip), dir };
+  }, md);
 
 test('parsuje tytuł i zagnieżdżone listy', async ({ page }) => {
   const { root, dir } = await tree(page, '# Projekt\n\n- A\n  - A1\n  - A2\n    - A2a\n- B\n');
   expect(dir).toBe('right');
-  expect(root).toEqual({ text: 'Projekt', children: [
-    { text: 'A', children: [{ text: 'A1', children: [] }, { text: 'A2', children: [{ text: 'A2a', children: [] }] }] },
-    { text: 'B', children: [] },
-  ] });
+  expect(root).toEqual({
+    text: 'Projekt',
+    children: [
+      {
+        text: 'A',
+        children: [
+          { text: 'A1', children: [] },
+          { text: 'A2', children: [{ text: 'A2a', children: [] }] },
+        ],
+      },
+      { text: 'B', children: [] },
+    ],
+  });
 });
 
 test('akceptuje markery * i +, tabulatory i CRLF', async ({ page }) => {
   const { root } = await tree(page, '# T\r\n* a\r\n\t+ b\r\n\t\t- c\r\n');
-  expect(root).toEqual({ text: 'T', children: [{ text: 'a', children: [{ text: 'b', children: [{ text: 'c', children: [] }] }] }] });
+  expect(root).toEqual({
+    text: 'T',
+    children: [{ text: 'a', children: [{ text: 'b', children: [{ text: 'c', children: [] }] }] }],
+  });
 });
 
 test('bez nagłówka tworzy korzeń „Mapa”; pusty plik też', async ({ page }) => {
-  expect((await tree(page, '- x\n- y')).root).toEqual({ text: 'Mapa', children: [{ text: 'x', children: [] }, { text: 'y', children: [] }] });
+  expect((await tree(page, '- x\n- y')).root).toEqual({
+    text: 'Mapa',
+    children: [
+      { text: 'x', children: [] },
+      { text: 'y', children: [] },
+    ],
+  });
   expect((await tree(page, '')).root).toEqual({ text: 'Mapa', children: [] });
 });
 
@@ -49,7 +68,12 @@ test('pusty korzeń w środku nie zostawia podwójnych pustych linii', async ({ 
 test('wiele korzeni: zapis i odczyt bez strat, układ tylko raz pod pierwszym tytułem', async ({ page }) => {
   const md = '# A\n<!--layout:both-->\n\n- a1\n  - a11\n\n# B <!--c-->\n\n- b1\n\n# C\n\n';
   expect(await page.evaluate(m => serialize(parse(m)), md)).toBe(md);
-  expect(await page.evaluate(m => { const f = parse(m); return [f.children.length, f.children[1].collapsed, dir] }, md)).toEqual([3, true, 'both']);
+  expect(
+    await page.evaluate(m => {
+      const f = parse(m);
+      return [f.children.length, f.children[1].collapsed, dir];
+    }, md)
+  ).toEqual([3, true, 'both']);
 });
 
 test('<!--c--> oznacza zwinięty węzeł i jest usuwany z tekstu', async ({ page }) => {
@@ -72,7 +96,8 @@ test('serialize: format, zwinięcie tylko z dziećmi, layout tylko gdy ≠ right
 });
 
 test('round-trip parse∘serialize jest stabilny (także znaki specjalne)', async ({ page }) => {
-  const md = '# Zażółć <gęślą> & "jaźń"\n<!--layout:down-->\n\n- A & B\n  - <tag> <!--c-->\n    - głęboko\n- 100% * 2\n';
+  const md =
+    '# Zażółć <gęślą> & "jaźń"\n<!--layout:down-->\n\n- A & B\n  - <tag> <!--c-->\n    - głęboko\n- 100% * 2\n';
   expect(await page.evaluate(m => serialize(parse(m)), md)).toBe(md);
   expect(await page.evaluate(() => selfTest())).toBe(true);
 });

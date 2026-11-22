@@ -3,12 +3,14 @@ const { open, loadMap, boxes, expectNoOverlaps } = require('./helpers');
 
 test.beforeEach(async ({ page }) => open(page));
 
-const MD = (d) => `# Środek\n<!--layout:${d}-->\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n  - 2a\n    - 2a-i\n    - 2a-ii\n- Trzy\n- Cztery z dłuższym tekstem\n  - 4a\n`;
-const byText = (list) => Object.fromEntries(list.map(b => [b.text, b]));
+const MD = d =>
+  `# Środek\n<!--layout:${d}-->\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n  - 2a\n    - 2a-i\n    - 2a-ii\n- Trzy\n- Cztery z dłuższym tekstem\n  - 4a\n`;
+const byText = list => Object.fromEntries(list.map(b => [b.text, b]));
 
 test('prawo: dzieci na prawo od rodzica, brak nakładania', async ({ page }) => {
   const b = byText(await loadMap(page, MD('right')));
-  for (const t of ['Jeden', 'Dwa', 'Trzy', 'Cztery z dłuższym tekstem']) expect(b[t].x).toBeGreaterThan(b['Środek'].right);
+  for (const t of ['Jeden', 'Dwa', 'Trzy', 'Cztery z dłuższym tekstem'])
+    expect(b[t].x).toBeGreaterThan(b['Środek'].right);
   expect(b['2a-i'].x).toBeGreaterThan(b['2a'].right);
   expectNoOverlaps(Object.values(b));
 });
@@ -76,12 +78,25 @@ test('szerokość węzła rośnie z długością tekstu', async ({ page }) => {
 
 test('SVG odpowiada modelowi (prostokąty i krawędzie)', async ({ page }) => {
   const list = await loadMap(page, MD('right'));
-  const rects = await page.$$eval('#g .n', gs => gs.map(g => { const r = g.querySelector('rect');
-    return { id: +g.dataset.id, x: +r.getAttribute('x'), y: +r.getAttribute('y'), w: +r.getAttribute('width'), h: +r.getAttribute('height') }; }));
+  const rects = await page.$$eval('#g .n', gs =>
+    gs.map(g => {
+      const r = g.querySelector('rect');
+      return {
+        id: +g.dataset.id,
+        x: +r.getAttribute('x'),
+        y: +r.getAttribute('y'),
+        w: +r.getAttribute('width'),
+        h: +r.getAttribute('height'),
+      };
+    })
+  );
   expect(rects.length).toBe(list.length);
   for (const r of rects) {
     const b = list.find(n => n.id === r.id);
-    expect(r.x).toBeCloseTo(b.x); expect(r.y).toBeCloseTo(b.top); expect(r.w).toBeCloseTo(b.w); expect(r.h).toBeCloseTo(b.h);
+    expect(r.x).toBeCloseTo(b.x);
+    expect(r.y).toBeCloseTo(b.top);
+    expect(r.w).toBeCloseTo(b.w);
+    expect(r.h).toBeCloseTo(b.h);
   }
   await expect(page.locator('#g path')).toHaveCount(list.length - 1);
 });

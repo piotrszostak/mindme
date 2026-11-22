@@ -3,10 +3,12 @@ const { open, loadMap, expectNoOverlaps } = require('./helpers');
 
 test.beforeEach(async ({ page }) => open(page));
 
-const LONG = 'To jest bardzo długi tekst węzła, który zdecydowanie nie zmieści się w jednej linii i musi zostać zawinięty';
+const LONG =
+  'To jest bardzo długi tekst węzła, który zdecydowanie nie zmieści się w jednej linii i musi zostać zawinięty';
 const WORD = 'Konstantynopolitańczykowianeczka'.repeat(3);
-const byText = (list) => Object.fromEntries(list.map(b => [b.text, b]));
-const lines = (page, id) => page.$$eval(`#g .n[data-id="${id}"] tspan`, ts => ts.map(t => ({ s: t.textContent, y: +t.getAttribute('y') })));
+const byText = list => Object.fromEntries(list.map(b => [b.text, b]));
+const lines = (page, id) =>
+  page.$$eval(`#g .n[data-id="${id}"] tspan`, ts => ts.map(t => ({ s: t.textContent, y: +t.getAttribute('y') })));
 
 test('krótki tekst: jedna linia, wysokość 30', async ({ page }) => {
   const b = byText(await loadMap(page, '# R\n- krótki\n'));
@@ -19,7 +21,7 @@ test('długi tekst zawija się na słowach, węzeł rośnie w pionie, nie w pozi
   const n = b[LONG];
   const ls = await lines(page, n.id);
   expect(ls.length).toBeGreaterThan(2);
-  expect(ls.map(l => l.s).join(' ')).toBe(LONG);         // nic nie zgubione, podział na spacjach
+  expect(ls.map(l => l.s).join(' ')).toBe(LONG); // nic nie zgubione, podział na spacjach
   expect(n.w).toBeLessThanOrEqual(220 + 22 + 1);
   expect(n.h).toBe(ls.length * 18 + 12);
   // linie równo rozłożone i wyśrodkowane w prostokącie
@@ -46,7 +48,8 @@ test('słowo dłuższe niż limit jest dzielone na kawałki', async ({ page }) =
 });
 
 test('wysokie węzły nie nachodzą na siebie w żadnym układzie', async ({ page }) => {
-  const md = (d) => `# ${LONG}\n<!--layout:${d}-->\n- ${LONG}\n  - a\n  - ${WORD}\n- krótki\n  - ${LONG}\n- b\n- c\n- ${LONG} raz jeszcze\n`;
+  const md = d =>
+    `# ${LONG}\n<!--layout:${d}-->\n- ${LONG}\n  - a\n  - ${WORD}\n- krótki\n  - ${LONG}\n- b\n- c\n- ${LONG} raz jeszcze\n`;
   for (const d of ['right', 'left', 'both', 'down']) {
     const list = await loadMap(page, md(d));
     expectNoOverlaps(list);
@@ -57,12 +60,12 @@ test('rodzic wyższy niż jego dzieci nie nachodzi na sąsiada', async ({ page }
   const b = byText(await loadMap(page, `# R\n- przed\n- ${LONG}\n  - x\n- po\n`));
   expect(b[LONG].top).toBeGreaterThanOrEqual(b['przed'].bottom);
   expect(b['po'].top).toBeGreaterThanOrEqual(b[LONG].bottom);
-  expect(b.x.y).toBeCloseTo(b[LONG].y);   // jedyne dziecko na wysokości rodzica
+  expect(b.x.y).toBeCloseTo(b[LONG].y); // jedyne dziecko na wysokości rodzica
 });
 
 test('dół: rząd ma wysokość najwyższego węzła, kolejny rząd zaczyna się niżej', async ({ page }) => {
   const b = byText(await loadMap(page, `# R\n<!--layout:down-->\n- ${LONG}\n  - x\n- krótki\n  - y\n`));
-  expect(b['krótki'].y).toBeCloseTo(b[LONG].y);          // ten sam rząd, wyśrodkowane
+  expect(b['krótki'].y).toBeCloseTo(b[LONG].y); // ten sam rząd, wyśrodkowane
   expect(b.x.top).toBeGreaterThan(b[LONG].bottom);
   expect(b.y.y).toBeCloseTo(b.x.y);
 });
@@ -77,7 +80,7 @@ test('znacznik zwinięcia „…” trafia do ostatniej linii; zawijanie nie zmi
 
 test('edycja na długi tekst przelicza wysokość; znaki HTML są escapowane', async ({ page }) => {
   await loadMap(page, '# R\n- a\n');
-  await page.keyboard.press('l');            // zaznacz „a”
+  await page.keyboard.press('l'); // zaznacz „a”
   await page.keyboard.press('i');
   const txt = '<b>pogrubione?</b> ' + LONG;
   await page.fill('#ed', txt);
@@ -94,7 +97,14 @@ test('eksport SVG obejmuje pełną wysokość zawiniętych węzłów', async ({ 
   await page.keyboard.press(':');
   await page.keyboard.type('export svg');
   await page.keyboard.press('Enter');
-  const svg = await (await dl).createReadStream().then(s => new Promise(r => { let d = ''; s.on('data', c => d += c); s.on('end', () => r(d)); }));
+  const svg = await (await dl).createReadStream().then(
+    s =>
+      new Promise(r => {
+        let d = '';
+        s.on('data', c => (d += c));
+        s.on('end', () => r(d));
+      })
+  );
   const h = +/height="([\d.]+)"/.exec(svg)[1];
   const [n] = (await page.evaluate(() => vis().map(n => n.h))).slice(1);
   expect(h).toBeGreaterThanOrEqual(n + 40);
@@ -107,13 +117,17 @@ test('emoji: rysowane kolorową czcionką, mieszczą się w węźle, nie są ci�
   const n = b['🔍 Badania ✅'];
   await expect(page.locator(`#g .n[data-id="${n.id}"] .emo`)).toHaveCount(2);
   await expect(page.locator(`#g .n[data-id="${n.id}"] text`)).toHaveText('🔍 Badania ✅');
-  expect(await page.$eval(`#g .n[data-id="${n.id}"] .emo`, e => getComputedStyle(e).fontFamily)).toContain('Color Emoji');
+  expect(await page.$eval(`#g .n[data-id="${n.id}"] .emo`, e => getComputedStyle(e).fontFamily)).toContain(
+    'Color Emoji'
+  );
   for (const t of ['🔍 Badania ✅', E]) {
-    const widths = await page.$$eval(`#g .n[data-id="${b[t].id}"] text > tspan`, ts => ts.map(x => x.getComputedTextLength()));
+    const widths = await page.$$eval(`#g .n[data-id="${b[t].id}"] text > tspan`, ts =>
+      ts.map(x => x.getComputedTextLength())
+    );
     for (const w of widths) expect(w + 11).toBeLessThanOrEqual(b[t].w + 1);
   }
   const ls = await page.$$eval(`#g .n[data-id="${b[E].id}"] text > tspan`, ts => ts.map(t => t.textContent));
   expect(ls.length).toBeGreaterThan(1);
   expect(ls.join('')).toBe(E);
-  for (const l of ls) expect(l).not.toMatch(/[\uD800-\uDBFF]$|^[\uDC00-\uDFFF]/);   // żadnej połówki znaku
+  for (const l of ls) expect(l).not.toMatch(/[\uD800-\uDBFF]$|^[\uDC00-\uDFFF]/); // żadnej połówki znaku
 });

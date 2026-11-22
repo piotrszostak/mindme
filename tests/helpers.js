@@ -12,10 +12,22 @@ async function loadMap(page, md) {
 }
 
 function boxes(page) {
-  return page.evaluate(() => vis().map(n => {
-    const h = n.h || H;
-    return { id: n.id, text: n.text, x: n.x, y: n.y, w: n.w, h, top: n.y - h / 2, bottom: n.y + h / 2, right: n.x + n.w };
-  }));
+  return page.evaluate(() =>
+    vis().map(n => {
+      const h = n.h || H;
+      return {
+        id: n.id,
+        text: n.text,
+        x: n.x,
+        y: n.y,
+        w: n.w,
+        h,
+        top: n.y - h / 2,
+        bottom: n.y + h / 2,
+        right: n.x + n.w,
+      };
+    })
+  );
 }
 
 function overlaps(a, b) {

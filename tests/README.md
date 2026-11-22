@@ -5,17 +5,19 @@
 
 - `parser.spec.js` – parse/serialize, round-trip, `<!--c-->`, `<!--layout:-->`, widok tekstowy
 - `layout.spec.js` – układy right/left/both/down, brak nakładania, centrowanie, SVG vs model
-- `wrap.spec.js`   – zawijanie tekstu w węzłach (maks. 220 px tekstu, linia 18 px)
-- `keys.spec.js`   – skróty klawiszowe (vim) nie trafiają do przeglądarki; uruchamiany też w **Firefoksie** z włączonym „Szukaj tekstu podczas pisania”
-- `ui.spec.js`     – pasek ikon, przełącznik MD/mapa, menu podręczne, edycja w węźle, klawiatura, drag and drop, dotyk, animacje
+- `wrap.spec.js` – zawijanie tekstu w węzłach (maks. 220 px tekstu, linia 18 px)
+- `keys.spec.js` – skróty klawiszowe (vim) nie trafiają do przeglądarki; uruchamiany też w **Firefoksie** z włączonym „Szukaj tekstu podczas pisania”
+- `ui.spec.js` – pasek ikon, przełącznik MD/mapa, menu podręczne, edycja w węźle, klawiatura, drag and drop, dotyk, animacje
 
 Testy działają z `reducedMotion: 'reduce'` (pozycje od razu końcowe); blok „animacja” włącza ruch sam.
 
 ## W obrazie z Containerfile
+
 Chromium i jego biblioteki są już w obrazie (`/ms-playwright`) – wystarczy `npm i && npm test`.
 Wersja w Containerfile musi być równa `@playwright/test` w package.json (przypięta: 1.65.1).
 
 ## Stary kontener bez roota (brak bibliotek Chromium)
+
 `playwright install-deps` wymaga roota. Zamiast tego biblioteki są rozpakowane z .deb do `.pw-libs/root`,
 a `playwright.config.js` sam dokłada je do `LD_LIBRARY_PATH`:
 
