@@ -22,5 +22,6 @@
   "dependencies": {
     "@capacitor/android": "^6",
     "@capacitor/core": "^6"
-  }
+  },
+  "license": "MIT"
 }
