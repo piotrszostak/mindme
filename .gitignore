@@ -7,3 +7,6 @@ playwright-report/
 # Capacitor / Tauri – generowane
 android/
 src-tauri/target/
+
+# notatki przekazania sesji (lokalne)
+HANDOVER.md
