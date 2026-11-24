@@ -1,5 +1,6 @@
 // Skróty klawiszowe w trybie mapy – uruchamiane w Chromium i w Firefoksie (z „Szukaj tekstu podczas pisania”).
-// Każda czynność ma skrót standardowy i vim; oba muszą dawać ten sam wynik. Usunięte skróty nie mogą nic robić.
+// Każda czynność ma skrót standardowy i vim (czasem też drugi zwykły albo ukryty alias); wszystkie muszą dawać ten sam wynik.
+// Usunięte skróty nie mogą nic robić.
 const { test, expect } = require('@playwright/test');
 const { open, loadMap } = require('./helpers');
 
@@ -27,12 +28,14 @@ const PAIRS = [
   [
     'edytuj',
     'b',
-    ['F2'],
+    ['Space'],
     ['i'],
     async p => {
       await expect(p.locator('#ed')).toBeFocused();
+      await expect(p.locator('#ed')).toHaveValue('b'); // spacja nie trafia do tekstu
       await p.keyboard.press('Escape');
     },
+    [['e'], ['F2']], // F2 – ukryty alias
   ],
   [
     'brat poniżej',
@@ -44,6 +47,7 @@ const PAIRS = [
       await p.keyboard.press('Escape');
       expect(await md(p)).toContain('- b\n- NOWY\n- c\n');
     },
+    [['s']],
   ],
   [
     'brat powyżej',
@@ -55,6 +59,7 @@ const PAIRS = [
       await p.keyboard.press('Escape');
       expect(await md(p)).toContain('- NOWY\n- b\n');
     },
+    [['S']],
   ],
   [
     'dziecko',
@@ -96,7 +101,7 @@ const PAIRS = [
     async p => expect(await md(p)).toBe('# R\n\n- a\n  - a1\n  - a2\n  - a3\n- b\n- c\n  - c\n'),
     [['Control+c', 'ArrowDown', 'Backspace', 'Control+v']], // Mac nie ma klawisza Delete
   ], // „d” usunięte, w schowku dalej „c”
-  ['zwiń / rozwiń', 'a', ['Space'], ['z', 'a'], async p => expect(await md(p)).toContain('- a <!--c-->')],
+  ['zwiń / rozwiń', 'a', ['Shift+Space'], ['z', 'a'], async p => expect(await md(p)).toContain('- a <!--c-->')],
   ['przesuń w dół', 'a1', ['Alt+ArrowDown'], ['J'], async p => expect(await md(p)).toContain('  - a2\n  - a1\n')],
   ['przesuń w górę', 'a2', ['Alt+ArrowUp'], ['K'], async p => expect(await md(p)).toContain('  - a2\n  - a1\n')],
   ['wsuń', 'a2', ['Alt+ArrowRight'], ['L'], async p => expect(await md(p)).toContain('  - a1\n    - a2\n')],
@@ -131,12 +136,13 @@ const PAIRS = [
   [
     'pomoc',
     'R',
-    ['F1'],
+    ['Control+/'],
     ['?'],
     async p => {
       await expect(p.locator('#help')).toBeVisible();
       await p.keyboard.press('Escape');
     },
+    [['F1']], // ukryty alias
   ],
 ];
 
@@ -152,23 +158,168 @@ for (const [name, start, std, vim, check, more = []] of PAIRS) {
   });
 }
 
-test('następne / poprzednie trafienie: F3, Shift+F3 | n, N (od razu po wyszukaniu)', async ({ page }) => {
+test('szukanie „/” jak w vim: Enter zamyka pole; dalej Ctrl+G, Ctrl+Shift+G | n, N (też F3, Shift+F3)', async ({
+  page,
+}) => {
   await loadMap(page, MD);
   await keys(page, ['/']);
   await page.keyboard.type('a');
   await page.keyboard.press('Enter');
+  await expect(page.locator('#cmd')).toBeHidden();
   expect(await selText(page)).toBe('a');
-  await keys(page, ['F3']);
-  expect(await selText(page)).toBe('a1');
-  await keys(page, ['n']);
-  expect(await selText(page)).toBe('a2');
-  await keys(page, ['Shift+F3']);
-  expect(await selText(page)).toBe('a1');
-  await keys(page, ['N']);
-  expect(await selText(page)).toBe('a');
+  await expect(page.locator('#info')).toHaveText('trafienie 1 z 4');
+  for (const [k, t] of [
+    ['Control+g', 'a1'],
+    ['n', 'a2'],
+    ['Control+Shift+G', 'a1'],
+    ['N', 'a'],
+    ['F3', 'a1'],
+    ['Shift+F3', 'a'],
+    ['N', 'a3'], // z pierwszego na ostatnie
+  ]) {
+    await keys(page, [k]);
+    expect(await selText(page), k).toBe(t);
+  }
 });
 
-test('pozostałe: licznik 2j, 0 / $, zR / zM, =, Ctrl+. (emoji), Shift+F10, :', async ({ page }) => {
+test('szukanie „/”: Shift+Enter zamyka pole i skacze do ostatniego trafienia', async ({ page }) => {
+  await loadMap(page, MD);
+  await keys(page, ['/']);
+  await page.keyboard.type('a');
+  await page.keyboard.press('Shift+Enter');
+  await expect(page.locator('#cmd')).toBeHidden();
+  expect(await selText(page)).toBe('a3');
+});
+
+test('szukanie Ctrl+F jak w przeglądarce: pole zostaje, Enter / Shift+Enter i Ctrl+G przechodzą, Esc zamyka', async ({
+  page,
+}) => {
+  await loadMap(page, MD);
+  await keys(page, ['Control+f']);
+  await page.keyboard.type('a');
+  const cmd = page.locator('#cmd');
+  for (const [k, t] of [
+    ['Enter', 'a'],
+    ['Enter', 'a1'],
+    ['Shift+Enter', 'a'],
+    ['Control+g', 'a1'],
+    ['Control+Shift+G', 'a'],
+    ['F3', 'a1'],
+  ]) {
+    await keys(page, [k]);
+    expect(await selText(page), k).toBe(t);
+    await expect(cmd).toBeFocused();
+  }
+  await expect(page.locator('#info')).toHaveText('trafienie 2 z 4');
+  await keys(page, ['Backspace']);
+  await page.keyboard.type('b');
+  await keys(page, ['Enter']); // nowe zapytanie – od pierwszego trafienia
+  expect(await selText(page)).toBe('b');
+  await keys(page, ['Escape']);
+  await expect(cmd).toBeHidden();
+  expect(await selText(page)).toBe('b'); // zaznaczenie zostaje na trafieniu
+  await keys(page, ['j']); // klawisze znów sterują mapą
+  expect(await selText(page)).toBe('c');
+});
+
+test('edytuj od pustego tekstu: c (vim); pusty tekst przywraca poprzedni', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'b');
+  await keys(page, ['c']);
+  await expect(page.locator('#ed')).toBeFocused();
+  await expect(page.locator('#ed')).toHaveValue('');
+  await page.keyboard.type('NOWY');
+  await keys(page, ['Enter']);
+  expect(await md(page)).toContain('- NOWY\n- c\n');
+  await keys(page, ['c', 'Escape']);
+  expect(await md(page)).toContain('- NOWY\n- c\n');
+  await keys(page, ['Control+z']);
+  expect(await md(page)).toContain('- b\n- c\n');
+});
+
+test('duplikuj gałąź: Ctrl+D wstawia kopię za oryginałem i ją zaznacza; Ctrl+Z cofa', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'a');
+  await keys(page, ['Control+d']);
+  expect(await md(page)).toBe('# R\n\n- a\n  - a1\n  - a2\n  - a3\n- a\n  - a1\n  - a2\n  - a3\n- b\n- c\n- d\n');
+  await keys(page, ['j']); // zaznaczona jest kopia: następny brat to „b”
+  expect(await selText(page)).toBe('b');
+  await keys(page, ['Control+z']);
+  expect(await md(page)).toBe(MD.replace('\n', '\n\n'));
+  await select(page, 'R');
+  await keys(page, ['Control+d']); // kopia korzenia = druga mapa
+  expect(await md(page)).toBe(MD.replace('\n', '\n\n') + '\n' + MD.replace('\n', '\n\n'));
+});
+
+test('pokaż do poziomu N: z1–z9 (głębsze zwinięte, cyfra po z to nie licznik)', async ({ page }) => {
+  await loadMap(page, '# R\n- a\n  - a1\n    - a11\n- b\n  - b1\n- c\n- d\n');
+  await select(page, 'a11');
+  await keys(page, ['z', '1']);
+  expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1 <!--c-->\n    - a11\n- b <!--c-->\n  - b1\n- c\n- d\n');
+  expect(await selText(page)).toBe('a'); // zaznaczenie przechodzi na widocznego przodka
+  await keys(page, ['z', '2']);
+  expect(await md(page)).toBe('# R\n\n- a\n  - a1 <!--c-->\n    - a11\n- b\n  - b1\n- c\n- d\n');
+  await keys(page, ['j']); // bez licznika: o jeden w dół
+  expect(await selText(page)).toBe('b');
+  await keys(page, ['z', '9']);
+  expect(await md(page)).toBe('# R\n\n- a\n  - a1\n    - a11\n- b\n  - b1\n- c\n- d\n');
+  await keys(page, ['Control+z']);
+  expect(await md(page)).toBe('# R\n\n- a\n  - a1 <!--c-->\n    - a11\n- b\n  - b1\n- c\n- d\n');
+});
+
+test('dopasuj całą mapę: Shift+1 | =', async ({ page }) => {
+  const allInView = () =>
+    page.evaluate(() => {
+      const v = $('sv').getBoundingClientRect();
+      return vis().every(n => {
+        const r = document.querySelector(`#g .n[data-id="${n.id}"] rect`).getBoundingClientRect();
+        return r.left >= v.left && r.right <= v.right && r.top >= v.top && r.bottom <= v.bottom;
+      });
+    });
+  for (const combo of [['Shift+1'], ['=']]) {
+    await loadMap(page, MD);
+    await page.evaluate(() => {
+      k = 3;
+      tx = ty = -2000; // mapa poza ekranem
+      apply();
+    });
+    expect(await allInView()).toBe(false);
+    await keys(page, combo);
+    expect(await allInView(), combo.join(' ')).toBe(true);
+  }
+});
+
+test('pokaż zaznaczony węzeł: Shift+2 (środek i przybliżenie do 100%) | zz (tylko środek)', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'd');
+  const view = z =>
+    page.evaluate(z => {
+      k = z;
+      tx = ty = 0;
+      apply();
+    }, z);
+  /** odległość środka węzła od środka widoku [px] i powiększenie */
+  const where = () =>
+    page.evaluate(() => {
+      const r = document.querySelector(`#g .n[data-id="${sel}"] rect`).getBoundingClientRect(),
+        v = $('sv').getBoundingClientRect();
+      return { dx: r.x + r.width / 2 - v.x - v.width / 2, dy: r.y + r.height / 2 - v.y - v.height / 2, k };
+    });
+  for (const [z, combo, zoom] of [
+    [0.5, ['z', 'z'], 0.5],
+    [0.5, ['Shift+2'], 1],
+    [1.4, ['Shift+2'], 1.4], // bardziej przybliżonego widoku nie oddala
+  ]) {
+    await view(z);
+    await keys(page, combo);
+    const w = await where();
+    expect(Math.abs(w.dx), combo.join(' ')).toBeLessThan(1.5);
+    expect(Math.abs(w.dy), combo.join(' ')).toBeLessThan(1.5);
+    expect(w.k, combo.join(' ')).toBe(zoom);
+  }
+});
+
+test('pozostałe: licznik 2j, 0 / $, zR / zM, Ctrl+. (emoji), klawisz Menu (też Shift+F10), :', async ({ page }) => {
   await loadMap(page, MD);
   await select(page, 'a1');
   await keys(page, ['2', 'j']);
@@ -181,28 +332,80 @@ test('pozostałe: licznik 2j, 0 / $, zR / zM, =, Ctrl+. (emoji), Shift+F10, :', 
   expect(await md(page)).toContain('- a <!--c-->');
   await keys(page, ['z', 'R']);
   expect(await md(page)).not.toContain('<!--c-->');
-  await page.evaluate(() => {
-    k = 2;
-    apply();
-  });
-  await keys(page, ['=']);
-  expect(await page.evaluate(() => k)).not.toBe(2);
   await keys(page, ['Control+.']);
   await expect(page.locator('#emo')).toBeVisible();
   await keys(page, ['Escape']);
-  await keys(page, ['Shift+F10']);
-  await expect(page.locator('#menu')).toBeVisible();
-  await keys(page, ['Escape']);
+  for (const k of ['ContextMenu', 'Shift+F10']) {
+    await keys(page, [k]);
+    await expect(page.locator('#menu'), k).toBeVisible();
+    await keys(page, ['Escape']);
+  }
   await keys(page, [':']);
   await expect(page.locator('#cmd')).toHaveValue(':');
   await keys(page, ['Escape']);
 });
 
-test('usunięte skróty nic nie robią: Insert, cc, zo, zc, Alt+h/j/k/l', async ({ page }) => {
+test('Caps Lock: litery jak bez niego, o wielkości decyduje Shift (j porusza, J przesuwa)', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'a1');
+  // Playwright nie włącza Caps Locka – zdarzenie z modifierCapsLock, takie jak wysyła przeglądarka
+  const press = (key, shiftKey) =>
+    page.evaluate(
+      ([key, shiftKey]) => {
+        const t = document.activeElement || document.body;
+        for (const type of ['keydown', 'keyup'])
+          t.dispatchEvent(
+            new KeyboardEvent(type, { key, shiftKey, modifierCapsLock: true, bubbles: true, cancelable: true })
+          );
+      },
+      [key, shiftKey]
+    );
+  await press('J', false); // Caps Lock bez Shift: przeglądarka podaje „J”
+  expect(await selText(page)).toBe('a2');
+  expect(await md(page)).toBe(MD.replace('\n', '\n\n')); // nic nie przesunięte
+  await press('j', true); // Caps Lock + Shift: przeglądarka podaje „j”
+  expect(await md(page)).toContain('  - a1\n  - a3\n  - a2\n');
+});
+
+test('Ctrl+Alt+litera (AltGr: ą ć ę ł ń ó ś ź ż) nic nie robi', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'b');
+  await page.evaluate(() => {
+    window.__saved = 0;
+    window.save = () => window.__saved++;
+  });
+  await keys(page, ['Delete']);
+  const before = await md(page);
+  await keys(page, ['Control+Alt+z', 'Control+Alt+s', 'Control+Alt+c', 'Control+Alt+v', 'Control+Alt+x']);
+  expect(await md(page)).toBe(before);
+  expect(await page.evaluate(() => window.__saved)).toBe(0);
+});
+
+test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu ani podpowiedziach', async ({
+  page,
+}) => {
+  await loadMap(page, MD);
+  await select(page, 'a');
+  const shown = await page.evaluate(() => {
+    const t = [JSON.stringify(HELP)];
+    for (const e of document.querySelectorAll('[data-tip],[title]'))
+      t.push((e.getAttribute('data-tip') || '') + ' ' + (e.getAttribute('title') || ''));
+    for (const open of [() => ctxMenu(10, 10), () => moreMenu(10, 10)]) {
+      open();
+      t.push($('menu').textContent || '');
+      for (const e of $('menu').querySelectorAll('[title]')) t.push(e.getAttribute('title') || '');
+      closeMenu();
+    }
+    return t.join('\n');
+  });
+  expect(shown).not.toMatch(/\bF(1|2|3|10)\b|Ctrl\+Y/);
+});
+
+test('usunięte skróty nic nie robią: Insert, zo, zc, Alt+h/j/k/l', async ({ page }) => {
   await loadMap(page, MD);
   await select(page, 'a2');
   const before = await md(page);
-  await keys(page, ['Insert', 'c', 'c', 'z', 'c', 'z', 'o', 'Alt+h', 'Alt+j', 'Alt+k', 'Alt+l']);
+  await keys(page, ['Insert', 'z', 'c', 'z', 'o', 'Alt+h', 'Alt+j', 'Alt+k', 'Alt+l']);
   expect(await md(page)).toBe(before);
   await expect(page.locator('#ed')).toBeHidden();
   expect(await selText(page)).toBe('a2');
@@ -234,6 +437,17 @@ test('klawisze w trybie mapy nie trafiają do przeglądarki (defaultPrevented)',
     'w',
     ';',
     "'",
+    'z',
+    'z',
+    'z',
+    '3',
+    'Shift+1',
+    'Shift+2',
+    'Control+g',
+    'Control+Shift+G',
+    'Control+d',
+    'Control+Alt+s',
+    'Control+/',
     'F3',
     'F1',
     'Escape',

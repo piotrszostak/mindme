@@ -1,25 +1,38 @@
 /* Klawiatura (tryb Normal: skrót zwykły + vim), wiersz poleceń „:” i wyszukiwanie „/”. */
 /* ---- tryb Normal (klawiatura) ---- */
-/* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (np. Ctrl+Y) zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy. */
+/* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (F1, F2, F3, Shift+F10, Ctrl+Y)
+   zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy, w menu ani w README. */
+/* Nie przypisujemy: Ctrl+Alt+litera (AltGr: ą ć ę…), Alt+litera (menu przeglądarki, znaki na macOS), Ctrl+W/T/N/Tab,
+   Ctrl+Shift+N/T (przeglądarka ich nie oddaje), Ctrl+Spacja (macOS), Ctrl+strzałki (pulpity macOS), Alt+1…8 (karty Chrome). */
 /** tryb Normal: wszystkie skróty mapy @param {KeyboardEvent} ev */
 function normal(ev) {
   if (dnd) return;
-  const c = ev.key,
-    ctrl = ev.ctrlKey || ev.metaKey,
+  const ctrl = ev.ctrlKey || ev.metaKey,
     sh = ev.shiftKey;
+  let c = ev.key;
+  /* Caps Lock: o wielkości litery decyduje Shift – inaczej „j” staje się „J” i zamiast poruszać, przesuwa węzły */
+  if (c.length === 1 && c.toLowerCase() !== c.toUpperCase() && ev.getModifierState('CapsLock'))
+    c = sh ? c.toUpperCase() : c.toLowerCase();
+  if (ctrl && ev.altKey) {
+    if (c.length === 1) ev.preventDefault(); /* AltGr (ą ć ę ł ń ó ś ź ż na Windowsie) – w trybie mapy nic nie robi */
+    return;
+  }
   if (ctrl) {
     const k = c.length === 1 ? c.toLowerCase() : c;
     /** @type {Record<string, (() => unknown) | null>} */
     const ctrlKeys = {
       z: sh ? redo : undo,
-      y: redo,
+      y: redo /* ukryty alias */,
       r: redo,
       s: save,
       o: openFile,
       c: copy,
+      d: duplicate,
       x: cut,
       v: () => paste(!sh),
-      f: () => openCmd('/'),
+      f: () => openCmd('/', true),
+      g: () => jump(sh ? -1 : 1),
+      '/': toggleHelp,
       '.': () => {
         const [x, y] = nodeScreen();
         openEmoji(x, y);
@@ -42,13 +55,26 @@ function normal(ev) {
     }
     return;
   }
-  if (c === 'ContextMenu' || (c === 'F10' && sh)) {
+  if (c === 'ContextMenu' || (c === 'F10' && sh) /* Shift+F10 – ukryty alias */) {
     ev.preventDefault();
     const [x, y] = nodeScreen();
     return ctxMenu(x, y);
   }
   /* każdy zwykły znak w trybie mapy należy do aplikacji – inaczej Firefox („szukaj podczas pisania”, „/”) przejmie klawiaturę */
   if (c.length === 1) ev.preventDefault();
+  /* Shift+1 / Shift+2 po fizycznym klawiszu: znak (!, @, 1…) zależy od układu klawiatury */
+  if (sh && (ev.code === 'Digit1' || ev.code === 'Digit2')) {
+    ev.preventDefault();
+    pend = '';
+    cnt = 0;
+    return ev.code === 'Digit1' ? fitView() : centerSel(true);
+  }
+  /* z + cyfra = pokaż do poziomu N; sprawdzane przed licznikiem, inaczej cyfra zostałaby licznikiem */
+  if (pend === 'z' && /^[1-9]$/.test(c)) {
+    pend = '';
+    cnt = 0;
+    return foldTo(+c);
+  }
   if (/^[0-9]$/.test(c) && (c !== '0' || cnt)) {
     cnt = cnt * 10 + +c;
     info(cnt + '');
@@ -64,6 +90,7 @@ function normal(ev) {
     else if (p === 'dd') cut();
     else if (p === 'yy') copy();
     else if (p === 'za') fold();
+    else if (p === 'zz') centerSel();
     else if (p === 'zR') foldAll(false);
     else if (p === 'zM') foldAll(true);
     return;
@@ -125,9 +152,11 @@ function normal(ev) {
       addSib(sel, !sh);
       break;
     case 'o':
+    case 's':
       addSib(sel, 1);
       break;
     case 'O':
+    case 'S':
       addSib(sel, 0);
       break;
     case 'Tab':
@@ -137,9 +166,17 @@ function normal(ev) {
     case 'a':
       addChild(sel);
       break;
-    case 'F2':
+    case ' ':
+      if (sh) fold();
+      else startEdit(sel);
+      break;
+    case 'F2': // ukryty alias
     case 'i':
+    case 'e':
       startEdit(sel);
+      break;
+    case 'c':
+      startEdit(sel, false, undefined, true);
       break;
     case 'Delete':
     case 'Backspace': // Mac nie ma klawisza Delete
@@ -151,9 +188,6 @@ function normal(ev) {
       break;
     case 'P':
       paste(false);
-      break;
-    case ' ':
-      fold();
       break;
     case 'J':
       for (let i = 0; i < n; i++) moveSib(1);
@@ -170,7 +204,7 @@ function normal(ev) {
     case 'u':
       for (let i = 0; i < n; i++) undo();
       break;
-    case 'F3':
+    case 'F3': // ukryty alias
       jump(sh ? -1 : 1);
       break;
     case 'n':
@@ -189,7 +223,7 @@ function normal(ev) {
       openCmd('/');
       break;
     case '?':
-    case 'F1':
+    case 'F1': // ukryty alias
       toggleHelp();
       break;
     case 'Escape':
@@ -203,9 +237,16 @@ function normal(ev) {
   ev.preventDefault();
 }
 /* ---- Command / wyszukiwanie ---- */
-/** @param {string} p ':' albo '/' */
-function openCmd(p) {
+/* Szukanie po „/” jak w vim: Enter szuka i zamyka pole, dalej n / N. Po Ctrl+F jak w przeglądarce: pole zostaje,
+   Enter / Shift+Enter (też Ctrl+G / Ctrl+Shift+G) – następne / poprzednie trafienie, Esc zamyka. */
+let findBar = false;
+/** @type {string | null} zapytanie obecnych trafień w polu Ctrl+F (inne = szukaj od nowa) */
+let findQ = null;
+/** @param {string} p ':' albo '/' @param {boolean} [bar] pole szukania zostaje otwarte (Ctrl+F) */
+function openCmd(p, bar) {
   setMode(p === ':' ? 'COMMAND' : 'SEARCH');
+  findBar = !!bar && p === '/';
+  findQ = null;
   const c = $('cmd');
   c.style.display = 'block';
   c.value = p;
@@ -219,18 +260,27 @@ function closeCmd() {
 } /* fokus nie może zostać w ukrytym polu (Chromium) */
 $('cmd').addEventListener('keydown', ev => {
   ev.stopPropagation();
-  if (ev.key === 'Escape') {
-    closeCmd();
+  const v = $('cmd').value,
+    d = ev.shiftKey ? -1 : 1;
+  if (ev.key === 'Escape') return closeCmd();
+  if (findBar) {
+    const g = (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'g';
+    if (ev.key === 'Enter' || ev.key === 'F3' || g) {
+      ev.preventDefault();
+      const q = v.slice(1);
+      if (q === findQ) return jump(d);
+      findQ = q;
+      search(q, d);
+    }
     return;
   }
   if (ev.key === 'Enter') {
-    const v = $('cmd').value;
     closeCmd();
-    v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1));
+    v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1), d);
   }
 });
-/** @param {string} q */
-function search(q) {
+/** @param {string} q @param {number} [d] 1 – od pierwszego trafienia, −1 – od ostatniego */
+function search(q, d = 1) {
   q = q.toLowerCase();
   hits = q
     ? (function w(/** @type {MapNode} */ n, /** @type {number[]} */ a = []) {
@@ -239,9 +289,9 @@ function search(q) {
         return a;
       })(root)
     : [];
-  hi = -1;
-  info(hits.length + ' trafień');
-  jump(1);
+  hi = d > 0 ? -1 : 0;
+  if (!hits.length) return info('0 trafień');
+  jump(d);
 }
 /** następne (1) / poprzednie (−1) trafienie @param {number} d */
 function jump(d) {
@@ -250,6 +300,7 @@ function jump(d) {
   sel = hits[hi];
   showSel();
   go(sel);
+  info(`trafienie ${hi + 1} z ${hits.length}`);
 }
 /** komenda „:” @param {string} c */
 function exec(c) {

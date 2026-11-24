@@ -55,7 +55,8 @@ test.describe('bez zaznaczenia', () => {
     await loadMap(page, MD);
     await page.keyboard.press('Escape');
     const before = await texts(page);
-    for (const k of ['Delete', 'Control+x', 'Space', 'Alt+ArrowDown', 'F2']) await page.keyboard.press(k);
+    for (const k of ['Delete', 'Control+x', 'Space', 'Shift+Space', 'Control+d', 'Alt+ArrowDown', 'F2'])
+      await page.keyboard.press(k);
     expect(await texts(page)).toBe(before);
     await expect(page.locator('#info')).toHaveText('najpierw zaznacz węzeł');
     await page.keyboard.press('Enter');

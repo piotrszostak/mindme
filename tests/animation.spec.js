@@ -32,7 +32,7 @@ test.describe('animacja', () => {
     await page.waitForTimeout(1500);
     expect(await offset(page, 'Dwa')).toBe(0);
     await page.keyboard.press('ArrowRight'); // Jeden
-    await page.keyboard.press('Space'); // zwiń → Dwa i Trzy podjeżdżają
+    await page.keyboard.press('Shift+Space'); // zwiń → Dwa i Trzy podjeżdżają
     await page.waitForTimeout(30);
     expect(await offset(page, 'Dwa')).toBeGreaterThan(1); // w ruchu
     await page.waitForTimeout(1500);

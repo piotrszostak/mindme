@@ -18,6 +18,17 @@ function del(cut) {
 function cut() {
   del(true);
 }
+/** duplikuj gałąź: kopia zaraz za oryginałem i zaznaczona (kopia korzenia = nowa mapa) */
+function duplicate() {
+  const f = need();
+  if (!f || !f.p) return;
+  snap();
+  const c = clone(f.n);
+  f.p.children.splice(f.p.children.indexOf(f.n) + 1, 0, c);
+  sel = c.id;
+  info('zduplikowano gałąź (Ctrl+Z – cofnij)');
+  changed();
+}
 function copy() {
   const f = need();
   if (!f) return;
@@ -88,14 +99,26 @@ function foldAll(v) {
     if (d >= (v ? 2 : 1) && n.children.length) n.collapsed = v;
     n.children.forEach(c => w(c, d + 1));
   })(root, 0); /* zwiń: wszystko poniżej korzeni; rozwiń: wszystko */
-  if (v) {
-    let f = S();
-    while (f && f.p) {
-      if (f.p.collapsed) sel = f.p.id;
-      f = find(f.p.id);
-    }
-  }
+  if (v) selVisible();
   changed();
+}
+/** pokaż do poziomu `lv` (vim z1–z9; korzeń = poziom 0): węzły na poziomie ≥ lv zwinięte, płytsze rozwinięte @param {number} lv */
+function foldTo(lv) {
+  snap();
+  (function w(n, d) {
+    if (!n.top && n.children.length) n.collapsed = d >= lv;
+    n.children.forEach(c => w(c, n.top ? 0 : d + 1));
+  })(root, 0);
+  selVisible();
+  changed();
+}
+/* zaznaczenie schowane w zwiniętej gałęzi przechodzi na najwyższego zwiniętego przodka */
+function selVisible() {
+  let f = S();
+  while (f && f.p) {
+    if (f.p.collapsed) sel = f.p.id;
+    f = find(f.p.id);
+  }
 }
 /** zaznacz węzeł @param {number} id @param {boolean} [keepView] */
 function go(id, keepView) {

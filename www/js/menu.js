@@ -1,4 +1,4 @@
-/* Menu: podręczne (PPM / przytrzymanie / Shift+F10), „…”, układ. */
+/* Menu: podręczne (PPM / przytrzymanie / klawisz Menu), „…”, układ. */
 /* ---- menu kontekstowe (PPM / długie przytrzymanie / klawisz Menu) ---- */
 /** @param {MenuEntry[]} items @param {number} x @param {number} y @param {boolean} [touch] otwarte palcem */
 function openMenu(items, x, y, touch) {
@@ -101,13 +101,22 @@ function ctxMenu(x, y, touch) {
       {
         ic: n && n.collapsed ? 'unfold' : 'fold',
         t: n && n.collapsed ? 'Rozwiń' : 'Zwiń',
-        k: 'Spacja',
+        k: 'Shift+Spacja',
         f: () => fold(),
         off: !n || !n.children.length,
         id: 'fold',
       },
       '-',
       { ic: 'copy', t: 'Kopiuj gałąź', k: 'Ctrl+C', f: copy, off: !n, id: 'copy' },
+      {
+        ic: 'dup',
+        t: 'Duplikuj gałąź',
+        k: 'Ctrl+D',
+        tip: 'Kopia zaraz za oryginałem',
+        f: duplicate,
+        off: !n,
+        id: 'dup',
+      },
       { ic: 'cut', t: 'Wytnij gałąź', k: 'Ctrl+X', f: cut, off: !n || (isRoot && one), id: 'cut' },
       {
         ic: 'paste',
@@ -127,7 +136,7 @@ function ctxMenu(x, y, touch) {
         id: 'del',
       },
       '-',
-      { ic: 'fit', t: 'Dopasuj widok', k: '=', f: fitView, id: 'fit' },
+      { ic: 'fit', t: 'Dopasuj całą mapę', k: 'Shift+1', f: fitView, id: 'fit' },
       { ic: 'unfold', t: 'Rozwiń wszystko', k: 'zR', f: () => foldAll(false), id: 'unfoldall' },
       { ic: 'fold', t: 'Zwiń wszystko', k: 'zM', f: () => foldAll(true), id: 'foldall' },
     ],
@@ -148,7 +157,7 @@ function moreMenu(x, y) {
       { ic: 'image', t: 'Eksportuj PNG', k: ':export png', f: () => exportImg('png'), id: 'png' },
       '-',
       { ic: 'theme', t: 'Motyw jasny / ciemny', k: ':theme', f: () => toggleTheme(), id: 'theme' },
-      { ic: 'help', t: 'Pomoc i skróty', k: '?', f: toggleHelp, id: 'help' },
+      { ic: 'help', t: 'Pomoc i skróty', k: 'Ctrl+/', f: toggleHelp, id: 'help' },
     ],
     x,
     y

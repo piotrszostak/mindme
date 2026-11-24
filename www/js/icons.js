@@ -14,6 +14,7 @@ const IC = {
   sibup: 'M6 15h12v6H6z M12 3v8 M8 7h8',
   del: 'M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13 M10 11v6 M14 11v6',
   copy: 'M8 8h12v12H8z M4 16V4h12',
+  dup: 'M8 8h12v12H8z M4 16V4h12 M14 11v6 M11 14h6',
   cut: 'M6 7a3 3 0 100-.01 M6 20a3 3 0 100-.01 M8 8l12 10 M8 16L20 6',
   paste: 'M9 3h6v4H9z M7 5H5v16h14V5h-2',
   fold: 'M6 9l6 6 6-6',

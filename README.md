@@ -40,25 +40,29 @@ Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zap
 
 Każda czynność ma skrót zwykły i skrót vim:
 
-| Czynność                                | Zwykły                               | vim                                      |
-| --------------------------------------- | ------------------------------------ | ---------------------------------------- |
-| poruszanie (zgodnie z układem)          | strzałki                             | `h` `j` `k` `l` (z licznikiem, np. `3j`) |
-| pierwszy / ostatni węzeł                | Home / End                           | `gg` / `G`                               |
-| edytuj                                  | F2                                   | `i`                                      |
-| brat poniżej / powyżej                  | Enter / Shift+Enter                  | `o` / `O`                                |
-| dziecko                                 | Tab                                  | `a`                                      |
-| kopiuj / wytnij / usuń (bez kopiowania) | Ctrl+C / Ctrl+X / Del lub Backspace  | `yy` / `dd` / `x`                        |
-| wklej jako dziecko / brata              | Ctrl+V / Ctrl+Shift+V                | `p` / `P`                                |
-| zwiń / rozwiń                           | Spacja                               | `za` (wszystko: `zM` / `zR`)             |
-| przesuń, wsuń, wysuń                    | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                        |
-| cofnij / ponów                          | Ctrl+Z / Ctrl+Shift+Z                | `u` / Ctrl+R                             |
-| szukaj, następne, poprzednie            | Ctrl+F, F3, Shift+F3                 | `/`, `n`, `N`                            |
-| menu podręczne / odznacz                | Shift+F10 / Esc                      |                                          |
-| dopasuj widok / emoji / pomoc           | `=` / Ctrl+. / F1                    | `?`                                      |
+| Czynność                                   | Zwykły                               | vim                                                   |
+| ------------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
+| poruszanie (zgodnie z układem)             | strzałki                             | `h` `j` `k` `l` (z licznikiem, np. `3j`)              |
+| pierwszy / ostatni węzeł                   | Home / End                           | `gg` / `G`                                            |
+| edytuj / od pustego tekstu                 | Spacja                               | `i` lub `e` / `c`                                     |
+| brat poniżej / powyżej                     | Enter / Shift+Enter                  | `o` lub `s` / `O` lub `S`                             |
+| dziecko                                    | Tab                                  | `a`                                                   |
+| duplikuj gałąź (kopia za oryginałem)       | Ctrl+D                               |                                                       |
+| kopiuj / wytnij / usuń (bez kopiowania)    | Ctrl+C / Ctrl+X / Del lub Backspace  | `yy` / `dd` / `x`                                     |
+| wklej jako dziecko / brata                 | Ctrl+V / Ctrl+Shift+V                | `p` / `P`                                             |
+| zwiń / rozwiń                              | Shift+Spacja                         | `za` (wszystko: `zM` / `zR`, do poziomu N: `z1`…`z9`) |
+| przesuń, wsuń, wysuń                       | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
+| cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z                | `u` / Ctrl+R                                          |
+| szukaj, następne, poprzednie               | Ctrl+F, Ctrl+G, Ctrl+Shift+G         | `/`, `n`, `N`                                         |
+| dopasuj całą mapę / pokaż zaznaczony węzeł | Shift+1 / Shift+2 (z przybliżeniem)  | `=` / `zz`                                            |
+| menu podręczne / odznacz                   | klawisz Menu / Esc                   |                                                       |
+| emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
 
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
 
-Komendy wpisywane po `:`: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod F1.
+**Szukanie:** po Ctrl+F pole zostaje otwarte jak w przeglądarce: Enter i Shift+Enter przechodzą do następnego i poprzedniego trafienia, a Esc zamyka pole. Po `/` Enter szuka i zamyka pole jak w vim, a dalej działają `n` i `N`.
+
+Komendy wpisywane po `:`: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod Ctrl+/ (albo `?`).
 
 ## Format pliku
 

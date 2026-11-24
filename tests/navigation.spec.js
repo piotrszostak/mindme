@@ -54,12 +54,12 @@ test.describe('klawiatura', () => {
     expect(await selText(page)).toBe('R');
   });
 
-  test('Del, Ctrl+Z/Y, Ctrl+C/V, Spacja, Tab, F2', async ({ page }) => {
+  test('Del, Ctrl+Z/Y, Ctrl+C/V, Shift+Spacja, Tab, F2', async ({ page }) => {
     await loadMap(page, MD);
     await page.keyboard.press('ArrowRight'); // Jeden
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Shift+Space');
     expect(await texts(page)).toContain('- Jeden <!--c-->');
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Shift+Space');
     await page.keyboard.press('Control+c');
     await page.keyboard.press('ArrowDown'); // Dwa
     await page.keyboard.press('Control+v');

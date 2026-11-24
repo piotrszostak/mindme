@@ -41,6 +41,7 @@ test.describe('menu podręczne węzła', () => {
       'emoji',
       'fold',
       'copy',
+      'dup',
       'cut',
       'paste',
       'del',
@@ -48,16 +49,17 @@ test.describe('menu podręczne węzła', () => {
       'unfoldall',
       'foldall',
     ]); // bez rzędu układów
-    expect(it.slice(0, 11).map(i => i[2])).toEqual([
+    expect(it.map(i => i[2])).toEqual([
       'Enter',
       'Tab',
       'Ctrl+.',
-      'Spacja',
+      'Shift+Spacja',
       'Ctrl+C',
+      'Ctrl+D',
       'Ctrl+X',
       'Ctrl+V',
       'Del',
-      '=',
+      'Shift+1',
       'zR',
       'zM',
     ]);
@@ -139,6 +141,16 @@ test.describe('menu podręczne węzła', () => {
     expect(await texts(page)).toContain('- Jeden\n  - 1a\n');
   });
 
+  test('duplikuj gałąź: kopia zaraz za oryginałem (cofalne)', async ({ page }) => {
+    await loadMap(page, MD);
+    const b = await box(page, 'Jeden');
+    await page.mouse.click(b.cx, b.cy, { button: 'right' });
+    await act(page, 'dup').click();
+    expect(await texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n- Trzy\n');
+    await page.keyboard.press('Control+z');
+    expect(await texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n- Trzy\n');
+  });
+
   test('PPM na tle: zwiń wszystko; menu nie ma już przycisków układu', async ({ page }) => {
     await loadMap(page, MD);
     const sv = await page.locator('#sv').boundingBox();
@@ -148,10 +160,10 @@ test.describe('menu podręczne węzła', () => {
     expect(await texts(page)).toContain('- Jeden <!--c-->');
   });
 
-  test('klawiatura: Shift+F10 otwiera menu, strzałki + Enter wybierają', async ({ page }) => {
+  test('klawiatura: klawisz Menu otwiera menu, strzałki + Enter wybierają', async ({ page }) => {
     await loadMap(page, MD);
     await page.keyboard.press('ArrowRight'); // Jeden
-    await page.keyboard.press('Shift+F10');
+    await page.keyboard.press('ContextMenu');
     await expect(menu(page)).toBeVisible();
     await expect(act(page, 'sib')).toBeFocused();
     await page.keyboard.press('ArrowDown');

@@ -34,9 +34,9 @@ function placeEd() {
  * @param {number} id
  * @param {boolean} [isNew] nowy węzeł (pusty zostanie usunięty)
  * @param {number} [back] co zaznaczyć, jeśli nowy węzeł zniknie
- * @param {boolean} [selectAll]
+ * @param {boolean} [blank] zacznij od pustego tekstu (vim `c`); pusty po zatwierdzeniu przywraca poprzedni
  */
-function startEdit(id, isNew, back, selectAll) {
+function startEdit(id, isNew, back, blank) {
   if (!id) return;
   if (editing) {
     if (editing.id === id) return;
@@ -49,15 +49,15 @@ function startEdit(id, isNew, back, selectAll) {
   showSel();
   const pre = snapStr(),
     old = f.n.text;
+  if (blank) f.n.text = '';
   edId = id;
   setMode('INSERT');
   render();
   const e = $('ed');
-  e.value = old;
+  e.value = f.n.text;
   e.style.display = 'block';
   e.focus({ preventScroll: true });
-  if (selectAll) e.select();
-  else e.setSelectionRange(old.length, old.length);
+  e.setSelectionRange(e.value.length, e.value.length);
   editing = { id, isNew, pre, old, back };
   placeEd();
   hint('Enter / Esc / klik obok – zatwierdź · Tab – zatwierdź i dodaj dziecko');

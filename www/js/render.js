@@ -290,6 +290,18 @@ function fitView() {
   ty = r.height / 2 - ((b.y0 + b.y1) / 2) * k;
   apply();
 }
+/** zaznaczony węzeł na środku widoku; `zoom` – przybliż co najmniej do 100% @param {boolean} [zoom] */
+function centerSel(zoom) {
+  const f = need();
+  if (!f) return;
+  lay();
+  const n = f.n,
+    r = $('sv').getBoundingClientRect();
+  if (zoom) k = Math.max(k, 1);
+  tx = r.width / 2 - (n.x + n.w / 2) * k;
+  ty = r.height / 2 - n.y * k;
+  apply();
+}
 /** po zmianie modelu: render + autozapis @param {boolean} [keepView] */
 function changed(keepView) {
   render(keepView);
