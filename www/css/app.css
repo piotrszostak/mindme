@@ -126,7 +126,8 @@ button:disabled {
   flex: 1;
   position: relative;
   min-height: 0;
-  overflow: hidden;
+  overflow: hidden; /* starsze przeglądarki bez `clip` */
+  overflow: clip; /* przycina, ale nie da się przewinąć: fokus w wysuwającym się panelu nie przesuwa mapy */
 }
 svg {
   width: 100%;

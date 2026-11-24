@@ -36,6 +36,17 @@ test.describe('panel „Wygląd mapy”', () => {
     await expect(page.locator('#bp')).not.toHaveClass(/on/);
   });
 
+  test('fokus w wysuwającym się panelu nie przesuwa mapy', async ({ page }) => {
+    // kliknięcie i fokus w jednym kroku: panel jest jeszcze za prawą krawędzią (animacja wysuwania)
+    const r = await page.evaluate(() => {
+      const x0 = $('sv').getBoundingClientRect().x;
+      $('bp').click();
+      document.querySelector('#st-edge').focus();
+      return { scroll: $('main').scrollLeft, moved: $('sv').getBoundingClientRect().x - x0 };
+    });
+    expect(r).toEqual({ scroll: 0, moved: 0 });
+  });
+
   test('suwaki zmieniają mapę na żywo: linie, obramowanie, rogi, tekst, odstępy', async ({ page }) => {
     await loadMap(page, MD);
     await open(page);
