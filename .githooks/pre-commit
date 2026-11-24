@@ -1,0 +1,26 @@
+#!/bin/sh
+# Bramka przed commitem: sekrety, komplet sprawdzanych plików w commicie, potem `npm run verify` (typy, formatowanie, testy).
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+bad=$(printf '%s\n' "$staged" | grep -E '(^|/)(\.env(\..+)?|key\.properties)$|\.(jks|keystore|p12|pem)$')
+if [ -n "$bad" ]; then
+  printf 'Bramka: w commicie jest plik z sekretami:\n%s\n' "$bad" >&2
+  exit 1
+fi
+if git diff --cached -U0 | grep -qE '^\+.*-----BEGIN [A-Z ]*PRIVATE KEY-----'; then
+  echo 'Bramka: w zmianach jest prywatny klucz (nagłówek BEGIN ... PRIVATE KEY).' >&2
+  exit 1
+fi
+left=$(git status --porcelain -- www tests types package.json playwright.config.js tsconfig.json tsconfig.sw.json | grep -v '^[MADRC] ')
+if [ -n "$left" ]; then
+  printf 'Bramka: testy sprawdzają pliki na dysku, a te zmiany nie są w commicie:\n%s\nDodaj je (git add) albo odłóż (git stash).\n' "$left" >&2
+  exit 1
+fi
+log=$(mktemp)
+if npm run verify >"$log" 2>&1; then
+  echo 'Bramka: OK (sekrety, typy, formatowanie, testy).'
+  rm -f "$log"
+else
+  tail -n 40 "$log" >&2
+  echo "Bramka: sprawdzenia nie przeszły. Pełny wynik: $log" >&2
+  exit 1
+fi

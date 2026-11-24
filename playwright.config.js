@@ -2,11 +2,13 @@
 const { defineConfig } = require('@playwright/test');
 const fs = require('fs'),
   path = require('path');
-// Kontener bez roota: biblioteki przeglądarek rozpakowane lokalnie z .deb (zob. tests/README.md)
+// Kontener bez roota: biblioteki przeglądarek rozpakowane lokalnie z .deb (zob. tests/README.md).
+// Tylko w kontenerze – na zwykłym systemie te biblioteki psują powłokę (/bin/sh: symbol lookup error).
 const libs = path.join(__dirname, '.pw-libs/root');
+const inContainer = fs.existsSync('/run/.containerenv') || fs.existsSync('/.dockerenv');
 // Firefox ma własne (nowsze) NSS – jego katalog musi być na ścieżce przed bibliotekami z Debiana.
 // Ustawiamy w procesie testów, bo Playwright tym środowiskiem sprawdza też zależności przeglądarek.
-if (fs.existsSync(libs)) {
+if (inContainer && fs.existsSync(libs)) {
   let ffDir = [];
   try {
     ffDir = [path.dirname(require('playwright-core').firefox.executablePath())];

@@ -10,3 +10,16 @@ src-tauri/target/
 
 # notatki przekazania sesji (lokalne)
 HANDOVER.md
+
+# paczka startowa konfiguracji Claude (lokalna)
+claude-starter/
+# prototypy na próbę (skill /prototyp)
+www/_prototyp/
+# sekrety: hasła, tokeny, klucze podpisu aplikacji
+.env
+.env.*
+*.jks
+*.keystore
+*.p12
+*.pem
+key.properties

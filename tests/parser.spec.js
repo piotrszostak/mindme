@@ -102,6 +102,44 @@ test('round-trip parse∘serialize jest stabilny (także znaki specjalne)', asyn
   expect(await page.evaluate(() => selfTest())).toBe(true);
 });
 
+// Strażnik formatu: plik zapisany przez wersję 0.3 – nie zmieniać. Nowy format = nowa stała obok, stare muszą się wczytywać.
+const FORMAT_0_3 =
+  '# 🗺️ Plan & „marzenia” <!--c-->\n<!--layout:both-->\n<!--style:{"edgeStyle":"elbow","fs":16}-->\n\n' +
+  '- Praca <b>\n  - Projekt "Alfa" <!--c-->\n    - Szczegół 100%\n  - Spotkania\n- Dom 🏠\n\n' +
+  '# Pusty\n\n# Drugi korzeń\n\n- Jeden\n  - Dwa\n';
+
+test('strażnik formatu: plik z wersji 0.3 wczytuje się bez strat', async ({ page }) => {
+  const { roots, dir } = await tree(page, FORMAT_0_3);
+  expect(dir).toBe('both');
+  expect(await page.evaluate(() => [ST.edgeStyle, ST.fs])).toEqual(['elbow', 16]);
+  expect(roots).toEqual([
+    {
+      text: '🗺️ Plan & „marzenia”',
+      collapsed: true,
+      children: [
+        {
+          text: 'Praca <b>',
+          children: [
+            { text: 'Projekt "Alfa"', collapsed: true, children: [{ text: 'Szczegół 100%', children: [] }] },
+            { text: 'Spotkania', children: [] },
+          ],
+        },
+        { text: 'Dom 🏠', children: [] },
+      ],
+    },
+    { text: 'Pusty', children: [] },
+    { text: 'Drugi korzeń', children: [{ text: 'Jeden', children: [{ text: 'Dwa', children: [] }] }] },
+  ]);
+  expect(await page.evaluate(m => serialize(parse(m)), FORMAT_0_3)).toBe(FORMAT_0_3);
+});
+
+test('strażnik formatu: mapa z autozapisu (mm.md) otwiera się po starcie', async ({ page }) => {
+  await page.addInitScript(md => localStorage.setItem('mm.md', md), FORMAT_0_3);
+  await open(page);
+  expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_0_3);
+  await expect(page.locator('#g')).toContainText('Jeden');
+});
+
 test('komenda :test raportuje round-trip OK', async ({ page }) => {
   await page.keyboard.press(':');
   await page.keyboard.type('test');

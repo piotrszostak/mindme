@@ -9,7 +9,8 @@
     "test": "playwright test",
     "format": "prettier --write www types tests playwright.config.js tsconfig.json tsconfig.sw.json",
     "check": "tsc -p tsconfig.json && tsc -p tsconfig.sw.json",
-    "verify": "npm run check && prettier --check www types tests playwright.config.js && playwright test"
+    "verify": "npm run check && prettier --check www types tests playwright.config.js && playwright test",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@capacitor/cli": "^6",
