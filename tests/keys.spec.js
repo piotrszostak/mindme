@@ -134,6 +134,18 @@ const PAIRS = [
     },
   ],
   [
+    'paleta komend',
+    'R',
+    ['Control+k'],
+    [':'],
+    async p => {
+      await expect(p.locator('#pal')).toBeVisible();
+      await expect(p.locator('#palq')).toBeFocused();
+      await p.keyboard.press('Escape');
+      await expect(p.locator('#pal')).toBeHidden();
+    },
+  ],
+  [
     'pomoc',
     'R',
     ['Control+/'],
@@ -340,8 +352,11 @@ test('pozostałe: licznik 2j, 0 / $, zR / zM, Ctrl+. (emoji), klawisz Menu (też
     await expect(page.locator('#menu'), k).toBeVisible();
     await keys(page, ['Escape']);
   }
-  await keys(page, [':']);
-  await expect(page.locator('#cmd')).toHaveValue(':');
+  await keys(page, [':']); // paleta z wpisanym dwukropkiem
+  await expect(page.locator('#palq')).toHaveValue(':');
+  await keys(page, ['Escape']);
+  await keys(page, ['Control+k']); // paleta od pustego pola
+  await expect(page.locator('#palq')).toHaveValue('');
   await keys(page, ['Escape']);
 });
 
@@ -381,7 +396,7 @@ test('Ctrl+Alt+litera (AltGr: ą ć ę ł ń ó ś ź ż) nic nie robi', async (
   expect(await page.evaluate(() => window.__saved)).toBe(0);
 });
 
-test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu ani podpowiedziach', async ({
+test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu, palecie ani podpowiedziach', async ({
   page,
 }) => {
   await loadMap(page, MD);
@@ -396,6 +411,9 @@ test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu 
       for (const e of $('menu').querySelectorAll('[title]')) t.push(e.getAttribute('title') || '');
       closeMenu();
     }
+    openPal();
+    t.push($('pall').textContent || '');
+    closePal();
     return t.join('\n');
   });
   expect(shown).not.toMatch(/\bF(1|2|3|10)\b|Ctrl\+Y/);
@@ -451,10 +469,31 @@ test('klawisze w trybie mapy nie trafiają do przeglądarki (defaultPrevented)',
     'F3',
     'F1',
     'Escape',
+    'Control+k', // przeglądarka: pole wyszukiwania
+    'Escape',
     'Control+f',
     'Control+r',
   ]);
   expect(await page.evaluate(() => window.__leak)).toEqual([]);
+});
+
+test('paleta: pisanie zawęża listę, strzałki wybierają, Enter uruchamia; „:w” zapisuje', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'b');
+  await page.evaluate(() => {
+    window.__saved = 0;
+    window.save = () => window.__saved++;
+  });
+  await keys(page, ['Control+k']);
+  await page.keyboard.type('przesuń');
+  await expect(page.locator('#pall .pi.hi .pt')).toHaveText('Przesuń w górę');
+  await keys(page, ['ArrowDown', 'Enter']);
+  await expect(page.locator('#pal')).toBeHidden();
+  expect(await md(page)).toContain('- c\n- b\n- d\n');
+  await keys(page, [':', 'w', 'Enter']);
+  expect(await page.evaluate(() => window.__saved)).toBe(1);
+  await keys(page, ['j']); // po zamknięciu palety skróty mapy znowu działają
+  expect(await selText(page)).toBe('d');
 });
 
 test('w polu edycji skróty mapy nie działają (pisze się tekst)', async ({ page }) => {

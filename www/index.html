@@ -41,6 +41,21 @@
     </div>
     <div id="menu" role="menu"></div>
     <div id="emo" role="dialog" aria-label="Wybór emoji"></div>
+    <div id="pal" role="dialog" aria-label="Wszystkie polecenia">
+      <input
+        id="palq"
+        role="combobox"
+        aria-controls="pall"
+        aria-expanded="true"
+        aria-autocomplete="list"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        placeholder="Szukaj polecenia…"
+      />
+      <div id="pall" role="listbox" aria-label="Polecenia"></div>
+    </div>
     <!-- skrypty zwykłe (nie moduły): dzielą jeden zakres globalny; kolejność ma znaczenie -->
     <script src="js/core.js"></script>
     <script src="js/icons.js"></script>
@@ -52,6 +67,8 @@
     <script src="js/menu.js"></script>
     <script src="js/keys.js"></script>
     <script src="js/files.js"></script>
+    <script src="js/actions.js"></script>
+    <script src="js/palette.js"></script>
     <script src="js/help.js"></script>
     <script src="js/side.js"></script>
     <script src="js/dnd.js"></script>

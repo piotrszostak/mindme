@@ -121,6 +121,45 @@ interface EditState {
   back?: number;
 }
 
+/** Czynność z tabeli `ACT` (actions.js): pomoc, menu i paleta komend biorą z niej nazwę i skróty. */
+interface Act {
+  id: string;
+  /** nazwa (w pomocy z małej litery) */
+  t: string;
+  ic?: string;
+  /** skróty zwykłe; pierwszy jest pokazywany w menu i w palecie */
+  k?: string[];
+  /** skróty vim */
+  v?: string[];
+  /** komenda „:” (bez dwukropka) i jej inne zapisy */
+  c?: string;
+  ca?: string[];
+  /** objaśnienie w menu (po najechaniu); w pomocy w nawiasie, jeśli nie ma `d` */
+  tip?: string;
+  /** dopisek w pomocy */
+  d?: string;
+  /** uruchom; bez `f` czynność jest tylko w pomocy (poruszanie się) */
+  f?: () => unknown;
+  /** powód niedostępności ('' = dostępna) */
+  off?: () => string;
+  /** false – nie pokazuj w palecie */
+  pal?: boolean;
+  /** wiersz w pomocy: false – brak, para – zamiast skrótów i nazwy */
+  help?: false | [string, string];
+}
+
+/** Pozycja na liście palety komend. */
+interface PalItem {
+  id: string;
+  t: string;
+  keys: string[];
+  /** powód niedostępności ('' = dostępna) */
+  off: string;
+  f: () => unknown;
+  /** id zapamiętywane jako ostatnio użyte ('' – nie zapamiętuj) */
+  rec: string;
+}
+
 /** Pozycja menu (`openMenu`). */
 interface MenuItem {
   ic: string;
@@ -159,6 +198,9 @@ interface Elements {
   side: HTMLElement;
   menu: HTMLDivElement;
   emo: HTMLDivElement;
+  pal: HTMLDivElement;
+  palq: HTMLInputElement;
+  pall: HTMLDivElement;
   st: HTMLDivElement;
   mode: HTMLSpanElement;
   cmd: HTMLInputElement;

@@ -20,13 +20,7 @@ $('bt').onclick = toggleText;
 $('bl').onclick = () => {
   const [x, y] = below($('bl'));
   openMenu(
-    Object.keys(LAY).map(d => ({
-      ic: LAY[d][0],
-      t: 'Układ ' + LAY[d][1],
-      f: () => setLayout(d),
-      on: dir === d,
-      id: 'lay-' + d,
-    })),
+    Object.keys(LAY).map(d => mi('lay-' + d, { on: dir === d, k: undefined })),
     x,
     y
   );

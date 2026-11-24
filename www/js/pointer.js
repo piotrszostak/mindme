@@ -14,6 +14,7 @@ document.addEventListener(
   e => {
     const t = e.target instanceof Node ? e.target : null;
     if (menuOpen && !$('menu').contains(t)) closeMenu();
+    if (palOpen && !$('pal').contains(t)) closePal();
     if (emoOpen && !$('emo').contains(t) && t !== $('edemo')) closeEmoji();
   },
   true

@@ -1,5 +1,13 @@
 /* Pomoc: treść (HELP) i panel. */
 /* ---- pomoc ---- */
+/** pierwsza litera mała (opisy w pomocy) @param {string} s */
+const lc1 = s => s.charAt(0).toLowerCase() + s.slice(1);
+/** wiersz sekcji „Klawiatura” z tabeli czynności: skróty zwykłe i vim, nazwa (dopisek) @param {Act} a @returns {[string, string]} */
+function helpRow(a) {
+  if (a.help) return a.help;
+  const d = a.d || (a.tip && lc1(a.tip));
+  return [[...(a.k || []), ...(a.v || [])].join('|'), lc1(a.t) + (d ? ` (${d})` : '')];
+}
 /** @type {Record<string, [string, string][]>} sekcja → [klawisze rozdzielone „|”, opis] */
 const HELP = {
   Mysz: [
@@ -29,40 +37,7 @@ const HELP = {
     ['klik obok', 'zatwierdź'],
     ['pusty tekst', 'nowy węzeł znika, istniejący wraca do poprzedniego'],
   ],
-  'Klawiatura (zwykły | vim)': [
-    ['↑ ↓ ← →|h j k l', 'poruszanie (zgodnie z układem); vim z licznikiem, np. 3j'],
-    ['Home|End|gg|G', 'pierwszy / ostatni węzeł'],
-    ['0|$', 'pierwszy / ostatni brat'],
-    ['Spacja|i|e', 'edytuj'],
-    ['c', 'edytuj od pustego tekstu'],
-    ['Enter|o|s', 'nowy brat poniżej (przy korzeniu – nowy korzeń)'],
-    ['Shift+Enter|O|S', 'nowy brat powyżej'],
-    ['Tab|a', 'nowe dziecko'],
-    ['Ctrl+D', 'duplikuj gałąź (kopia zaraz za oryginałem)'],
-    ['Ctrl+C|yy', 'kopiuj gałąź'],
-    ['Ctrl+X|dd', 'wytnij gałąź'],
-    ['Del|Backspace|x', 'usuń gałąź (bez kopiowania)'],
-    ['Ctrl+V|p', 'wklej jako dziecko'],
-    ['Ctrl+Shift+V|P', 'wklej jako brata'],
-    ['Shift+Spacja|za', 'zwiń / rozwiń'],
-    ['zR|zM', 'rozwiń / zwiń wszystko'],
-    ['z1 … z9', 'pokaż do poziomu 1–9 (głębsze zwinięte)'],
-    ['Alt+↑ ↓|K J', 'przesuń w górę / w dół'],
-    ['Alt+→|L', 'wsuń poziom'],
-    ['Shift+Tab|Alt+←|H', 'wysuń poziom'],
-    ['Ctrl+Z|u', 'cofnij'],
-    ['Ctrl+Shift+Z|Ctrl+R', 'ponów'],
-    ['Ctrl+F|/', 'szukaj'],
-    ['Ctrl+G|n', 'następne trafienie'],
-    ['Ctrl+Shift+G|N', 'poprzednie trafienie'],
-    ['Shift+1|=', 'dopasuj całą mapę'],
-    ['Shift+2|zz', 'pokaż zaznaczony węzeł na środku (Shift+2 także przybliża)'],
-    ['Ctrl+.', 'emoji na końcu tekstu węzła'],
-    ['Menu', 'menu podręczne'],
-    ['Ctrl+S|Ctrl+O', 'zapisz / otwórz'],
-    ['Ctrl+/|?', 'pomoc'],
-    [':', 'komenda'],
-  ],
+  'Klawiatura (zwykły | vim)': ACT.filter(a => a.help !== false && (a.k || a.v)).map(helpRow),
   Szukanie: [
     [
       'Ctrl+F',
@@ -72,10 +47,11 @@ const HELP = {
     ['Esc', 'zamknij pole – zaznaczenie zostaje na trafieniu'],
   ],
   'Komendy (:)': [
+    [':', 'otwiera paletę z dwukropkiem: wpisana komenda jest pierwsza na liście, Enter ją uruchamia'],
     [':w|:e', 'zapisz / otwórz'],
     [':new tytuł', 'nowa mapa'],
     [':text', 'widok Markdown'],
-    [':layout right', 'układ: right, left, both, down'],
+    [':layout ' + Object.keys(LAY)[0], 'układ: ' + Object.keys(LAY).join(', ')],
     [':export svg', 'eksport: svg albo png'],
     [':theme dark', 'motyw: dark albo light'],
     [':fit|:test', 'dopasuj całą mapę / test zapisu'],

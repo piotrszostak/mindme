@@ -57,12 +57,15 @@ Każda czynność ma skrót zwykły i skrót vim:
 | dopasuj całą mapę / pokaż zaznaczony węzeł | Shift+1 / Shift+2 (z przybliżeniem)  | `=` / `zz`                                            |
 | menu podręczne / odznacz                   | klawisz Menu / Esc                   |                                                       |
 | emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
+| wszystkie polecenia (paleta komend)        | Ctrl+K                               | `:`                                                   |
 
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
 
 **Szukanie:** po Ctrl+F pole zostaje otwarte jak w przeglądarce: Enter i Shift+Enter przechodzą do następnego i poprzedniego trafienia, a Esc zamyka pole. Po `/` Enter szuka i zamyka pole jak w vim, a dalej działają `n` i `N`.
 
-Komendy wpisywane po `:`: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod Ctrl+/ (albo `?`).
+**Paleta komend:** Ctrl+K otwiera u góry okienko ze wszystkimi poleceniami, ich skrótami i 5 ostatnio użytymi na początku. Wpisany tekst zawęża listę: słowa można podać w dowolnej kolejności, bez polskich znaków (np. „zw wsz” znajdzie „Zwiń wszystko”). Strzałki wybierają, Enter uruchamia, a Esc zamyka. Na telefonie paletę otwiera menu „…” → „Wszystkie polecenia…”.
+
+`:` otwiera tę samą paletę z wpisanym dwukropkiem, a pełna komenda staje się pierwszą pozycją listy. Komendy: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod Ctrl+/ (albo `?`).
 
 ## Format pliku
 

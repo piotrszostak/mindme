@@ -17,18 +17,19 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 
 ## Mapa plików `www/js/` (zwykłe skrypty, NIE moduły – wspólny zakres globalny, kolejność w index.html ma znaczenie)
 
-| plik                          | zawartość                                                                                                                     |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| core.js                       | `DEF`/`ST` (styl mapy), `parse`/`serialize`, stan, `snap`/`undo`/`redo`, `find`, `vis`, `S()`, `need()`, `deselect()`         |
-| icons.js                      | `IC`, `icon()`, `LAY` (nazwy układów)                                                                                         |
-| layout.js                     | `applyStyle`, pomiar `tw`, `wrap`, `fit(n)` (rozmiar węzła), `lay()` (wiele korzeni), `layD` (układ „dół”)                    |
-| render.js                     | `render(keepView)`, animacja (`pos`, `step`, `draw`, `kick`, duchy), `edgeD`, `nodeHTML`, `fitView`, `centerSel`, `changed()` |
-| edit.js                       | edycja w węźle: `startEdit`, `endEdit`, `placeEd`, `addSib`, `addChild`                                                       |
-| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`   |
-| emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                               |
-| keys.js                       | `normal(ev)` – wszystkie skróty; `exec` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)       |
-| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, motyw / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`                         |
-| dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                 |
+| plik                          | zawartość                                                                                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| core.js                       | `DEF`/`ST` (styl mapy), `parse`/`serialize`, stan, `snap`/`undo`/`redo`, `find`, `vis`, `S()`, `need()`, `deselect()`                                  |
+| icons.js                      | `IC`, `icon()`, `LAY` (nazwy układów)                                                                                                                  |
+| layout.js                     | `applyStyle`, pomiar `tw`, `wrap`, `fit(n)` (rozmiar węzła), `lay()` (wiele korzeni), `layD` (układ „dół”)                                             |
+| render.js                     | `render(keepView)`, animacja (`pos`, `step`, `draw`, `kick`, duchy), `edgeD`, `nodeHTML`, `fitView`, `centerSel`, `changed()`                          |
+| edit.js                       | edycja w węźle: `startEdit`, `endEdit`, `placeEd`, `addSib`, `addChild`                                                                                |
+| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                            |
+| emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                        |
+| keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                      |
+| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, motyw / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`                                                  |
+| actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd` |
+| dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                          |
 
 ## Słowniczek stanu (krótkie nazwy)
 
@@ -41,9 +42,9 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 
 - Zmiana modelu → `snap()` przed, `changed()` po (cofanie + autozapis). Zaznaczenie bez zmian → `go(id)` / `render()`.
 - Nowy plik w `www/` → dopisz do `index.html` (właściwa kolejność) i do listy w `www/sw.js` (pilnuje `pwa.spec.js`).
-- Skróty: każda czynność = skrót zwykły (Ctrl/klawisz specjalny) + vim; dawne klawisze zostają jako ukryte aliasy (działają, nie ma ich w `HELP`, menu ani README); aktualizuj `HELP`, `ctxMenu` (pole `k`), `keys.spec.js` i tabelę w README.
+- Skróty: każda czynność = skrót zwykły (Ctrl/klawisz specjalny) + vim; dawne klawisze zostają jako ukryte aliasy (działają, nie ma ich w `HELP`, menu ani README); nazwę i skróty wpisz w `ACT` (actions.js – z niej biorą pomoc, menu i paleta), naciśnięcie obsłuż w `normal()`, zaktualizuj `keys.spec.js` i tabelę w README.
 - Format pliku: `# korzeń` (wiele = wiele korzeni), `<!--layout:…-->`, `<!--style:{tylko różnice od DEF}-->`, listy `- `, `<!--c-->` = zwinięty.
-- Format pliku i klucze autozapisu (`mm.md`, `mm.theme`, `mm.pal`, `mm.emo`) zmieniasz tylko po karcie decyzji. Plik z wersji 0.3 musi się wczytać bez strat (testy „strażnik formatu” w `parser.spec.js`); nowy format = nowa stała obok, starych nie zmieniasz.
+- Format pliku i klucze autozapisu (`mm.md`, `mm.theme`, `mm.pal`, `mm.emo`, `mm.cmd`) zmieniasz tylko po karcie decyzji. Plik z wersji 0.3 musi się wczytać bez strat (testy „strażnik formatu” w `parser.spec.js`); nowy format = nowa stała obok, starych nie zmieniasz.
 - Testy: Playwright z `reducedMotion: 'reduce'` (pozycje od razu końcowe; testy animacji ustawiają `no-preference`). Logikę testujesz przez `page.evaluate` jak w `tests/parser.spec.js`; obszary w `tests/README.md`, pomocniki w `tests/helpers.js`.
 - Commity na `main`.
 - Zmiany widoczne na ekranie oglądasz w panelu podglądu (serwer `mapa`), także w rozmiarze telefonu. Dotyk, przeciąganie i płynność: `/na-telefonie`.

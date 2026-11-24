@@ -31,6 +31,7 @@ function normal(ev) {
       x: cut,
       v: () => paste(!sh),
       f: () => openCmd('/', true),
+      k: () => openPal(),
       g: () => jump(sh ? -1 : 1),
       '/': toggleHelp,
       '.': () => {
@@ -217,7 +218,7 @@ function normal(ev) {
       fitView();
       break;
     case ':':
-      openCmd(':');
+      openPal(':');
       break;
     case '/':
       openCmd('/');
@@ -302,24 +303,27 @@ function jump(d) {
   go(sel);
   info(`trafienie ${hi + 1} z ${hits.length}`);
 }
-/** komenda „:” @param {string} c */
+/** komenda „:” → czynność (null – nieznana) @param {string} c @returns {{ id: string, t: string, f: () => unknown } | null} */
+function cmdFind(c) {
+  const [a, ...r] = c.trim().split(/\s+/),
+    arg = r.join(' '),
+    full = [a, ...r].join(' ');
+  if (a === 'test')
+    return { id: '', t: 'Test zapisu', f: () => info(selfTest() ? 'round-trip OK' : 'round-trip BŁĄD') };
+  if (a === 'new' && arg) return { id: 'new', t: `Nowa mapa „${arg}”`, f: () => newMap(arg) };
+  if (a === 'theme' && (arg === 'dark' || arg === 'light'))
+    return { id: 'theme', t: arg === 'dark' ? 'Motyw ciemny' : 'Motyw jasny', f: () => toggleTheme(arg) };
+  /** @param {(n: string) => boolean} ok */
+  const by = ok => ACT.find(x => x.f && x.c && [x.c, ...(x.ca || [])].some(ok));
+  /* cała komenda (np. „layout down”), inaczej pierwsze słowo komendy bez argumentów (np. „w plik.md” jak „w”) */
+  const x = by(n => n === full) || by(n => !n.includes(' ') && n === a);
+  return x && x.f ? { id: x.id, t: x.t, f: x.f } : null;
+}
+/** komenda „:” (w palecie i z pola na dole) @param {string} c */
 function exec(c) {
-  const [a, ...r] = c.split(/\s+/);
-  if (a === 'w' || a === 'write') save();
-  else if (a === 'e' || a === 'o') openFile();
-  else if (a === 'new') {
-    snap();
-    root = forest([mk(r.join(' ') || 'Nowa mapa')]);
-    sel = first().id;
-    fh = null;
-    changed();
-  } else if (a === 'test') info(selfTest() ? 'round-trip OK' : 'round-trip BŁĄD');
-  else if (a === 'layout' && LAY[r[0]]) setLayout(r[0]);
-  else if (a === 'export') exportImg(r[0] || 'svg');
-  else if (a === 'theme') toggleTheme(r[0]);
-  else if (a === 'text') toggleText();
-  else if (a === 'fit') fitView();
-  else info('nieznana komenda: ' + a);
+  const x = cmdFind(c);
+  if (x) x.f();
+  else info('nieznana komenda: ' + c.trim().split(/\s+/)[0]);
 }
 /* ---- zdarzenia: klawiatura ---- */
 window.addEventListener('keydown', ev => {

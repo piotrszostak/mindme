@@ -609,6 +609,104 @@ svg {
 #emo .grid button:hover {
   background: var(--bar);
 }
+/* paleta komend (Ctrl+K, „:”): u góry na środku, widać 5 pozycji (--ph = wysokość pozycji) */
+#pal {
+  position: fixed;
+  display: none;
+  z-index: 32;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 16px));
+  box-sizing: border-box;
+  padding: 6px;
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px #0004;
+}
+#pal.open {
+  display: block;
+}
+#palq {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 15px;
+  padding: 7px 10px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  outline: none;
+}
+#palq:focus {
+  border-color: var(--acc);
+}
+#pall {
+  --ph: 34px;
+  position: relative;
+  max-height: calc(5 * var(--ph));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-top: 6px;
+}
+#pall .pi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--ph);
+  box-sizing: border-box;
+  padding: 0 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#pall .pi.hi {
+  background: var(--bar);
+  box-shadow: inset 3px 0 0 var(--acc); /* widoczne także w ciemnym motywie */
+}
+#pall .pi.off {
+  cursor: default;
+  opacity: 0.5;
+}
+#pall .pt {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#pall kbd {
+  flex: none;
+  font:
+    12px/1.4 ui-monospace,
+    monospace;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  opacity: 0.75;
+}
+#pall .why {
+  flex: none;
+  font-size: 12px;
+  opacity: 0.8;
+}
+#pall .none {
+  padding: 8px;
+  opacity: 0.6;
+}
+@media (hover: none) {
+  #pall {
+    --ph: 44px;
+  }
+  #pall kbd {
+    display: none;
+  }
+  #palq {
+    font-size: 16px; /* mniejsza czcionka: iPhone przybliża stronę przy pisaniu */
+  }
+}
 #edemo {
   position: absolute;
   display: none;

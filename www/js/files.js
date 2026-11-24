@@ -55,6 +55,14 @@ function load(txt) {
   ty = 0;
   changed();
 }
+/** nowa mapa z jednym korzeniem (cofalne) @param {string} t tytuł (pusty – „Nowa mapa”) */
+function newMap(t) {
+  snap();
+  root = forest([mk(t || 'Nowa mapa')]);
+  sel = first().id;
+  fh = null;
+  changed();
+}
 async function openFile() {
   if (window.showOpenFilePicker) {
     try {

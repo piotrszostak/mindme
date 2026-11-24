@@ -72,73 +72,42 @@ function menuKey(ev) {
     bs[(i + (ev.shiftKey ? -1 : 1) + bs.length) % bs.length].focus();
   }
 }
+/** pozycja menu z tabeli czynności; `o` – zmiany zależne od stanu (np. etykieta) @param {string} id @param {Partial<MenuItem>} [o] @returns {MenuItem} */
+function mi(id, o) {
+  const a = actOf(id);
+  return {
+    ic: a.ic || '',
+    t: a.t,
+    k: actKey(a),
+    tip: a.tip,
+    f: a.f || (() => {}),
+    off: !!(a.off && a.off()),
+    id: a.id,
+    ...o,
+  };
+}
 /** jedno menu podręczne – zawsze dla zaznaczonego węzła @param {number} x @param {number} y @param {boolean} [touch] */
 function ctxMenu(x, y, touch) {
   const f = S(),
     n = f && f.n,
-    isRoot = !!f && f.p === root,
-    one = root.children.length < 2;
+    isRoot = !!f && f.p === root;
   openMenu(
     [
       { head: n ? 'Węzeł: ' + (n.text || '…') : 'Brak zaznaczenia – cała mapa' },
-      {
-        ic: 'sibdown',
-        t: !n ? 'Nowy korzeń' : isRoot ? 'Dodaj brata (nowy korzeń)' : 'Dodaj brata',
-        k: 'Enter',
-        f: () => addSib(sel, 1),
-        id: 'sib',
-      },
-      { ic: 'child', t: 'Dodaj dziecko', k: 'Tab', f: () => addChild(sel), off: !n, id: 'child' },
-      {
-        ic: 'emoji',
-        t: 'Wstaw emoji',
-        k: 'Ctrl+.',
-        tip: 'Na końcu tekstu węzła',
-        f: () => openEmoji(x, y),
-        off: !n,
-        id: 'emoji',
-      },
-      {
-        ic: n && n.collapsed ? 'unfold' : 'fold',
-        t: n && n.collapsed ? 'Rozwiń' : 'Zwiń',
-        k: 'Shift+Spacja',
-        f: () => fold(),
-        off: !n || !n.children.length,
-        id: 'fold',
-      },
+      mi('sib', { t: !n ? 'Nowy korzeń' : isRoot ? 'Dodaj brata (nowy korzeń)' : 'Dodaj brata' }),
+      mi('child'),
+      mi('emoji', { f: () => openEmoji(x, y) }),
+      mi('fold', n && n.collapsed ? { ic: 'unfold', t: 'Rozwiń' } : { t: 'Zwiń' }),
       '-',
-      { ic: 'copy', t: 'Kopiuj gałąź', k: 'Ctrl+C', f: copy, off: !n, id: 'copy' },
-      {
-        ic: 'dup',
-        t: 'Duplikuj gałąź',
-        k: 'Ctrl+D',
-        tip: 'Kopia zaraz za oryginałem',
-        f: duplicate,
-        off: !n,
-        id: 'dup',
-      },
-      { ic: 'cut', t: 'Wytnij gałąź', k: 'Ctrl+X', f: cut, off: !n || (isRoot && one), id: 'cut' },
-      {
-        ic: 'paste',
-        t: n ? 'Wklej jako dziecko' : 'Wklej jako nowy korzeń',
-        k: 'Ctrl+V',
-        f: () => paste(true),
-        off: !yank,
-        id: 'paste',
-      },
-      {
-        ic: 'del',
-        t: 'Usuń gałąź',
-        k: 'Del',
-        tip: 'Usuwa bez kopiowania (Ctrl+Z cofa)',
-        f: () => del(),
-        off: !n || (isRoot && one),
-        id: 'del',
-      },
+      mi('copy'),
+      mi('dup'),
+      mi('cut'),
+      mi('paste', { t: n ? 'Wklej jako dziecko' : 'Wklej jako nowy korzeń' }),
+      mi('del'),
       '-',
-      { ic: 'fit', t: 'Dopasuj całą mapę', k: 'Shift+1', f: fitView, id: 'fit' },
-      { ic: 'unfold', t: 'Rozwiń wszystko', k: 'zR', f: () => foldAll(false), id: 'unfoldall' },
-      { ic: 'fold', t: 'Zwiń wszystko', k: 'zM', f: () => foldAll(true), id: 'foldall' },
+      mi('fit'),
+      mi('unfoldall'),
+      mi('foldall'),
     ],
     x,
     y,
@@ -148,17 +117,7 @@ function ctxMenu(x, y, touch) {
 /** @param {number} x @param {number} y */
 function moreMenu(x, y) {
   openMenu(
-    [
-      { ic: 'open', t: 'Otwórz plik…', k: 'Ctrl+O', f: openFile, id: 'open' },
-      { ic: 'save', t: 'Zapisz', k: 'Ctrl+S', f: save, id: 'save' },
-      { ic: 'newmap', t: 'Nowa mapa', k: ':new', f: () => exec('new'), id: 'new' },
-      '-',
-      { ic: 'image', t: 'Eksportuj SVG', k: ':export svg', f: () => exportImg('svg'), id: 'svg' },
-      { ic: 'image', t: 'Eksportuj PNG', k: ':export png', f: () => exportImg('png'), id: 'png' },
-      '-',
-      { ic: 'theme', t: 'Motyw jasny / ciemny', k: ':theme', f: () => toggleTheme(), id: 'theme' },
-      { ic: 'help', t: 'Pomoc i skróty', k: 'Ctrl+/', f: toggleHelp, id: 'help' },
-    ],
+    [mi('open'), mi('save'), mi('new'), '-', mi('svg'), mi('png'), '-', mi('theme'), mi('help'), mi('pal')],
     x,
     y
   );
