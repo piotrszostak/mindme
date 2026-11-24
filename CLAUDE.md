@@ -41,7 +41,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 
 - Zmiana modelu → `snap()` przed, `changed()` po (cofanie + autozapis). Zaznaczenie bez zmian → `go(id)` / `render()`.
 - Nowy plik w `www/` → dopisz do `index.html` (właściwa kolejność) i do listy w `www/sw.js` (pilnuje `pwa.spec.js`).
-- Skróty: każda czynność = jeden zwykły (Ctrl/klawisz specjalny) + jeden vim; aktualizuj `HELP`, `ctxMenu` (pole `k`) i `keys.spec.js`.
+- Skróty: każda czynność = skrót zwykły (Ctrl/klawisz specjalny) + vim; dawne klawisze zostają jako ukryte aliasy (działają, nie ma ich w `HELP`, menu ani README); aktualizuj `HELP`, `ctxMenu` (pole `k`), `keys.spec.js` i tabelę w README.
 - Format pliku: `# korzeń` (wiele = wiele korzeni), `<!--layout:…-->`, `<!--style:{tylko różnice od DEF}-->`, listy `- `, `<!--c-->` = zwinięty.
 - Format pliku i klucze autozapisu (`mm.md`, `mm.theme`, `mm.pal`, `mm.emo`) zmieniasz tylko po karcie decyzji. Plik z wersji 0.3 musi się wczytać bez strat (testy „strażnik formatu” w `parser.spec.js`); nowy format = nowa stała obok, starych nie zmieniasz.
 - Testy: Playwright z `reducedMotion: 'reduce'` (pozycje od razu końcowe; testy animacji ustawiają `no-preference`). Logikę testujesz przez `page.evaluate` jak w `tests/parser.spec.js`; obszary w `tests/README.md`, pomocniki w `tests/helpers.js`.

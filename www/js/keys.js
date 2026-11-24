@@ -1,6 +1,6 @@
 /* Klawiatura (tryb Normal: skrót zwykły + vim), wiersz poleceń „:” i wyszukiwanie „/”. */
 /* ---- tryb Normal (klawiatura) ---- */
-/* Skróty: dla każdej czynności jeden standardowy (Ctrl/klawisz specjalny) i jeden vim – bez duplikatów. */
+/* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (np. Ctrl+Y) zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy. */
 /** tryb Normal: wszystkie skróty mapy @param {KeyboardEvent} ev */
 function normal(ev) {
   if (dnd) return;
@@ -11,7 +11,7 @@ function normal(ev) {
     const k = c.length === 1 ? c.toLowerCase() : c;
     /** @type {Record<string, (() => unknown) | null>} */
     const ctrlKeys = {
-      z: sh ? null : undo,
+      z: sh ? redo : undo,
       y: redo,
       r: redo,
       s: save,
@@ -131,6 +131,9 @@ function normal(ev) {
       addSib(sel, 0);
       break;
     case 'Tab':
+      if (sh) outdent();
+      else addChild(sel);
+      break;
     case 'a':
       addChild(sel);
       break;
@@ -139,6 +142,7 @@ function normal(ev) {
       startEdit(sel);
       break;
     case 'Delete':
+    case 'Backspace': // Mac nie ma klawisza Delete
     case 'x':
       del();
       break;
