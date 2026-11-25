@@ -62,43 +62,127 @@ function paste(asChild) {
   if (!yank) return info('schowek pusty');
   insert([clone(yank)], asChild);
 }
-/** Ctrl+V: tekst ze schowka systemowego; własny (skopiowany w aplikacji) albo pusty – gałąź z wewnętrznego schowka
- * @param {string} t @param {boolean} asChild */
-function pasteText(t, asChild) {
+/** Ctrl+V: tekst ze schowka systemowego; własny (skopiowany w aplikacji) albo pusty – gałąź z wewnętrznego schowka.
+ * Wersja HTML (wyrenderowana notatka, strona WWW) ma strukturę, której zwykły tekst nie ma – wtedy ona wygrywa.
+ * @param {string} t zwykły tekst @param {boolean} asChild @param {string} [html] wersja HTML schowka */
+function pasteText(t, asChild, html = '') {
   t = t.replace(/\r\n?/g, '\n');
-  const ns = t === clipLast ? [] : textNodes(t);
+  /** @type {MapNode[]} */
+  let ns = [];
+  if (t !== clipLast) {
+    if (/<(li|h[1-6])\b/i.test(html)) ns = htmlNodes(html);
+    if (!ns.length) ns = textNodes(t);
+  }
   if (!ns.length) return paste(asChild);
   insert(ns, asChild);
 }
-/** tekst z innej aplikacji → węzły: lista z wcięciami daje hierarchię, inne linie (też nagłówki) – rodzeństwo
- * @param {string} t @returns {MapNode[]} */
+/** Węzły pod nagłówkami: stos nagłówków (`#` › `##` …) i miejsce na kolejne węzły. */
+function heads() {
+  /** @type {MapNode[]} */
+  const top = [];
+  /** @type {{ lvl: number, n: MapNode }[]} */
+  const hs = [];
+  return {
+    top,
+    /** dzieci ostatniego nagłówka (bez nagłówka – najwyższy poziom) */
+    into: () => (hs.length ? hs[hs.length - 1].n.children : top),
+    /** nagłówek poziomu `lvl`: trafia pod najbliższy wyższy nagłówek @param {number} lvl @param {string} text */
+    head(lvl, text) {
+      while (hs.length && hs[hs.length - 1].lvl >= lvl) hs.pop();
+      const n = mk(text);
+      this.into().push(n);
+      hs.push({ lvl, n });
+    },
+  };
+}
+/** tekst z innej aplikacji → węzły: nagłówki `#` tworzą poziomy, pod nimi lista albo linie; wcięcie (z myślnikiem
+ * albo bez) daje hierarchię @param {string} t @returns {MapNode[]} */
 function textNodes(t) {
-  const LI = /^(\s*)[-*+]\s+(.*)$/,
+  const HD = /^\s{0,3}(#{1,6})\s+(.*)$/,
+    LI = /^(\s*)(?:(?:[-*+]|\d+[.)])\s+)?(.*)$/,
     ls = t
       .split('\n')
       .map(l => l.replace(/\t/g, '  '))
       .filter(l => l.trim()),
-    ind = ls.map(l => LI.exec(l)).flatMap(m => (m ? [m[1].length] : [])),
-    base = ind.length ? Math.min(...ind) : 0; /* wcięcie liczone od najmniej wciętej linii listy */
-  /** @type {MapNode[]} */
-  const top = [];
-  /** @type {MapNode[]} ostatni węzeł na każdej głębokości */
+    body = ls.filter(l => !HD.test(l)),
+    base = body.length ? Math.min(...body.map(l => l.length - l.trimStart().length)) : 0;
+  const h = heads();
+  /** @type {MapNode[]} ostatni węzeł na każdej głębokości (pod bieżącym nagłówkiem) */
   let st = [];
   for (const l of ls) {
-    const m = LI.exec(l);
-    if (!m) {
-      top.push(mk(l.trim().replace(/^#+\s+/, '')));
+    const hd = HD.exec(l);
+    if (hd) {
+      h.head(hd[1].length, hd[2].replace(C_RE, '').trim());
       st = [];
       continue;
     }
-    const d = Math.min(Math.floor((m[1].length - base) / 2), st.length),
-      n = mk(m[2].replace(C_RE, ''));
-    n.collapsed = C_RE.test(m[2]);
-    (d ? st[d - 1].children : top).push(n);
+    const m = /** @type {RegExpExecArray} */ (LI.exec(l)),
+      d = Math.min(Math.floor((m[1].length - base) / 2), st.length),
+      x = m[2].trimEnd(),
+      n = mk(x.replace(C_RE, ''));
+    n.collapsed = C_RE.test(x);
+    (d ? st[d - 1].children : h.into()).push(n);
     st.length = d;
     st.push(n);
   }
-  return top;
+  return h.top;
+}
+/** HTML ze schowka → węzły: nagłówki, listy (zagnieżdżone), akapity; tylko tekst, nic się nie wykonuje ani nie wczytuje
+ * @param {string} html @returns {MapNode[]} */
+function htmlNodes(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html'),
+    BR = '\u2028' /* <br> – jedyny podział linii w akapicie (zwykłe \n w źródle HTML to spacja) */,
+    BLOCK = /^(H[1-6]|UL|OL|LI|P|DIV|PRE|BLOCKQUOTE|TABLE|TR|SECTION|ARTICLE|HEADER|FOOTER|MAIN|DL|DT|DD|FIGURE|HR)$/;
+  doc.querySelectorAll('br').forEach(b => b.replaceWith(BR));
+  doc.querySelectorAll('script, style, template, noscript').forEach(e => e.remove());
+  const h = heads();
+  /** @param {string} s */
+  const lines = s =>
+    s
+      .split(BR)
+      .map(x => x.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .forEach(x => h.into().push(mk(x)));
+  /** tekst punktu listy bez list w nim zagnieżdżonych @param {Element} li */
+  const own = li => {
+    const c = /** @type {Element} */ (li.cloneNode(true));
+    c.querySelectorAll('ul, ol').forEach(x => x.remove());
+    return (c.textContent || '').replace(/\s+/g, ' ').trim();
+  };
+  /** @param {Element} l lista @param {MapNode[]} into */
+  const list = (l, into) => {
+    for (const li of Array.from(l.children)) {
+      if (li.tagName !== 'LI') continue;
+      const n = mk(own(li));
+      for (const sub of Array.from(li.querySelectorAll('ul, ol')))
+        if (sub.parentElement && sub.parentElement.closest('li') === li) list(sub, n.children);
+      if (n.text) into.push(n);
+      else into.push(...n.children); /* punkt bez tekstu – jego dzieci idą piętro wyżej */
+    }
+  };
+  /** @param {Element} el */
+  const walk = el => {
+    let buf = '';
+    for (const c of Array.from(el.childNodes)) {
+      if (c instanceof Element && BLOCK.test(c.tagName)) {
+        lines(buf);
+        buf = '';
+        const tag = c.tagName;
+        if (/^H[1-6]$/.test(tag)) h.head(Number(tag[1]), (c.textContent || '').replace(/\s+/g, ' ').trim());
+        else if (tag === 'UL' || tag === 'OL') list(c, h.into());
+        else if (tag === 'TR')
+          lines(
+            Array.from(c.children, td => (td.textContent || '').trim())
+              .filter(Boolean)
+              .join(' | ')
+          );
+        else walk(c);
+      } else if (c.nodeType === Node.TEXT_NODE || c instanceof Element) buf += c.textContent; /* tekst w linii */
+    }
+    lines(buf);
+  };
+  walk(doc.body);
+  return h.top.filter(n => n.text);
 }
 /** wstaw węzły jako dzieci / braci zaznaczonego (bez zaznaczenia – nowe mapy); jeden krok cofania
  * @param {MapNode[]} ns @param {boolean} asChild */

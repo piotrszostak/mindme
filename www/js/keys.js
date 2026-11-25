@@ -308,7 +308,8 @@ document.addEventListener('paste', e => {
   if (mode !== 'NORMAL' || tv || editing || menuOpen || emoOpen) return;
   if (!clip && asEl(e.target)?.closest('input, textarea')) return;
   e.preventDefault();
-  pasteText(e.clipboardData?.getData('text/plain') || '', !sib);
+  const cd = e.clipboardData;
+  pasteText(cd?.getData('text/plain') || '', !sib, cd?.getData('text/html') || '');
 });
 /* kliknięcie poza polem (mapa, pasek) zamyka je – inaczej tryb zostaje SEARCH i klawisze nie sterują mapą,
    a Ctrl+F i „/” trafiają do przeglądarki; trafienia zostają dla n / N */

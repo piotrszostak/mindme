@@ -40,6 +40,27 @@ async function copyOutside(page, text) {
   await keys(page, ['Control+c']);
   await removeOutside(page);
 }
+/** skopiuj wyrenderowany fragment (jak widok czytania w Obsidianie albo strona WWW): w schowku tekst i HTML */
+async function copyRendered(page, html) {
+  await page.evaluate(h => {
+    const d = document.createElement('div');
+    d.id = 'obce';
+    d.tabIndex = 0;
+    d.innerHTML = h;
+    d.addEventListener('keydown', e => e.stopPropagation());
+    document.body.append(d);
+  }, html);
+  await page.locator('#obce').focus();
+  await page.evaluate(() => {
+    const r = document.createRange();
+    r.selectNodeContents(document.getElementById('obce'));
+    getSelection().removeAllRanges();
+    getSelection().addRange(r);
+  });
+  await keys(page, ['Control+c']);
+  await page.evaluate(() => getSelection().removeAllRanges());
+  await removeOutside(page);
+}
 /** co jest w schowku systemowym: wklej do „innej aplikacji” */
 async function readOutside(page) {
   await outside(page, '');
@@ -101,10 +122,12 @@ test('tekst z zewnątrz: lista z wcięciami → hierarchia, zwykłe linie → ro
 }) => {
   const cases = [
     ['- x\n  - x1\n    - x2\n- y', '- c\n  - x\n    - x1\n      - x2\n  - y\n'],
-    ['    - wcięta\n      - dalej', '- c\n  - wcięta\n    - dalej\n'], // wcięcie listy liczone od jej pierwszej linii
+    ['    - wcięta\n      - dalej', '- c\n  - wcięta\n    - dalej\n'], // wcięcie liczone od najmniej wciętej linii
     ['jeden\n\ndwa\n   \ntrzy', '- c\n  - jeden\n  - dwa\n  - trzy\n'],
     ['Tylko jedna linia', '- c\n  - Tylko jedna linia\n'],
-    ['# Tytuł\n- punkt', '- c\n  - Tytuł\n  - punkt\n'], // nagłówek to zwykła linia
+    ['# Tytuł\n- punkt', '- c\n  - Tytuł\n    - punkt\n'], // lista pod nagłówkiem to jego dzieci
+    ['Zakupy\n  mleko\n  chleb', '- c\n  - Zakupy\n    - mleko\n    - chleb\n'], // wcięcie bez myślników też
+    ['- a\n\t- a1\n\t\t- a2', '- c\n  - a\n    - a1\n      - a2\n'], // tabulatory (Obsidian)
   ];
   for (const [text, tail] of cases) {
     await loadMap(page, MD);
@@ -112,6 +135,36 @@ test('tekst z zewnątrz: lista z wcięciami → hierarchia, zwykłe linie → ro
     await select(page, 'c');
     await keys(page, ['Control+v']);
     expect(await md(page), text).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n' + tail);
+  }
+});
+
+test('tekst Markdown z notatki: nagłówki tworzą poziomy, lista i zwykłe linie trafiają pod nagłówek', async ({
+  page,
+}) => {
+  await loadMap(page, MD);
+  await copyOutside(page, '# Projekt\n\n## Cele\n\n- a\n\t- a1\n\nzwykła linia\n\n## Ryzyka\n- r\n');
+  await select(page, 'c');
+  await keys(page, ['Control+v']);
+  expect(await md(page)).toBe(
+    '# R\n\n- a <!--c-->\n  - a1\n- b\n- c\n  - Projekt\n    - Cele\n      - a\n        - a1\n      - zwykła linia\n    - Ryzyka\n      - r\n'
+  );
+});
+
+test('wyrenderowana notatka (widok czytania w Obsidianie, strona WWW): struktura z wersji HTML schowka', async ({
+  page,
+}) => {
+  const tail = '- c\n  - Nagłówek\n    - a\n      - a1\n    - b\n    - zwykła linia\n';
+  for (const html of [
+    '<h2>Nagłówek</h2><ul><li>a<ul><li>a1</li></ul></li><li>b</li></ul><p>zwykła linia</p>',
+    /* jak w Obsidianie: bloki w <div>, znaczniki punktów bez tekstu, akapit w punkcie listy */
+    '<div class="el-h2"><h2 dir="auto">Nagłówek</h2></div><div class="el-ul"><ul><li><span class="list-bullet"></span><p>a</p>' +
+      '<ul><li><span class="list-bullet"></span>a1</li></ul></li><li>b</li></ul></div><div class="el-p"><p>zwykła linia</p></div>',
+  ]) {
+    await loadMap(page, MD);
+    await copyRendered(page, html);
+    await select(page, 'c');
+    await keys(page, ['Control+v']);
+    expect(await md(page), html).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n' + tail);
   }
 });
 
