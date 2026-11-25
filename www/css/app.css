@@ -197,19 +197,40 @@ svg {
 #save {
   white-space: nowrap;
 }
+/* komunikat ma pierwszeństwo: dostaje szerokość swojego tekstu (kurczy się tylko, gdy brak miejsca),
+   a podpowiedź bierze tylko to, co zostanie */
 #info {
-  flex: 1;
+  flex: 0 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 #hint {
+  flex: 1 1 0;
+  min-width: 0;
   opacity: 0.65;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: system-ui, sans-serif;
   font-size: 12px;
+}
+/* wąski ekran: komunikat w osobnym wierszu na całą szerokość, zawijany; pusty – wiersza nie ma */
+@media (max-width: 600px) {
+  #st {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  #info {
+    order: 1;
+    flex-basis: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  #info:empty {
+    display: none;
+  }
 }
 /* pomoc: na komputerze panel na dolnej połowie, na telefonie pełny ekran */
 #help {

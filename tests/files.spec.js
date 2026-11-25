@@ -45,9 +45,7 @@ test('plik z treścią spoza mapy: otwarcie niczego w nim nie zapisuje, autozapi
   await stubFiles(page, MIXED);
   await openAndAutosave(page);
   expect(await writes(page)).toEqual({ org: [], nowy: [] });
-  await expect(page.locator('#info')).toHaveText(
-    'Pominięto 2 linie, których mapa nie pokazuje – plik na dysku bez zmian'
-  );
+  await expect(page.locator('#info')).toHaveText('Pominięto 2 linie spoza mapy – plik na dysku bez zmian');
   await expect(page.locator('#save')).toHaveText('✓ zapisano lokalnie');
   expect(await page.evaluate(() => localStorage.getItem('mm.md'))).toBe('# Plan\n\n- a\n  - b\n');
   await expect(ask(page)).toBeHidden();
@@ -71,11 +69,11 @@ test('licznik pominiętych linii: tylko niepuste linie spoza mapy, bez frontmatt
   expect(await skip(MIXED)).toBe(2);
   expect(await skip('---\nbez zamknięcia\n# T\n|a|b|\n')).toBe(3);
   expect(await page.evaluate(() => [1, 2, 5, 12, 22].map(skipInfo))).toEqual([
-    'Pominięto 1 linię, której mapa nie pokazuje – plik na dysku bez zmian',
-    'Pominięto 2 linie, których mapa nie pokazuje – plik na dysku bez zmian',
-    'Pominięto 5 linii, których mapa nie pokazuje – plik na dysku bez zmian',
-    'Pominięto 12 linii, których mapa nie pokazuje – plik na dysku bez zmian',
-    'Pominięto 22 linie, których mapa nie pokazuje – plik na dysku bez zmian',
+    'Pominięto 1 linię spoza mapy – plik na dysku bez zmian',
+    'Pominięto 2 linie spoza mapy – plik na dysku bez zmian',
+    'Pominięto 5 linii spoza mapy – plik na dysku bez zmian',
+    'Pominięto 12 linii spoza mapy – plik na dysku bez zmian',
+    'Pominięto 22 linie spoza mapy – plik na dysku bez zmian',
   ]);
 });
 
@@ -171,7 +169,5 @@ test('plik zmieniony na dysku: przeładowanie z nowymi liniami spoza mapy znowu 
   });
   expect(await page.evaluate(() => vis().map(n => n.text))).toEqual(['Plan', 'a', 'c']);
   expect((await writes(page)).org).toHaveLength(1);
-  await expect(page.locator('#info')).toHaveText(
-    'Pominięto 1 linię, której mapa nie pokazuje – plik na dysku bez zmian'
-  );
+  await expect(page.locator('#info')).toHaveText('Pominięto 1 linię spoza mapy – plik na dysku bez zmian');
 });

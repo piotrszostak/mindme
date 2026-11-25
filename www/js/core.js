@@ -261,7 +261,9 @@ function redo() {
 }
 /** komunikat w pasku stanu @param {string} t */
 function info(t) {
-  $('info').textContent = t;
+  const e = $('info');
+  e.textContent = t;
+  e.title = t; /* pełny tekst, gdy pasek go ucina */
 }
 /** podpowiedź w pasku stanu @param {string} t */
 function hint(t) {

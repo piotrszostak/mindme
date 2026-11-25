@@ -65,8 +65,7 @@ async function saveNew() {
 const lin = (n, one) =>
   n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'linie' : 'linii';
 /** komunikat po otwarciu pliku z liniami spoza mapy @param {number} n */
-const skipInfo = n =>
-  `Pominięto ${n} ${lin(n, 'linię')}, ${n === 1 ? 'której' : 'których'} mapa nie pokazuje – plik na dysku bez zmian`;
+const skipInfo = n => `Pominięto ${n} ${lin(n, 'linię')} spoza mapy – plik na dysku bez zmian`;
 /**
  * Okienko z pytaniem; pierwszy przycisk jest domyślny (Enter), Esc = −1.
  * @param {string} text @param {string[]} labels @returns {Promise<number>} numer wybranego przycisku

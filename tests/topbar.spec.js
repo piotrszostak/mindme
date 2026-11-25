@@ -133,3 +133,53 @@ test.describe('pasek: kolejność', () => {
     expect((await dl).suggestedFilename()).toBe('mapa.md');
   });
 });
+
+test.describe('pasek stanu', () => {
+  const HINT = 'przytrzymaj węzeł – menu · przytrzymaj tło – odznacz · stuknij 2× – edytuj';
+  const MSG = 'Pominięto 2 linie spoza mapy – plik na dysku bez zmian';
+  const show = page =>
+    page.evaluate(
+      ([h, m]) => {
+        hint(h);
+        $('save').textContent = '✓ zapisano lokalnie';
+        info(m);
+      },
+      [HINT, MSG]
+    );
+
+  test('komputer: komunikat ma pierwszeństwo przed podpowiedzią i pełny tekst w objaśnieniu', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 700 });
+    await show(page);
+    /* szerokość tekstu z Range (nie scrollWidth – zaokrągla i nie widzi ucięcia o ułamek piksela) */
+    const [w, tw] = await page.$eval('#info', e => {
+      const r = document.createRange();
+      r.selectNodeContents(e);
+      return [e.getBoundingClientRect().width, r.getBoundingClientRect().width];
+    });
+    expect(w).toBeGreaterThanOrEqual(tw);
+    await expect(page.locator('#info')).toHaveAttribute('title', MSG);
+  });
+
+  test('telefon: komunikat cały widoczny (osobny wiersz), a bez komunikatu wiersza nie ma', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.evaluate(() => info(''));
+    const h0 = await page.$eval('#st', e => e.offsetHeight);
+    await show(page);
+    const [w, sw, sh, ch] = await page.$eval('#info', e => [
+      e.clientWidth,
+      e.scrollWidth,
+      e.scrollHeight,
+      e.clientHeight,
+    ]);
+    expect(w).toBeGreaterThan(300);
+    expect(w).toBeGreaterThanOrEqual(sw);
+    expect(ch).toBeGreaterThanOrEqual(sh);
+    const mid = id => page.$eval(id, e => (r => r.top + r.height / 2)(e.getBoundingClientRect()));
+    /* tryb, podpowiedź i stan zapisu w jednym wierszu (środki wyrównane), komunikat pod nimi */
+    expect(Math.abs((await mid('#hint')) - (await mid('#mode')))).toBeLessThan(2);
+    expect(Math.abs((await mid('#save')) - (await mid('#mode')))).toBeLessThan(2);
+    expect(await mid('#info')).toBeGreaterThan((await mid('#mode')) + 10);
+    await page.evaluate(() => info(''));
+    expect(await page.$eval('#st', e => e.offsetHeight)).toBe(h0);
+  });
+});
