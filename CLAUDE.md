@@ -57,4 +57,6 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 - `render()` przebudowuje DOM → przeglądarka nie wyśle `click`/`dblclick`; dwuklik wykrywamy sami (`pointer.js`).
 - W trybie mapy każdy zwykły znak musi mieć `preventDefault()`, inaczej Firefox otwiera szybkie wyszukiwanie.
 - Emoji: osobne `<tspan class="emo">` z kolorową czcionką + osobny pomiar (`cvE`), dzielenie słów po grafemach.
+- Okienko z pytaniem (`ask`, `<dialog>` w `files.js`): wynik oddawaj przy wyborze, nie w zdarzeniu `close` (przychodzi z opóźnieniem i trafia w następne pytanie); `returnValue` po Esc jest w Chromium pusty, a `Number('')` = 0 = przycisk domyślny; Enter, który okienko otworzył (np. `:w` z palety), nie może wybrać przycisku.
+- Ctrl+V w trybie mapy: fokus na chwilę w niewidocznym `#clip` (Firefox poza polem tekstowym nie wysyła `paste` dla Ctrl+Shift+V); nie rób `preventDefault()` na Ctrl+V, bo `paste` nie nadejdzie.
 - Kontener bez roota: biblioteki z `.pw-libs/` dokładane tylko w kontenerze, poza nim psują `/bin/sh` (zob. `tests/README.md`); Firefox ma własne NSS.
