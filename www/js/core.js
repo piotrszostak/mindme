@@ -71,26 +71,30 @@ const forest = ch => /** @type {MapNode} */ ({ id: 0, text: '', children: ch, co
 const C_RE = /\s*<!--c-->\s*$/;
 /** Model → Markdown. @param {MapNode} t kontener `root` */
 function serialize(t) {
-  return t.children
-    .map((r, i) => {
-      let o =
-        '# ' +
-        r.text +
-        (r.collapsed && r.children.length ? ' <!--c-->' : '') +
-        '\n' +
-        (i === 0 && dir !== 'right' ? '<!--layout:' + dir + '-->\n' : '') +
-        (i === 0 && styleStr() ? '<!--style:' + styleStr() + '-->\n' : '') +
-        '\n';
-      (function w(n, d) {
-        for (const c of n.children) {
-          o += '  '.repeat(d) + '- ' + c.text + (c.collapsed && c.children.length ? ' <!--c-->' : '') + '\n';
-          w(c, d + 1);
-        }
-      })(r, 0);
-      return i < t.children.length - 1 ? o.replace(/\n\n$/, '\n') : o;
-    })
-    .join('\n');
+  return (
+    (t.fm !== undefined ? t.fm + '\n' : '') +
+    t.children
+      .map((r, i) => {
+        let o =
+          '# ' +
+          r.text +
+          (r.collapsed && r.children.length ? ' <!--c-->' : '') +
+          '\n' +
+          (i === 0 && dir !== 'right' ? '<!--layout:' + dir + '-->\n' : '') +
+          (i === 0 && styleStr() ? '<!--style:' + styleStr() + '-->\n' : '') +
+          '\n';
+        (function w(n, d) {
+          for (const c of n.children) {
+            o += '  '.repeat(d) + '- ' + c.text + (c.collapsed && c.children.length ? ' <!--c-->' : '') + '\n';
+            w(c, d + 1);
+          }
+        })(r, 0);
+        return i < t.children.length - 1 ? o.replace(/\n\n$/, '\n') : o;
+      })
+      .join('\n')
+  );
 } /* bloki rozdziela dokładnie jedna pusta linia */
+const FM_RE = /^---[ \t]*$/;
 /** Markdown → model (zwraca kontener; ustawia też `dir` i `ST`). @param {string} md */
 function parse(md) {
   const t = forest([]);
@@ -98,7 +102,15 @@ function parse(md) {
   dir = 'right';
   ST = JSON.parse(JSON.stringify(DEF));
   stDirty = true;
-  for (let l of md.replace(/\t/g, '  ').split(/\r?\n/)) {
+  let ls = md.split(/\r?\n/);
+  /* frontmatter: blok od `---` w pierwszej linii do następnego `---` – zostaje bez zmian, nie trafia na mapę */
+  const e = FM_RE.test(ls[0]) ? ls.findIndex((l, i) => i > 0 && FM_RE.test(l)) : -1;
+  if (e > 0) {
+    t.fm = ls.slice(0, e + 1).join('\n');
+    ls = ls.slice(e + 1);
+  }
+  for (const line of ls) {
+    const l = line.replace(/\t/g, '  ');
     let m;
     if ((m = /^#\s+(.*)$/.exec(l))) {
       const r = mk(m[1].replace(C_RE, ''));
@@ -137,10 +149,16 @@ function parse(md) {
   if (!t.children.length) t.children.push(mk('Mapa'));
   return t;
 }
+/* próbka dla `:test` z rozszerzeniami formatu (frontmatter); nowe rozszerzenie = dopisz je tutaj */
+const SELF_MD = '---\ntags:\n  - test\n---\n# Test\n\n- a\n';
+/** `:test`: zapis i odczyt bieżącej mapy oraz próbki dają ten sam tekst */
 function selfTest() {
-  const a = serialize(root),
-    b = serialize(parse(a));
-  return a === b;
+  const d = dir,
+    st = ST,
+    ok = [serialize(root), SELF_MD].every(a => serialize(parse(a)) === a);
+  dir = d;
+  ST = st;
+  return ok;
 }
 /* ---- stan ---- */
 let root = parse(

@@ -140,6 +140,51 @@ test('strażnik formatu: mapa z autozapisu (mm.md) otwiera się po starcie', asy
   await expect(page.locator('#g')).toContainText('Jeden');
 });
 
+// Strażnik formatu (frontmatter, od 2026-11-25): blok `---` z pierwszej linii zostaje w pliku bez zmian.
+const FM_BLOCK = '---\ntitle: "Wyjazd"  \ntags:\n  - wyjazd\n  - lato\nopis: |\n\n\tlinia z tabulatorem\n---';
+const FORMAT_FM = FM_BLOCK + '\n# Plan <!--c-->\n<!--layout:both-->\n\n- Bilety\n  - Pociąg\n\n# Drugi\n\n- x\n';
+
+test('frontmatter: zostaje w pliku bez zmian i nie trafia na mapę', async ({ page }) => {
+  const { roots } = await tree(page, FORMAT_FM);
+  expect(roots).toEqual([
+    { text: 'Plan', collapsed: true, children: [{ text: 'Bilety', children: [{ text: 'Pociąg', children: [] }] }] },
+    { text: 'Drugi', children: [{ text: 'x', children: [] }] },
+  ]);
+  expect(await page.evaluate(m => serialize(parse(m)), FORMAT_FM)).toBe(FORMAT_FM);
+});
+
+test('frontmatter tylko od pierwszej linii i tylko z zamykającym ---', async ({ page }) => {
+  const save = md => page.evaluate(m => serialize(parse(m)), md);
+  expect(await save('# T\n---\na: 1\n---\n- x\n')).toBe('# T\n\n- x\n');
+  expect(await save('\n---\na: 1\n---\n# T\n')).toBe('# T\n\n');
+  expect(await save('---\na: 1\n# T\n- x\n')).toBe('# T\n\n- x\n');
+  expect(await save('---\n---\n# T\n')).toBe('---\n---\n# T\n\n');
+  expect(await save('---\r\na: 1\r\n---\r\n# T\r\n- x\r\n')).toBe('---\na: 1\n---\n# T\n\n- x\n');
+});
+
+test('frontmatter: przechowują go autozapis, cofanie i widok tekstowy; nowa mapa zaczyna bez niego', async ({
+  page,
+}) => {
+  await page.addInitScript(md => localStorage.setItem('mm.md', md), FORMAT_FM);
+  await open(page);
+  expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_FM);
+  expect(await page.evaluate(() => selfTest())).toBe(true);
+
+  await page.click('#bt');
+  expect(await page.inputValue('#txt')).toBe(FORMAT_FM);
+  await page.keyboard.press('Escape');
+  expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_FM);
+
+  /* cofanie sprawdza tylko frontmatter: układu (layout) cofanie dziś nie przywraca – osobna sprawa */
+  await page.evaluate(() => load('# Inna\n\n- y\n'));
+  expect(await page.evaluate(() => root.fm)).toBeUndefined();
+  await page.evaluate(() => undo());
+  expect(await page.evaluate(() => [root.fm, root.children.map(r => r.text)])).toEqual([FM_BLOCK, ['Plan', 'Drugi']]);
+
+  await page.evaluate(() => newMap('Nowa'));
+  expect(await page.evaluate(() => serialize(root))).toBe('# Nowa\n\n');
+});
+
 test('komenda :test raportuje round-trip OK', async ({ page }) => {
   await page.keyboard.press(':');
   await page.keyboard.type('test');

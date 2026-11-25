@@ -9,6 +9,8 @@ interface MapNode {
   collapsed: boolean;
   /** niewidoczny kontener `root` (id 0); jego dzieci to korzenie map */
   top?: boolean;
+  /** frontmatter pliku (`---` … `---`, bez końcowego znaku nowej linii) – tylko w kontenerze `root` */
+  fm?: string;
   /** miejsce upuszczenia w trakcie przeciągania (id −1) */
   ph?: boolean;
   x: number;

@@ -57,6 +57,7 @@ const HELP = {
     [':fit|:test', 'dopasuj całą mapę / test zapisu'],
   ],
   'Format pliku': [
+    ['--- … ---', 'frontmatter na początku pliku: zostaje bez zmian, poza mapą'],
     ['# Tytuł', 'korzeń mapy; kolejny nagłówek = kolejny korzeń'],
     ['<!--style:{…}-->', 'wygląd mapy z panelu „Wygląd” (pod tytułem)'],
     ['- tekst', 'węzeł; wcięcie o 2 spacje = dziecko'],

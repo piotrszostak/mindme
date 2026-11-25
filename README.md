@@ -89,6 +89,7 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 - Węzły to lista `-`, `*` albo `+`. Każde wcięcie o 2 spacje (lub tabulator) oznacza poziom niżej.
 - `<!--c-->` na końcu linii oznacza zwinięty węzeł.
 - `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd. W pliku są tylko ustawienia różne od domyślnych.
+- Frontmatter, czyli blok `---` … `---` od pierwszej linii pliku (np. `tags:` z Obsidiana), zostaje w pliku bez zmian. Mapa go nie pokazuje, ale widać go i można poprawić w widoku tekstowym (`:text`).
 
 ## Instalacja
 
