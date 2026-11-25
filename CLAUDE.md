@@ -62,5 +62,6 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 - Schowek: pod `http://` innym niż localhost (telefon przez `10.0.0.x`) i w Firefoksie na Androidzie nie ma `navigator.clipboard` → wklejanie idzie przez okienko „wklej tutaj”. Brak `sw.js` w dzienniku serwera = przeglądarka uznała adres za niebezpieczny.
 - Globalna reguła `svg` w `app.css` (100% szerokości i wysokości) rozdmuchuje każdą wstawioną ikonę (prototypy, porównania) → rozmiar w `style`.
 - Ukryty panel podglądu animuje wolno, zrzut łapie stan pośredni → nakładanie węzłów sprawdzaj liczbowo (pozycje docelowe), nie tylko na zrzucie.
+- Sprawdzanie w podglądzie (`load()`, zmiany na mapie) nadpisuje autozapis użytkownika (`mm.md`) → najpierw kopia `localStorage.getItem('mm.md')`, na koniec przywrócenie i przeładowanie strony.
 - Edycja skryptem (sed, python) omija automatyczny Prettier → przed commitem `npx prettier --write` na zmienionych plikach, inaczej bramka zatrzyma commit.
 - Kontener bez roota: biblioteki z `.pw-libs/` dokładane tylko w kontenerze, poza nim psują `/bin/sh` (zob. `tests/README.md`); Firefox ma własne NSS.
