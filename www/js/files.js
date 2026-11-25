@@ -67,12 +67,16 @@ const lin = (n, one) => pl(n, one, 'linie', 'linii');
 const skipInfo = n => `Pominięto ${n} ${lin(n, 'linię')} spoza mapy – plik na dysku bez zmian`;
 /**
  * Okienko z pytaniem; pierwszy przycisk jest domyślny (Enter), Esc = −1.
- * @param {string} text @param {string[]} labels @returns {Promise<number>} numer wybranego przycisku
+ * Z polem (`field`): wklejenie w pole kończy pytanie wynikiem −2, a tekst i HTML są w `askPaste`.
+ * @param {string} text @param {string[]} labels @param {boolean} [field] pole tekstowe nad przyciskami
+ * @returns {Promise<number>} numer wybranego przycisku
  */
-function ask(text, labels) {
+function ask(text, labels, field = false) {
   const d = $('ask');
   askEnd(-1); /* poprzednie pytanie (jeśli jeszcze otwarte) kończy się jak „Anuluj” */
   askKey = false;
+  d.classList.toggle('field', field);
+  $('askf').value = '';
   $('askt').textContent = text;
   $('askb').replaceChildren(
     ...labels.map((l, i) => {
@@ -95,6 +99,15 @@ function ask(text, labels) {
 let askRes = null;
 /** klawisz naciśnięty w otwartym okienku – dopiero wtedy przycisk wybrany klawiaturą działa */
 let askKey = false;
+/** tekst i HTML wklejone w pole okienka (wynik −2) */
+let askPaste = { t: '', html: '' };
+$('askf').addEventListener('paste', e => {
+  const cd = e.clipboardData;
+  if (!cd) return;
+  e.preventDefault();
+  askPaste = { t: cd.getData('text/plain'), html: cd.getData('text/html') };
+  askEnd(-2);
+});
 /** @param {number} i numer przycisku, −1 = Anuluj */
 function askEnd(i) {
   const d = $('ask'),

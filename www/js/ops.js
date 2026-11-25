@@ -76,22 +76,34 @@ function pasteText(t, asChild, html = '') {
   if (!ns.length) return paste(asChild);
   insert(ns, asChild);
 }
-/** „Wklej” z menu na dotyku: tekst (i HTML) ze schowka systemowego; gdy przeglądarka odmówi – wewnętrzny schowek
+/** „Wklej” z menu na dotyku: tekst (i HTML) ze schowka systemowego; gdy przeglądarka nie daje dostępu (http,
+ * Firefox na Androidzie, WebView) albo odmówi – okienko z polem, w które wkleja się systemowym „Wklej”
  * @param {boolean} asChild */
 async function pasteClip(asChild) {
   let t = '',
-    html = '';
+    html = '',
+    ok = false;
   try {
     for (const it of await navigator.clipboard.read()) {
       if (it.types.includes('text/plain')) t = await (await it.getType('text/plain')).text();
       if (it.types.includes('text/html')) html = await (await it.getType('text/html')).text();
     }
+    ok = true;
   } catch (e) {
     try {
       t = await navigator.clipboard.readText();
+      ok = true;
     } catch (e) {}
   }
-  pasteText(t, asChild, html);
+  if (ok) return pasteText(t, asChild, html);
+  const c = await ask(
+    'Przytrzymaj pole i wybierz „Wklej”.',
+    ['Wstaw', ...(yank ? ['Wklej skopiowaną gałąź'] : []), 'Anuluj'],
+    true
+  );
+  if (c === -2) pasteText(askPaste.t, asChild, askPaste.html);
+  else if (c === 0 && $('askf').value.trim()) pasteText($('askf').value, asChild); /* tekst z klawiatury ekranowej */
+  else if (c === 1 && yank) paste(asChild);
 }
 /** Węzły pod nagłówkami: stos nagłówków (`#` › `##` …) i miejsce na kolejne węzły. */
 function heads() {

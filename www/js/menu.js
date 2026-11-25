@@ -104,8 +104,8 @@ function ctxMenu(x, y, touch) {
       mi('cut'),
       mi('paste', {
         t: n ? 'Wklej jako dziecko' : 'Wklej jako nowy korzeń',
-        /* na dotyku nie ma Ctrl+V: najpierw schowek systemowy (przeglądarka może zapytać o zgodę) */
-        ...(touch && navigator.clipboard && { f: () => pasteClip(true), off: false }),
+        /* na dotyku nie ma Ctrl+V: schowek systemowy (przeglądarka może zapytać o zgodę), a bez dostępu – okienko z polem */
+        ...(touch && { f: () => pasteClip(true), off: false }),
       }),
       mi('del'),
       '-',

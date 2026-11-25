@@ -745,6 +745,22 @@ svg {
   margin: 0 0 14px;
   line-height: 1.45;
 }
+#askf {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 14px;
+  padding: 8px;
+  font: inherit;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  resize: none;
+}
+#ask:not(.field) #askf {
+  display: none;
+}
 #askb {
   display: flex;
   flex-wrap: wrap;

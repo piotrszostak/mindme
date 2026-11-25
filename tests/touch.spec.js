@@ -199,7 +199,7 @@ test.describe('dotyk: „Wklej” w menu po przytrzymaniu bierze schowek systemo
     await page.waitForTimeout(400); /* menu dotykowe przez 350 ms nie przyjmuje stuknięć */
   };
 
-  test('tekst z innej aplikacji wkleja się ze strukturą; bez schowka systemowego – gałąź z aplikacji', async ({
+  test('tekst z innej aplikacji wkleja się ze strukturą; po odmowie przeglądarki – okienko „wklej tutaj”', async ({
     page,
     context,
   }) => {
@@ -213,7 +213,7 @@ test.describe('dotyk: „Wklej” w menu po przytrzymaniu bierze schowek systemo
     await expect(page.locator('#info')).toHaveText('wklejono 3 węzły');
     expect(await page.evaluate(() => serialize(root))).toBe('# R\n\n- a\n- b\n  - Lista\n    - x\n      - y\n');
 
-    /* przeglądarka odmawia odczytu – wkleja się gałąź skopiowana w aplikacji */
+    /* przeglądarka odmawia odczytu – okienko „wklej tutaj” (szczegóły w clipboard.spec.js); tu gałąź z aplikacji */
     await page.evaluate(() => {
       const no = () => Promise.reject(new DOMException('', 'NotAllowedError'));
       Object.defineProperty(navigator, 'clipboard', { value: { read: no, readText: no, writeText: no } });
@@ -223,6 +223,8 @@ test.describe('dotyk: „Wklej” w menu po przytrzymaniu bierze schowek systemo
     });
     await openTouchMenu(page);
     await act(page, 'paste').click();
+    await expect(page.locator('#ask')).toBeVisible();
+    await page.click('#askb >> text=Wklej skopiowaną gałąź');
     await expect(page.locator('#info')).toHaveText('wklejono 1 węzeł');
     expect(await page.evaluate(() => S().p.text)).toBe('b');
   });

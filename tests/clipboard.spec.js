@@ -228,3 +228,57 @@ test('nieudany zapis do schowka systemowego nie psuje kopiowania wewnętrznego',
   await page.waitForTimeout(50);
   expect(errors).toEqual([]);
 });
+
+test.describe('telefon bez dostępu do schowka (http, Firefox na Androidzie, WebView): okienko „wklej tutaj”', () => {
+  const noClipboard = page => page.evaluate(() => Object.defineProperty(navigator, 'clipboard', { value: undefined }));
+  async function touchPaste(page) {
+    await page.evaluate(() => ctxMenu(100, 100, true));
+    await page.waitForTimeout(400); /* menu dotykowe przez 350 ms nie przyjmuje stuknięć */
+    await expect(page.locator('#menu [data-act="paste"]')).toBeEnabled(); // także gdy w aplikacji nic nie skopiowano
+    await page.click('#menu [data-act="paste"]');
+    await expect(page.locator('#ask')).toBeVisible();
+  }
+
+  test('systemowe „Wklej” w polu okienka wstawia węzły ze strukturą i zamyka okienko', async ({ page }) => {
+    await loadMap(page, MD);
+    await copyOutside(page, '# Lista\n- x\n  - y');
+    await noClipboard(page);
+    await select(page, 'c');
+    await touchPaste(page);
+    await expect(page.locator('#ask')).toContainText('Przytrzymaj pole i wybierz „Wklej”');
+    await expect(page.locator('#askf')).toBeVisible();
+    await expect(page.locator('#askf')).not.toBeFocused(); // bez klawiatury ekranowej, póki nie dotkniesz pola
+    await page.locator('#askf').focus();
+    await keys(page, ['Control+v']);
+    await expect(page.locator('#ask')).toBeHidden();
+    expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n- c\n  - Lista\n    - x\n      - y\n');
+  });
+
+  test('„Wstaw” bierze tekst z pola; „Wklej skopiowaną gałąź”; „Anuluj” niczego nie zmienia', async ({ page }) => {
+    await loadMap(page, MD);
+    await noClipboard(page);
+    await touchPaste(page);
+    await expect(page.locator('#askb button')).toHaveText(['Wstaw', 'Anuluj']); // nic nie skopiowano w aplikacji
+    await page.click('#askb >> text=Anuluj');
+    await expect(page.locator('#ask')).toBeHidden();
+
+    await select(page, 'b');
+    await page.evaluate(() => copy());
+    await select(page, 'c');
+    await touchPaste(page);
+    await expect(page.locator('#askb button')).toHaveText(['Wstaw', 'Wklej skopiowaną gałąź', 'Anuluj']);
+    await page.fill('#askf', '- p\n  - q');
+    await page.click('#askb >> text=Wstaw');
+    await expect(page.locator('#ask')).toBeHidden();
+
+    await select(page, 'c');
+    await touchPaste(page);
+    await expect(page.locator('#askf')).toHaveValue(''); // pole czyste przy każdym otwarciu
+    await page.click('#askb >> text=Wklej skopiowaną gałąź');
+
+    await select(page, 'c');
+    await touchPaste(page);
+    await page.click('#askb >> text=Anuluj');
+    expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n- c\n  - p\n    - q\n  - b\n');
+  });
+});

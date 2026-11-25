@@ -208,6 +208,7 @@ interface Elements {
   clip: HTMLTextAreaElement;
   ask: HTMLDialogElement;
   askt: HTMLParagraphElement;
+  askf: HTMLTextAreaElement;
   askb: HTMLDivElement;
   st: HTMLDivElement;
   mode: HTMLSpanElement;
