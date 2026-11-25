@@ -84,7 +84,7 @@ Poprawki (Backspace, Ctrl+Shift+Z, Shift+Tab), nowe skróty i paleta komend (Ctr
 
 ## Etap 2 – Szukanie, schowek i paleta komend
 
-### 2.1 Szukanie Ctrl+F i „/” – testy i naprawa
+### 2.1 Szukanie Ctrl+F i „/” – testy i naprawa ✅ zrobione (2026-11-25: drugi Ctrl+F w otwartym polu otwierał szukanie przeglądarki; kliknięcie mapy przy otwartym polu zostawiało tryb SEARCH – klawisze martwe; teraz kliknięcie zamyka pole)
 
 Użytkownik zgłosił, że szukanie ostatnio nie działało.
 

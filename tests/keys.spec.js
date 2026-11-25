@@ -170,69 +170,7 @@ for (const [name, start, std, vim, check, more = []] of PAIRS) {
   });
 }
 
-test('szukanie „/” jak w vim: Enter zamyka pole; dalej Ctrl+G, Ctrl+Shift+G | n, N (też F3, Shift+F3)', async ({
-  page,
-}) => {
-  await loadMap(page, MD);
-  await keys(page, ['/']);
-  await page.keyboard.type('a');
-  await page.keyboard.press('Enter');
-  await expect(page.locator('#cmd')).toBeHidden();
-  expect(await selText(page)).toBe('a');
-  await expect(page.locator('#info')).toHaveText('trafienie 1 z 4');
-  for (const [k, t] of [
-    ['Control+g', 'a1'],
-    ['n', 'a2'],
-    ['Control+Shift+G', 'a1'],
-    ['N', 'a'],
-    ['F3', 'a1'],
-    ['Shift+F3', 'a'],
-    ['N', 'a3'], // z pierwszego na ostatnie
-  ]) {
-    await keys(page, [k]);
-    expect(await selText(page), k).toBe(t);
-  }
-});
-
-test('szukanie „/”: Shift+Enter zamyka pole i skacze do ostatniego trafienia', async ({ page }) => {
-  await loadMap(page, MD);
-  await keys(page, ['/']);
-  await page.keyboard.type('a');
-  await page.keyboard.press('Shift+Enter');
-  await expect(page.locator('#cmd')).toBeHidden();
-  expect(await selText(page)).toBe('a3');
-});
-
-test('szukanie Ctrl+F jak w przeglądarce: pole zostaje, Enter / Shift+Enter i Ctrl+G przechodzą, Esc zamyka', async ({
-  page,
-}) => {
-  await loadMap(page, MD);
-  await keys(page, ['Control+f']);
-  await page.keyboard.type('a');
-  const cmd = page.locator('#cmd');
-  for (const [k, t] of [
-    ['Enter', 'a'],
-    ['Enter', 'a1'],
-    ['Shift+Enter', 'a'],
-    ['Control+g', 'a1'],
-    ['Control+Shift+G', 'a'],
-    ['F3', 'a1'],
-  ]) {
-    await keys(page, [k]);
-    expect(await selText(page), k).toBe(t);
-    await expect(cmd).toBeFocused();
-  }
-  await expect(page.locator('#info')).toHaveText('trafienie 2 z 4');
-  await keys(page, ['Backspace']);
-  await page.keyboard.type('b');
-  await keys(page, ['Enter']); // nowe zapytanie – od pierwszego trafienia
-  expect(await selText(page)).toBe('b');
-  await keys(page, ['Escape']);
-  await expect(cmd).toBeHidden();
-  expect(await selText(page)).toBe('b'); // zaznaczenie zostaje na trafieniu
-  await keys(page, ['j']); // klawisze znów sterują mapą
-  expect(await selText(page)).toBe('c');
-});
+// Testy szukania (/, Ctrl+F, n / N) są w search.spec.js.
 
 test('edytuj od pustego tekstu: c (vim); pusty tekst przywraca poprzedni', async ({ page }) => {
   await loadMap(page, MD);

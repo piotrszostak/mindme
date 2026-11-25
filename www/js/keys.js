@@ -264,6 +264,14 @@ $('cmd').addEventListener('keydown', ev => {
   const v = $('cmd').value,
     d = ev.shiftKey ? -1 : 1;
   if (ev.key === 'Escape') return closeCmd();
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'f') {
+    /* Ctrl+F w otwartym polu: jak w przeglądarce zaznacz zapytanie (inaczej otworzy się szukanie na stronie) */
+    ev.preventDefault();
+    if (v[0] !== '/') return openCmd('/', true);
+    findBar = true;
+    $('cmd').setSelectionRange(1, v.length);
+    return;
+  }
   if (findBar) {
     const g = (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'g';
     if (ev.key === 'Enter' || ev.key === 'F3' || g) {
@@ -280,6 +288,15 @@ $('cmd').addEventListener('keydown', ev => {
     v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1), d);
   }
 });
+/* kliknięcie poza polem (mapa, pasek) zamyka je – inaczej tryb zostaje SEARCH i klawisze nie sterują mapą,
+   a Ctrl+F i „/” trafiają do przeglądarki; trafienia zostają dla n / N */
+document.addEventListener(
+  'pointerdown',
+  e => {
+    if ($('cmd').style.display === 'block' && e.target !== $('cmd')) closeCmd();
+  },
+  true
+);
 /** @param {string} q @param {number} [d] 1 – od pierwszego trafienia, −1 – od ostatniego */
 function search(q, d = 1) {
   q = q.toLowerCase();
