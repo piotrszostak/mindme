@@ -8,6 +8,7 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Podjęte
 
+- **2026-11-25 – Przewijanie mapy przy krawędzi w trakcie przeciągania palcem: bez zmian** (wybór użytkownika na karcie decyzji, C; po sprawdzeniu na telefonie: „cała mapa ucieka”, ale po zwłoce miejsca upuszczenia „wszystko wygląda w porządku”). Zostaje pas 40 px, start po 0,35 s, do ok. 300 px/s. Odrzucone: A – spokojniej na dotyku (pas 24 px, start po 0,6 s, do ok. 180 px/s), B – wyłączenie na dotyku.
 - **2026-11-25 – Przeciąganie palcem: miejsce upuszczenia przenosi się ze zwłoką 0,2 s** (wybór użytkownika na karcie decyzji, A; po sprawdzeniu na telefonie: „inne węzły skaczą, bardzo tańczy”). Miejsce otwiera się dopiero, gdy palec postoi nad nowym miejscem ok. 0,2 s; przejazd przez mapę niczego nie rusza. Mysz bez zmian. Odrzucone: B – margines ok. 20 px za granicą (przy przejeździe przez kilka węzłów nadal skacze), C – bez zmian. Założenie agenta: puszczenie palca wstawia węzeł tam, gdzie jest palec, także przed upływem zwłoki – szybkie przeciągnięcie działa jak dotąd.
 
 - **2026-11-25 – Węzeł może mieć kilka linii tekstu; zapis: wcięte linie pod punktem** (wybór użytkownika na karcie decyzji, B; rozszerzenie formatu pliku). W edycji Ctrl+Enter wstawia nową linię (Enter nadal zatwierdza; na telefonie na razie bez nowej linii – decyzja użytkownika). W pliku:
