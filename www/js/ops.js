@@ -124,35 +124,46 @@ function heads() {
     },
   };
 }
-/** tekst z innej aplikacji → węzły: nagłówki `#` tworzą poziomy, pod nimi lista albo linie; wcięcie (z myślnikiem
- * albo bez) daje hierarchię @param {string} t @returns {MapNode[]} */
+/** tekst z innej aplikacji → węzły: nagłówki `#` tworzą poziomy, lista z wcięciami – hierarchię; kolejne zwykłe linie
+ * (bez pustej linii między nimi) to jeden węzeł, jak akapit, a linia pod punktem listy – jego ciąg dalszy
+ * @param {string} t @returns {MapNode[]} */
 function textNodes(t) {
   const HD = /^\s{0,3}(#{1,6})\s+(.*)$/,
-    LI = /^(\s*)(?:(?:[-*+]|\d+[.)])\s+)?(.*)$/,
-    ls = t
-      .split('\n')
-      .map(l => l.replace(/\t/g, '  '))
-      .filter(l => l.trim()),
-    body = ls.filter(l => !HD.test(l)),
+    LI = /^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$/,
+    ls = t.split('\n').map(l => l.replace(/\t/g, '  ')),
+    body = ls.filter(l => l.trim() && !HD.test(l)),
     base = body.length ? Math.min(...body.map(l => l.length - l.trimStart().length)) : 0;
   const h = heads();
   /** @type {MapNode[]} ostatni węzeł na każdej głębokości (pod bieżącym nagłówkiem) */
   let st = [];
+  /** @type {MapNode | null} węzeł, do którego dokleja się następna zwykła linia */
+  let last = null;
   for (const l of ls) {
+    if (!l.trim()) {
+      last = null; /* pusta linia kończy akapit */
+      continue;
+    }
     const hd = HD.exec(l);
     if (hd) {
       h.head(hd[1].length, hd[2].replace(C_RE, '').trim());
       st = [];
+      last = null;
       continue;
     }
-    const m = /** @type {RegExpExecArray} */ (LI.exec(l)),
-      d = Math.min(Math.floor((m[1].length - base) / 2), st.length),
-      x = m[2].trimEnd(),
+    const m = LI.exec(l);
+    if (!m && last) {
+      last.text += ' ' + l.trim();
+      continue;
+    }
+    const ind = m ? m[1].length : l.length - l.trimStart().length,
+      d = Math.min(Math.floor((ind - base) / 2), st.length),
+      x = (m ? m[2] : l.trim()).trimEnd(),
       n = mk(x.replace(C_RE, ''));
     n.collapsed = C_RE.test(x);
     (d ? st[d - 1].children : h.into()).push(n);
     st.length = d;
     st.push(n);
+    last = n;
   }
   return h.top;
 }
@@ -160,18 +171,15 @@ function textNodes(t) {
  * @param {string} html @returns {MapNode[]} */
 function htmlNodes(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html'),
-    BR = '\u2028' /* <br> – jedyny podział linii w akapicie (zwykłe \n w źródle HTML to spacja) */,
     BLOCK = /^(H[1-6]|UL|OL|LI|P|DIV|PRE|BLOCKQUOTE|TABLE|TR|SECTION|ARTICLE|HEADER|FOOTER|MAIN|DL|DT|DD|FIGURE|HR)$/;
-  doc.querySelectorAll('br').forEach(b => b.replaceWith(BR));
+  doc.querySelectorAll('br').forEach(b => b.replaceWith(' '));
   doc.querySelectorAll('script, style, template, noscript').forEach(e => e.remove());
   const h = heads();
   /** @param {string} s */
-  const lines = s =>
-    s
-      .split(BR)
-      .map(x => x.replace(/\s+/g, ' ').trim())
-      .filter(Boolean)
-      .forEach(x => h.into().push(mk(x)));
+  const lines = s => {
+    const x = s.replace(/\s+/g, ' ').trim(); /* akapit (także z <br>) to jeden węzeł */
+    if (x) h.into().push(mk(x));
+  };
   /** tekst punktu listy bez list w nim zagnieżdżonych @param {Element} li */
   const own = li => {
     const c = /** @type {Element} */ (li.cloneNode(true));

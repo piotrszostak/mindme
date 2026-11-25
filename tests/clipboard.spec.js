@@ -117,16 +117,18 @@ test('yy, potem tekst skopiowany spoza aplikacji: Ctrl+V wkleja ten tekst, a p n
   expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n- c\n  - Nowy\n  - b\n');
 });
 
-test('tekst z zewnątrz: lista z wcięciami → hierarchia, zwykłe linie → rodzeństwo, puste linie pominięte', async ({
+test('tekst z zewnątrz: lista z wcięciami → hierarchia, kolejne zwykłe linie → jeden węzeł, pusta linia rozdziela', async ({
   page,
 }) => {
   const cases = [
     ['- x\n  - x1\n    - x2\n- y', '- c\n  - x\n    - x1\n      - x2\n  - y\n'],
     ['    - wcięta\n      - dalej', '- c\n  - wcięta\n    - dalej\n'], // wcięcie liczone od najmniej wciętej linii
-    ['jeden\n\ndwa\n   \ntrzy', '- c\n  - jeden\n  - dwa\n  - trzy\n'],
+    ['jeden\n\ndwa\n   \ntrzy', '- c\n  - jeden\n  - dwa\n  - trzy\n'], // pusta linia rozdziela węzły
+    ['pierwsza linia\ndruga linia\n\nnowy akapit', '- c\n  - pierwsza linia druga linia\n  - nowy akapit\n'], // kolejne linie = jeden węzeł
+    ['- punkt\n  dalszy ciąg punktu\n- drugi', '- c\n  - punkt dalszy ciąg punktu\n  - drugi\n'], // ciąg dalszy punktu listy
     ['Tylko jedna linia', '- c\n  - Tylko jedna linia\n'],
     ['# Tytuł\n- punkt', '- c\n  - Tytuł\n    - punkt\n'], // lista pod nagłówkiem to jego dzieci
-    ['Zakupy\n  mleko\n  chleb', '- c\n  - Zakupy\n    - mleko\n    - chleb\n'], // wcięcie bez myślników też
+    ['Zakupy\n  mleko\n  chleb', '- c\n  - Zakupy mleko chleb\n'], // zwykłe linie jedna pod drugą – jeden węzeł, także wcięte
     ['- a\n\t- a1\n\t\t- a2', '- c\n  - a\n    - a1\n      - a2\n'], // tabulatory (Obsidian)
   ];
   for (const [text, tail] of cases) {
@@ -155,7 +157,7 @@ test('wyrenderowana notatka (widok czytania w Obsidianie, strona WWW): struktura
 }) => {
   const tail = '- c\n  - Nagłówek\n    - a\n      - a1\n    - b\n    - zwykła linia\n';
   for (const html of [
-    '<h2>Nagłówek</h2><ul><li>a<ul><li>a1</li></ul></li><li>b</li></ul><p>zwykła linia</p>',
+    '<h2>Nagłówek</h2><ul><li>a<ul><li>a1</li></ul></li><li>b</li></ul><p>zwykła<br>linia</p>', // <br> w akapicie – jeden węzeł
     /* jak w Obsidianie: bloki w <div>, znaczniki punktów bez tekstu, akapit w punkcie listy */
     '<div class="el-h2"><h2 dir="auto">Nagłówek</h2></div><div class="el-ul"><ul><li><span class="list-bullet"></span><p>a</p>' +
       '<ul><li><span class="list-bullet"></span>a1</li></ul></li><li>b</li></ul></div><div class="el-p"><p>zwykła linia</p></div>',
@@ -178,7 +180,7 @@ test('tekst z zewnątrz z końcami linii \\r\\n (Windows)', async ({ page }) => 
 
 test('Ctrl+Shift+V z zewnątrz wkleja jako braci; bez zaznaczenia powstaje nowa mapa', async ({ page }) => {
   await loadMap(page, MD);
-  await copyOutside(page, 'p\nq');
+  await copyOutside(page, '- p\n- q');
   await select(page, 'b');
   await keys(page, ['Control+Shift+V']);
   expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n- p\n- q\n- c\n');
