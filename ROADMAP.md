@@ -5,7 +5,7 @@ Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgad
 
 Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Zrobione: etapy 0 i 1 oraz zadania 2.1 i 2.2.
 
-**Kolejność etapów:** 2 → T → 3 → 4 → 5 → 6 → 7 → 8. Etapy dodane później mają litery zamiast numerów, żeby numery zadań w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
+**Kolejność etapów:** 2 → T → 3 → 4 → 5 → 6 → 7 → W → 8. Etapy dodane później mają litery zamiast numerów, żeby numery zadań w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
 **Znaczniki:**
 - **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
@@ -52,8 +52,8 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
 9. Interfejs jest po polsku. Użytkownik nie jest frontendowcem, więc w podsumowaniach tłumacz krótko.
 10. **Aplikacja dla jednej osoby.** Nie dodawaj funkcji pracy grupowej (głosowanie, liczniki warsztatowe, współpraca na żywo) bez wyraźnej zgody.
 11. **Błąd: najpierw test, który pada.** Przy naprawie najpierw napisz test odtwarzający błąd (musi nie przejść), potem poprawka. Gdy nie wiesz, jak odtworzyć błąd, zapytaj użytkownika o kroki.
-12. **Wtyczki.** Od zadania 3.1 każda nowa funkcja (podstawy i rozszerzeń) to osobny plik zgłoszony przez mechanizm wtyczek: treść węzła (etap 4), nowe układy (6.4–6.7), relacje, granice i podsumowania, minimapa (7.2–7.4) oraz wszystkie rozszerzenia (etap 8). W głównych plikach zostają zmiany tego, co już jest: edytowalny konspekt (4.6), animacje i wskazówki (5.1–5.6), motywy (5.7), poprawki układów (6.1–6.3) i zaznaczanie wielu węzłów (7.1 – zmienia model zaznaczenia, z którego korzystają wszystkie operacje).
-13. **Nowa cecha węzła** (notatka, link, zadanie, tag) może zgłosić filtr dla rozszerzenia „Szukanie zaawansowane” (8.2) i pole w panelu właściwości, jeśli panel powstanie (3.5).
+12. **Wtyczki dopiero w etapie W** (przed rozszerzeniami). Do tego czasu nowe funkcje piszesz zwyczajnie – bez rejestru i bez punktów zaczepienia na zapas. Funkcja z własnym zapisem w pliku i własnym rysowaniem (np. notatki, nowy układ, relacje) trafia do osobnego pliku (punkt 4) – to zwykły porządek w kodzie, nie wtyczka.
+13. **Filtry szukania zaawansowanego** wymienione przy zadaniach (np. `has:note`) powstają dopiero w 8.2. Pole w panelu właściwości – tylko jeśli panel powstanie (3.5).
 14. **Testy w obu przeglądarkach:** testy skrótów, szukania i schowka działają też w Firefoksie. Nowy plik z takimi testami dopisz do `testMatch` projektu `firefox` w `playwright.config.js`.
 15. Zmiany dotyku, przeciągania i płynności sprawdź też na telefonie (`/na-telefonie`).
 
@@ -148,27 +148,7 @@ Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowe
 
 ---
 
-## Etap 3 – Fundament: wtyczki, panel boczny i menu
-
-### 3.1 Mechanizm wtyczek i rozszerzeń (wzór: Workflow Builder)
-
-Cel: każda nowa funkcja to jeden plik, który sam się zgłasza (zob. 0.12). Rozszerzenia (etap 8) da się włączać i wyłączać bez psucia reszty.
-- Globalny rejestr (np. `FEAT` w nowym `www/js/feat.js`, wczytywanym przed plikami funkcji), bo pliki nie są modułami.
-- **Punkty zaczepienia**, czyli miejsca, w których wtyczka podłącza się do aplikacji. Funkcja zgłasza:
-  - czynności (`ACT`);
-  - rozszerzenia parsera i zapisu: znaczniki na końcu linii, linie pod węzłem, początek elementu listy (np. `[ ]` zadania);
-  - rysowanie węzła: ikony i znaczniki przy węźle, wyróżnione fragmenty tekstu (linki, tagi) liczone przy pomiarze w `fit()`, obrazek nad tekstem, klik w taki element;
-  - widoczność węzłów: ukrycie (tryb skupienia) i przyciemnienie (filtr tagów);
-  - **układy**: wpis w `LAY` (nazwa, ikona), obliczenie pozycji, kształt krawędzi (`edgeD`), nawigacja strzałkami (`arrow`) i zachowanie przy przeciąganiu (miejsca upuszczenia, przypinanie);
-  - **warstwy**: rysunek pod węzłami albo nad nimi (np. granice, relacje, minimapa), z obsługą kliknięcia i informacją, czy trafia do eksportu SVG/PNG;
-  - miejsce w układzie obok węzłów (np. klamra i węzeł podsumowania z 7.3);
-  - reguły `:lint` (4.8), tryby palety (8.1), filtry szukania (8.2) i – opcjonalnie – pola panelu właściwości (3.5).
-- Wpis funkcji mówi, czy to **podstawa** (zawsze włączona), czy **rozszerzenie** (domyślnie wyłączone). Stan rozszerzeń w pamięci przeglądarki (🗳 nowy klucz). Wyłączone rozszerzenie znika z `ACT`, menu, palety i pomocy, a jego zapis w pliku zostaje bez zmian.
-- Na razie **bez przenoszenia istniejących funkcji i układów** – tylko punkty zaczepienia. Pierwsze prawdziwe układy i warstwy powstaną dopiero w etapach 6–7, więc każdy punkt zaczepienia ma test z małą wtyczką testową (`page.evaluate`). Całość sprawdzi się na notatkach (4.1).
-- Gdy późniejsze zadanie potrzebuje punktu zaczepienia, którego tu nie ma, dopisz go w tym zadaniu.
-- To duże zadanie: rób je w kilku commitach, po jednym na grupę punktów zaczepienia.
-- Plik bez nowych funkcji zapisuje się bajt w bajt jak dziś. Wszystkie testy przechodzą bez zmian.
-- Opisz mechanizm w `CLAUDE.md`: wpis w mapie plików i krótka instrukcja „jak dodać funkcję”.
+## Etap 3 – Panel boczny i menu
 
 ### 3.2 Projekt panelu bocznego i menu ⏸ STOP
 
@@ -192,7 +172,7 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
 
 ### 3.3 Nowy panel boczny i menu
 
-- Według zatwierdzonej makiety. Najpierw przenieś to, co już istnieje („Wygląd mapy”, menu), bez zmiany działania; dopiero potem dodaj nowe miejsca (w tym listę „Rozszerzenia”).
+- Według zatwierdzonej makiety. Najpierw przenieś to, co już istnieje („Wygląd mapy”, menu), bez zmiany działania; dopiero potem dodaj nowe miejsca. Listę „Rozszerzenia” dodaje etap W.
 - Menu budowane z `ACT` (grupy czynności), bez kopiowania treści.
 - Zaktualizuj `style.spec.js`, `menu.spec.js`, `topbar.spec.js` i `touch.spec.js`. Prototyp usuń po wdrożeniu, jeśli użytkownik się zgodzi.
 
@@ -205,15 +185,13 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
 
 ### 3.5 Panel właściwości węzła – tylko jeśli jest w projekcie
 
-- Jeśli zatwierdzony projekt (3.2) przewiduje panel właściwości: jeden opis pól (nazwa, rodzaj: tekst / wybór / data / przełącznik / lista tagów, odczyt i zapis do węzła) buduje panel (wzór: panele ze schematu w Workflow Builderze). Funkcje dopisują swoje pola przez mechanizm z 3.1.
+- Jeśli zatwierdzony projekt (3.2) przewiduje panel właściwości: jeden opis pól (nazwa, rodzaj: tekst / wybór / data / przełącznik / lista tagów, odczyt i zapis do węzła) buduje panel (wzór: panele ze schematu w Workflow Builderze). Każda funkcja dopisuje swoje pola do tego opisu.
 - Każda zmiana w panelu to `snap()` i `changed()`, więc da się ją cofnąć.
 - Jeśli projekt panelu nie przewiduje, pomiń to zadanie i zapisz to w `docs/decyzje.md`.
 
 ---
 
 ## Etap 4 – Treść węzła
-
-Każda funkcja z tego etapu to wtyczka podstawy (3.1), poza 4.6, które zmienia istniejący widok Markdown.
 
 Uwaga do parsera: `parse()` w `core.js` rozpoznaje tytuł mapy, elementy listy, wcięte linie tuż pod punktem (dalsze linie tekstu węzła), znaczniki `<!--layout…-->` / `<!--style…-->` i frontmatter; **inne linie pomija i liczy** (licznik z 0.2). Każde rozszerzenie musi to uwzględnić i nie może pomylić swojego zapisu z dalszą linią tekstu węzła.
 Tekst węzła w modelu pozostaje surowym Markdownem: edycja w węźle pokazuje źródło, a widok mapy pokazuje wersję wyrenderowaną.
@@ -232,7 +210,6 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 - Model: `n.note?: string`.
 - Mapa: ikona 📝 przy węźle. Edycja notatki zgodnie z projektem z 3.2 (panel właściwości albo okienko pod węzłem). Komenda: `:note`. Filtr dla 8.2: `has:note`.
 - Notatka trafia do eksportu Markdown i do widoku konspektu (4.6). Do eksportu SVG/PNG trafia tylko ikona.
-- To pierwsza funkcja zbudowana jako wtyczka – sprawdza mechanizm z 3.1.
 
 ### 4.2 Linki i obrazki 🗳
 
@@ -295,7 +272,7 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 
 ## Etap 5 – Wygląd i animacje (`render.js`, `layout.js`, panel z etapu 3, `app.css`)
 
-Zadania 5.1–5.6 to subtelne animacje i wskazówki: **bez przełączników**, wyłącza je tylko `RM`. Zadanie 5.7 zbiera wszystkie zmiany wyglądu mapy w motywy. Cały etap zmienia to, co już jest, więc idzie w głównych plikach (zob. 0.12).
+Zadania 5.1–5.6 to subtelne animacje i wskazówki: **bez przełączników**, wyłącza je tylko `RM`. Zadanie 5.7 zbiera wszystkie zmiany wyglądu mapy w motywy. Cały etap zmienia to, co już jest, więc idzie w głównych plikach.
 
 1. **Wyrastanie gałęzi.**
    - Nowy albo rozwijany węzeł: krawędź z `pathLength="1"`, `stroke-dasharray: 1`, `stroke-dashoffset` od 1 do 0 przez ok. 200 ms.
@@ -326,7 +303,7 @@ Zadania 5.1–5.6 to subtelne animacje i wskazówki: **bez przełączników**, w
 
 ## Etap 6 – Układy
 
-Najpierw poprawki istniejących układów (6.1–6.3, w `layout.js`), potem nowe. Każdy nowy układ (6.4–6.7) to osobna wtyczka zgłoszona przez punkt zaczepienia „układy” z 3.1 i wymaga:
+Najpierw poprawki istniejących układów (6.1–6.3, w `layout.js`), potem nowe. Każdy nowy układ (6.4–6.7) to osobny plik (zasada 0.12) i wymaga:
 - wpisu w `LAY` z ikoną i polską nazwą;
 - obsługi `:layout nazwa` i `<!--layout:nazwa-->`;
 - poprawnych krawędzi w `edgeD`;
@@ -360,7 +337,7 @@ Bez elkjs; wszystko liczy deterministyczny kod własny. Zmiany wyglądu istniej�
 
 ## Etap 7 – Struktura mapy
 
-7.1 zmienia główne pliki (model zaznaczenia). Relacje, granice i podsumowania oraz minimapa (7.2–7.4) to wtyczki korzystające z warstw z 3.1.
+7.1 zmienia model zaznaczenia, z którego korzystają wszystkie operacje. Relacje, granice i podsumowania oraz minimapa (7.2–7.4) rysują się pod węzłami albo nad nimi – każda w osobnym pliku (zasada 0.12).
 
 ### 7.1 Zaznaczanie wielu węzłów
 
@@ -393,11 +370,35 @@ Bez elkjs; wszystko liczy deterministyczny kod własny. Zmiany wyglądu istniej�
 
 ---
 
+## Etap W – Wtyczki (przed rozszerzeniami)
+
+Mechanizm powstaje dopiero teraz, gdy istnieją prawdziwe funkcje, z których można go zbudować – nie na zapas. Rozszerzenia z etapu 8 potrzebują go do włączania i wyłączania.
+
+### W.1 Wywiad o wtyczkach ⏸ STOP
+
+- Dokładny wywiad (`/wypytaj`) **przed jakimkolwiek kodem**, np.:
+  - po co wtyczki: tylko włączanie i wyłączanie rozszerzeń, porządek w kodzie, czy też własne wtyczki pisane przez użytkownika;
+  - które istniejące funkcje (notatki, zadania, tagi, układy, relacje, minimapa…) przenieść do wtyczek, a które zostawić – z kosztem przeniesienia każdej;
+  - gdzie lista „Rozszerzenia” (panel z 3.3) i co pokazuje;
+  - gdzie zapamiętać, które rozszerzenia są włączone (pamięć przeglądarki 🗳 czy plik).
+- Materiał do wywiadu – możliwe punkty zaczepienia (z dawnego zadania 3.1): czynności (`ACT`), parser i zapis, rysowanie węzła, widoczność węzłów, układy, warstwy pod węzłami i nad nimi, miejsce w układzie, reguły `:lint`, tryby palety, filtry szukania, pola panelu właściwości.
+- Zapisz wynik w `docs/decyzje.md`: zakres, odrzucone opcje.
+
+### W.2 Mechanizm wtyczek
+
+- Według wywiadu. Globalny rejestr (np. `FEAT` w `www/js/feat.js`, wczytywanym przed plikami funkcji), bo pliki nie są modułami.
+- **Tylko punkty zaczepienia, których używa istniejąca funkcja albo wybrane rozszerzenie.** Każdy ma test na prawdziwej funkcji.
+- Przenoszenie funkcji: jedna funkcja = jeden commit; wszystkie testy przechodzą bez zmian, a plik bez nowych funkcji zapisuje się bajt w bajt jak dziś.
+- Wyłączone rozszerzenie znika z `ACT`, menu, palety i pomocy, a jego zapis w pliku zostaje bez zmian.
+- Opisz mechanizm w `CLAUDE.md`: wpis w mapie plików i krótka instrukcja „jak dodać funkcję”.
+
+---
+
 # ROZSZERZENIA (etap 8)
 
 ## Etap 8 – Rozszerzenia (domyślnie wyłączone)
 
-Każde rozszerzenie jest wtyczką (3.1), ma wpis z krótkim opisem na liście „Rozszerzenia” i domyślnie jest wyłączone. **Przed startem etapu zapytaj użytkownika, które rozszerzenia i w jakiej kolejności zrobić.**
+Każde rozszerzenie jest wtyczką (etap W), ma wpis z krótkim opisem na liście „Rozszerzenia” i domyślnie jest wyłączone. **Przed startem etapu zapytaj użytkownika, które rozszerzenia i w jakiej kolejności zrobić.**
 
 ### 8.1 Paleta dla zaawansowanych
 
