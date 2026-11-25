@@ -55,12 +55,13 @@ function startEdit(id, isNew, back, blank) {
   render();
   const e = $('ed');
   e.value = f.n.text;
+  edNl = (e.value.match(/\n/g) || []).length;
   e.style.display = 'block';
   e.focus({ preventScroll: true });
   e.setSelectionRange(e.value.length, e.value.length);
   editing = { id, isNew, pre, old, back };
   placeEd();
-  hint('Enter / Esc / klik obok – zatwierdź · Tab – zatwierdź i dodaj dziecko');
+  hint('Enter / Esc / klik obok – zatwierdź · Tab – zatwierdź i dodaj dziecko · Ctrl+Enter – nowa linia');
 }
 /* zwraca true, jeśli węzeł został (pusty nowy węzeł jest usuwany) */
 /** zatwierdź edycję; zwraca true, jeśli węzeł został @param {boolean} [keepFocus] @returns {boolean} */
@@ -73,7 +74,12 @@ function endEdit(keepFocus) {
   let kept = true;
   const f = find(ed.id);
   if (f) {
-    const t = e.value.replace(/\s+/g, ' ').trim();
+    /* każda linia osobno: spacje zwinięte, puste linie usunięte; tytuł mapy w jednej linii */
+    const t = e.value
+      .split('\n')
+      .map(l => l.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join(f.p === root ? ' ' : '\n');
     if (!t) {
       if (ed.isNew && f.p) {
         f.p.children.splice(f.p.children.indexOf(f.n), 1);
@@ -99,12 +105,19 @@ function endEdit(keepFocus) {
   return kept;
 }
 const ed = $('ed');
+/** liczba złamań linii wstawionych świadomie (Ctrl+Enter); nowe ponad nią to Enter z klawiatury ekranowej */
+let edNl = 0;
 ed.addEventListener('input', () => {
   if (!editing) return;
-  if (/\n/.test(ed.value)) {
-    ed.value = ed.value.replace(/\n/g, '');
+  const nl = (ed.value.match(/\n/g) || []).length;
+  if (nl > edNl) {
+    /* klawiatury ekranowe nie wysyłają keydown Enter, tylko wstawiają znak nowej linii – usuń go i zatwierdź */
+    const i = ed.selectionStart - 1;
+    ed.value =
+      ed.value[i] === '\n' ? ed.value.slice(0, i) + ed.value.slice(i + 1) : ed.value.replace(/\n(?=[^\n]*$)/, '');
     return edKey('Enter');
-  } // klawiatury ekranowe bez keydown Enter
+  }
+  edNl = nl;
   const f = find(editing.id);
   if (f) {
     f.n.text = ed.value;
@@ -140,6 +153,16 @@ ed.addEventListener('keydown', ev => {
     ev.preventDefault();
     return closeEmoji();
   } /* Esc najpierw zamyka okienko emoji */
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
+    /* Ctrl+Enter: nowa linia w tekście węzła (tytuł mapy ma jedną linię) */
+    ev.preventDefault();
+    const f = find(editing.id);
+    if (!f || f.p === root) return;
+    edNl++;
+    ed.setRangeText('\n', ed.selectionStart, ed.selectionEnd, 'end');
+    ed.dispatchEvent(new Event('input'));
+    return;
+  }
   if ((ev.ctrlKey || ev.metaKey) && ev.key === '.') {
     ev.preventDefault();
     const r = $('edemo').getBoundingClientRect();

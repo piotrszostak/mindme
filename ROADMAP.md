@@ -233,11 +233,12 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 
 ### 4.1 Notatki do węzła 🗳
 
-- **Format:** wcięty akapit pod węzłem, w kolumnie treści elementu listy (głębokość·2 + 2 spacje). Kolejne takie linie należą do tej samej notatki.
+- **Format** (decyzja 2026-11-25): cytat `>` pod węzłem, w kolumnie treści elementu listy (głębokość·2 + 2 spacje). Kolejne linie `>` należą do tej samej notatki. Wcięta linia bez `>` to dalszy ciąg tekstu węzła (wiele linii w węźle), nie notatka.
   ```markdown
   - Węzeł
-    Pierwsza linia notatki
-    druga linia notatki
+    druga linia węzła
+    > Pierwsza linia notatki
+    > druga linia notatki
     - Dziecko
   ```
 - Model: `n.note?: string`.
@@ -491,7 +492,8 @@ Każde wymaga karty decyzji przed startem (🗳).
 | Zapis | Znaczenie | Zadanie |
 |---|---|---|
 | frontmatter `---` … `---` na początku pliku | zachowany bez zmian, niewidoczny na mapie | 0.2 |
-| wcięty akapit pod `- węzeł` | notatka | 4.1 |
+| wcięta linia tuż pod `- węzeł` | dalszy ciąg tekstu węzła (wiele linii, Ctrl+Enter) | ✅ 2026-11-25 |
+| cytat `>` pod `- węzeł` | notatka | 4.1 |
 | `[tekst](url)`, `![opis](url)` | link, obrazek | 4.2 |
 | `- [ ] …` / `- [x] …` | zadanie | 4.3 |
 | `#tag` w tekście | tag | 4.4 |

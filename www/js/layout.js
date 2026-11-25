@@ -64,8 +64,13 @@ const graphemes = w =>
   window.Intl && Intl.Segmenter
     ? [...new Intl.Segmenter('pl', { granularity: 'grapheme' }).segment(w)].map(x => x.segment)
     : Array.from(w);
-/** zawija tekst do szerokości MAXT @param {string} s @returns {string[]} */
+/** linie tekstu węzła: najpierw złamania z tekstu (Ctrl+Enter), potem zawijanie każdej do szerokości MAXT
+ * @param {string} s @returns {string[]} */
 function wrap(s) {
+  return s.includes('\n') ? s.split('\n').flatMap(p => (p.trim() ? wrap1(p) : [])) : wrap1(s);
+}
+/** zawijanie jednej linii do szerokości MAXT @param {string} s @returns {string[]} */
+function wrap1(s) {
   const out = [];
   let line = '';
   for (let word of s.split(/\s+/).filter(Boolean)) {

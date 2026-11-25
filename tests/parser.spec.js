@@ -185,6 +185,48 @@ test('frontmatter: przechowują go autozapis, cofanie i widok tekstowy; nowa map
   expect(await page.evaluate(() => serialize(root))).toBe('# Nowa\n<!--layout:both-->\n\n');
 });
 
+// Strażnik formatu (wiele linii w węźle, od 2026-11-25): wcięta linia tuż pod punktem to dalszy ciąg tekstu węzła.
+const FORMAT_ML =
+  '# R\n\n- pierwsza\n  druga linia\n  - dziecko\n    linia dziecka\n- zwinięty <!--c-->\n  ciąg dalszy\n  - ukryty\n' +
+  '- z ucieczką\n  \\- nie lista\n  \\> nie cytat\n  \\# nie nagłówek\n  \\1. nie numer\n  \\<!-- nie znacznik\n  \\\\ukośnik\n';
+
+test('wiele linii w węźle: wcięte linie pod punktem to dalszy ciąg tekstu; zapis bez zmian', async ({ page }) => {
+  const { root } = await tree(page, FORMAT_ML);
+  expect(root.children).toEqual([
+    {
+      text: 'pierwsza\ndruga linia',
+      children: [{ text: 'dziecko\nlinia dziecka', children: [] }],
+    },
+    { text: 'zwinięty\nciąg dalszy', collapsed: true, children: [{ text: 'ukryty', children: [] }] },
+    {
+      text: 'z ucieczką\n- nie lista\n> nie cytat\n# nie nagłówek\n1. nie numer\n<!-- nie znacznik\n\\ukośnik',
+      children: [],
+    },
+  ]);
+  expect(await page.evaluate(m => serialize(parse(m)), FORMAT_ML)).toBe(FORMAT_ML);
+  expect(await page.evaluate(m => parse(m).skip, FORMAT_ML)).toBe(0);
+});
+
+test('wiele linii: dalszy ciąg musi być wcięty; cytat, nagłówek, numer, znacznik i akapit po pustej linii – nie', async ({
+  page,
+}) => {
+  const md =
+    '# R\n\n- a\nbez wcięcia\n- b\n  > cytat\n  <!--znacznik-->\n  ## nagłówek\n  1. numer\n\n  po pustej linii\n- c\n';
+  const { root } = await tree(page, md);
+  expect(root.children.map(n => n.text)).toEqual(['a', 'b', 'c']);
+  expect(await page.evaluate(m => parse(m).skip, md)).toBe(6);
+  expect(await page.evaluate(() => parse('# R\nakapit pod tytułem\n- a\n').skip)).toBe(1); // pod tytułem mapy – jak dotąd
+});
+
+test('wiele linii: puste linie w tekście węzła nie trafiają do pliku', async ({ page }) => {
+  const out = await page.evaluate(() => {
+    const t = parse('# R\n\n- x\n');
+    t.children[0].children[0].text = 'a\n\n   \nb';
+    return serialize(t);
+  });
+  expect(out).toBe('# R\n\n- a\n  b\n');
+});
+
 test('komenda :test raportuje round-trip OK', async ({ page }) => {
   await page.keyboard.press(':');
   await page.keyboard.type('test');

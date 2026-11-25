@@ -73,15 +73,28 @@ const esc = s =>
 /** @param {MapNode[]} ch */
 const forest = ch => /** @type {MapNode} */ ({ id: 0, text: '', children: ch, collapsed: false, top: true });
 const C_RE = /\s*<!--c-->\s*$/;
-/** gałąź jako lista Markdown, jak w pliku (także w schowku systemowym)
+/* linia dalszego ciągu tekstu węzła, która w pliku znaczyłaby co innego (lista, nagłówek, cytat, numer, tabela,
+   blok kodu, znacznik), dostaje `\` na początku; bez `\` taka linia nie jest dalszym ciągiem */
+const ESC_RE = /^([-*+>#|\\]|\d+[.)]|<!--|```|~~~)/;
+/** gałąź jako lista Markdown, jak w pliku (także w schowku systemowym); kolejne linie tekstu węzła – wcięte pod punktem
  * @param {MapNode} n @param {number} [d] głębokość @returns {string} */
-const branchMd = (n, d = 0) =>
-  '  '.repeat(d) +
-  '- ' +
-  n.text +
-  (n.collapsed && n.children.length ? ' <!--c-->' : '') +
-  '\n' +
-  n.children.map(c => branchMd(c, d + 1)).join('');
+const branchMd = (n, d = 0) => {
+  const [first, ...rest] = n.text.split('\n'),
+    pad = '  '.repeat(d);
+  return (
+    pad +
+    '- ' +
+    first +
+    (n.collapsed && n.children.length ? ' <!--c-->' : '') +
+    '\n' +
+    rest
+      .map(l => l.trim())
+      .filter(Boolean)
+      .map(l => pad + '  ' + (ESC_RE.test(l) ? '\\' : '') + l + '\n')
+      .join('') +
+    n.children.map(c => branchMd(c, d + 1)).join('')
+  );
+};
 /** Model → Markdown. @param {MapNode} t kontener `root` */
 function serialize(t) {
   return (
@@ -90,7 +103,7 @@ function serialize(t) {
       .map((r, i) => {
         let o =
           '# ' +
-          r.text +
+          r.text.replace(/\n/g, ' ') /* tytuł mapy ma jedną linię */ +
           (r.collapsed && r.children.length ? ' <!--c-->' : '') +
           '\n' +
           (i === 0 && dir !== 'right' ? '<!--layout:' + dir + '-->\n' : '') +
@@ -118,10 +131,18 @@ function parse(md) {
     t.fm = ls.slice(0, e + 1).join('\n');
     ls = ls.slice(e + 1);
   }
+  /** @type {MapNode | null} punkt listy, którego dalszym ciągiem może być następna linia */
+  let last = null,
+    lastInd = 0;
   for (const line of ls) {
     const l = line.replace(/\t/g, '  ');
     let m;
+    if (!l.trim()) {
+      last = null; /* pusta linia kończy tekst punktu */
+      continue;
+    }
     if ((m = /^#\s+(.*)$/.exec(l))) {
+      last = null;
       const r = mk(m[1].replace(C_RE, ''));
       r.collapsed = C_RE.test(m[1]);
       t.children.push(r);
@@ -153,13 +174,19 @@ function parse(md) {
       st[d].children.push(n);
       st.length = d + 1;
       st.push(n);
-    } else if (l.trim()) t.skip++; /* linia, której mapa nie pokazuje (akapit, `##`, tabela…) */
+      last = n;
+      lastInd = m[1].length;
+    } else if (last && l.length - l.trimStart().length > lastInd && (l.trim()[0] === '\\' || !ESC_RE.test(l.trim()))) {
+      /* wcięta linia tuż pod punktem: dalszy ciąg tekstu węzła (`>` to przyszłe notatki, `<!--` – znaczniki) */
+      const x = l.trim();
+      last.text += '\n' + (x[0] === '\\' ? x.slice(1) : x);
+    } else t.skip++; /* linia, której mapa nie pokazuje (akapit, `##`, tabela…) */
   }
   if (!t.children.length) t.children.push(mk('Mapa'));
   return t;
 }
-/* próbka dla `:test` z rozszerzeniami formatu (frontmatter); nowe rozszerzenie = dopisz je tutaj */
-const SELF_MD = '---\ntags:\n  - test\n---\n# Test\n\n- a\n';
+/* próbka dla `:test` z rozszerzeniami formatu (frontmatter, wiele linii w węźle); nowe rozszerzenie = dopisz je tutaj */
+const SELF_MD = '---\ntags:\n  - test\n---\n# Test\n\n- a\n  druga linia\n  \\- nie lista\n';
 /** `:test`: zapis i odczyt bieżącej mapy oraz próbki dają ten sam tekst */
 function selfTest() {
   const d = dir,

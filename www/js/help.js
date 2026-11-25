@@ -33,6 +33,7 @@ const HELP = {
   'Edycja w węźle': [
     ['Enter|Esc', 'zatwierdź – węzeł zostaje zaznaczony; kolejny Enter doda brata'],
     ['Tab', 'zatwierdź i dodaj dziecko'],
+    ['Ctrl+Enter', 'nowa linia w tekście węzła'],
     ['Ctrl+.|😊', 'wstaw emoji w miejscu kursora'],
     ['klik obok', 'zatwierdź'],
     ['pusty tekst', 'nowy węzeł znika, istniejący wraca do poprzedniego'],
@@ -61,6 +62,7 @@ const HELP = {
     ['# Tytuł', 'korzeń mapy; kolejny nagłówek = kolejny korzeń'],
     ['<!--style:{…}-->', 'wygląd mapy z panelu „Wygląd” (pod tytułem)'],
     ['- tekst', 'węzeł; wcięcie o 2 spacje = dziecko'],
+    ['  dalsza linia', 'wcięta linia tuż pod węzłem: kolejna linia jego tekstu'],
     ['<!--c-->', 'zwinięty węzeł (na końcu linii)'],
     ['<!--layout:both-->', 'układ mapy (pod tytułem)'],
     ['inne linie', 'akapity, ## itp.: poza mapą; zapis pyta, zanim je usunie'],

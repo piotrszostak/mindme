@@ -34,7 +34,7 @@ Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zap
 
 **Przenoszenie:** węzeł upuszczony na prawej części innego węzła zostaje jego dzieckiem, a upuszczony na lewej górnej lub dolnej części staje się bratem przed nim lub za nim. Esc anuluje przeciąganie, Ctrl+Z cofa przeniesienie.
 
-**Edycja w węźle:** Enter lub Esc zatwierdza, a kolejny Enter dodaje brata. Tab zatwierdza i dodaje dziecko. Ctrl+. albo przycisk 😊 wstawia emoji.
+**Edycja w węźle:** Enter lub Esc zatwierdza, a kolejny Enter dodaje brata. Tab zatwierdza i dodaje dziecko. Ctrl+Enter wstawia nową linię w tekście węzła. Ctrl+. albo przycisk 😊 wstawia emoji.
 
 ### Klawiatura
 
@@ -89,6 +89,7 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 
 - `# Tytuł` zaczyna mapę. Każdy kolejny nagłówek `#` to osobna mapa (korzeń).
 - Węzły to lista `-`, `*` albo `+`. Każde wcięcie o 2 spacje (lub tabulator) oznacza poziom niżej.
+- Węzeł może mieć kilka linii tekstu: kolejne linie są wcięte tuż pod punktem (bez pustej linii). Linia, która zaczynałaby się od znaku o innym znaczeniu (`-`, `#`, `>`, numer…), dostaje w pliku `\` na początku.
 - `<!--c-->` na końcu linii oznacza zwinięty węzeł.
 - `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd. W pliku są tylko ustawienia różne od domyślnych.
 - Frontmatter, czyli blok `---` … `---` od pierwszej linii pliku (np. `tags:` z Obsidiana), zostaje w pliku bez zmian. Mapa go nie pokazuje, ale widać go i można poprawić w widoku tekstowym (`:text`).

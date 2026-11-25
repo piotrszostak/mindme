@@ -142,3 +142,51 @@ test.describe('wąski ekran', () => {
     expect(await texts(page)).toContain('  - Ankieta online – pytania otwarte i zamknięte\n- Projekt\n');
   });
 });
+
+test.describe('wiele linii w węźle', () => {
+  const md = page => page.evaluate(() => serialize(root));
+  const edit = async (page, t) => {
+    await page.evaluate(t => go(vis().find(n => n.text === t).id), t);
+    await page.keyboard.press('i'); // edycja, kursor na końcu
+    await expect(page.locator('#ed')).toBeFocused();
+  };
+
+  test('Ctrl+Enter wstawia nową linię, Enter zatwierdza; węzeł rysuje się w dwóch liniach', async ({ page }) => {
+    await loadMap(page, '# R\n- a\n');
+    await edit(page, 'a');
+    await page.keyboard.press('Control+Enter');
+    await page.keyboard.type('b');
+    await expect(page.locator('#ed')).toHaveValue('a\nb');
+    expect(await page.evaluate(() => S().n.lines)).toEqual(['a', 'b']);
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#ed')).toBeHidden();
+    expect(await md(page)).toBe('# R\n\n- a\n  b\n');
+    await expect(page.locator('#g .n.sel text tspan')).toHaveCount(2);
+  });
+
+  test('puste linie znikają przy zatwierdzeniu; tytuł mapy zostaje jednoliniowy', async ({ page }) => {
+    await loadMap(page, '# R\n- a\n');
+    await edit(page, 'a');
+    await page.keyboard.press('Control+Enter');
+    await page.keyboard.press('Control+Enter');
+    await page.keyboard.type('b');
+    await page.keyboard.press('Enter');
+    expect(await md(page)).toBe('# R\n\n- a\n  b\n');
+
+    await edit(page, 'R');
+    await page.keyboard.press('Control+Enter');
+    await expect(page.locator('#ed')).toHaveValue('R');
+    await page.keyboard.press('Escape');
+  });
+
+  test('Enter z klawiatury ekranowej w węźle z kilkoma liniami nadal zatwierdza, linie zostają', async ({ page }) => {
+    await loadMap(page, '# R\n- a\n  b\n');
+    await page.evaluate(() => startEdit(vis().find(n => n.text === 'a\nb').id));
+    await page.$eval('#ed', e => {
+      e.setRangeText('\n', e.value.length, e.value.length, 'end');
+      e.dispatchEvent(new Event('input'));
+    });
+    await expect(page.locator('#ed')).toBeHidden();
+    expect(await md(page)).toBe('# R\n\n- a\n  b\n');
+  });
+});
