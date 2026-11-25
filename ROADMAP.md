@@ -5,7 +5,7 @@ Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgad
 
 Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Zrobione: etapy 0 i 1 oraz zadania 2.1 i 2.2.
 
-**Kolejność etapów:** 2 → T → 3 → 4 → 5 → 6 → 7 → W → 8. Etapy dodane później mają litery zamiast numerów, żeby numery zadań w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
+**Kolejność etapów:** 2 → T → 3 → 4 → 5 → 6 → 7 → W → 8 → P. Etapy dodane później mają litery zamiast numerów, żeby numery zadań w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
 **Znaczniki:**
 - **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
@@ -75,7 +75,7 @@ Poprawki (Backspace, Ctrl+Shift+Z, Shift+Tab), nowe skróty i paleta komend (Ctr
 
 ---
 
-# PODSTAWA (etapy 2–7)
+# PODSTAWA (etapy 2–7 oraz T i W)
 
 ## Etap 2 – Szukanie, schowek i paleta komend
 
@@ -448,6 +448,26 @@ Każde rozszerzenie jest wtyczką (etap W), ma wpis z krótkim opisem na liście
 - `:present` i pozycja w palecie. Slajd to węzeł w kolejności z pliku, do wybranej głębokości (domyślnie 2). Kamera leci do węzła (5.2), reszta jest przygaszona jak przy filtrze tagów (4.4). Układ się nie zmienia, więc mapa nie skacze między slajdami.
 - Dalej: → / Spacja / PageDown; wstecz: ← / PageUp; koniec: Esc; na telefonie przesunięcie palcem. Pełny ekran (Fullscreen API), jeśli jest dostępny.
 - Stan widoku, nie zapisuje się do pliku. Z `RM` przejścia są natychmiastowe.
+
+---
+
+# NA KONIEC
+
+## Etap P – Wydajność (na koniec)
+
+Na końcu, gdy mapa ma już wszystkie funkcje (decyzja użytkownika). `render()` przy każdej zmianie przebudowuje całą mapę, a animacje (5), układ grawitacyjny liczony „każdy z każdym” (6.6), relacje (7.2) i rozszerzenia dokładają pracy.
+
+### P.1 Pomiar i progi ⏸ STOP
+
+- Generator dużej mapy (np. 500 i 1000 węzłów, kilka poziomów, część gałęzi zwinięta) w `tests/helpers.js`.
+- Pomiar w Playwrighcie, w każdym układzie: czas `lay()` + `render()`, czas klatki przy przeciąganiu i przy rozwijaniu gałęzi.
+- Wynik pokaż użytkownikowi i ustal z nim progi (np. klatka ≤ 16 ms na komputerze); sprawdź też na telefonie (`/na-telefonie`).
+- Test progów z zapasem albo porównaniem względnym, żeby nie był chwiejny na wolniejszym komputerze.
+
+### P.2 Poprawki
+
+- Tylko to, co przekracza progi z P.1, zaczynając od miejsca, które pomiar wskazał jako najwolniejsze.
+- Każda poprawka to osobny commit z pomiarem „przed i po” w opisie. Działanie i wygląd bez zmian – wszystkie testy przechodzą.
 
 ---
 
