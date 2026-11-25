@@ -188,3 +188,45 @@ test.describe('dotyk', () => {
     expect(await texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n- Trzy\n');
   });
 });
+
+test.describe('dotyk: „Wklej” w menu po przytrzymaniu bierze schowek systemowy', () => {
+  const MD = '# R\n- a\n- b\n';
+  const openTouchMenu = async page => {
+    await page.evaluate(() => ctxMenu(100, 100, true));
+    await page.waitForTimeout(400); /* menu dotykowe przez 350 ms nie przyjmuje stuknięć */
+  };
+
+  test('tekst z innej aplikacji wkleja się ze strukturą; bez schowka systemowego – gałąź z aplikacji', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await loadMap(page, MD);
+    await page.evaluate(() => navigator.clipboard.writeText('# Lista\n- x\n  - y'));
+    await page.evaluate(() => go(vis().find(n => n.text === 'b').id));
+    await openTouchMenu(page);
+    await expect(act(page, 'paste')).toBeEnabled(); // nic nie skopiowano w aplikacji, ale schowek systemowy ma tekst
+    await act(page, 'paste').click();
+    await expect(page.locator('#info')).toHaveText('wklejono 3 węzły');
+    expect(await page.evaluate(() => serialize(root))).toBe('# R\n\n- a\n- b\n  - Lista\n    - x\n      - y\n');
+
+    /* przeglądarka odmawia odczytu – wkleja się gałąź skopiowana w aplikacji */
+    await page.evaluate(() => {
+      const no = () => Promise.reject(new DOMException('', 'NotAllowedError'));
+      Object.defineProperty(navigator, 'clipboard', { value: { read: no, readText: no, writeText: no } });
+      go(vis().find(n => n.text === 'a').id);
+      copy();
+      go(vis().find(n => n.text === 'b').id);
+    });
+    await openTouchMenu(page);
+    await act(page, 'paste').click();
+    await expect(page.locator('#info')).toHaveText('wklejono 1 węzeł');
+    expect(await page.evaluate(() => S().p.text)).toBe('b');
+  });
+
+  test('na komputerze (prawy przycisk) „Wklej” zostaje przy schowku aplikacji', async ({ page }) => {
+    await loadMap(page, MD);
+    await page.evaluate(() => ctxMenu(100, 100));
+    await expect(act(page, 'paste')).toBeDisabled(); // nic nie skopiowano w aplikacji
+  });
+});

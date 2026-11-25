@@ -76,6 +76,23 @@ function pasteText(t, asChild, html = '') {
   if (!ns.length) return paste(asChild);
   insert(ns, asChild);
 }
+/** „Wklej” z menu na dotyku: tekst (i HTML) ze schowka systemowego; gdy przeglądarka odmówi – wewnętrzny schowek
+ * @param {boolean} asChild */
+async function pasteClip(asChild) {
+  let t = '',
+    html = '';
+  try {
+    for (const it of await navigator.clipboard.read()) {
+      if (it.types.includes('text/plain')) t = await (await it.getType('text/plain')).text();
+      if (it.types.includes('text/html')) html = await (await it.getType('text/html')).text();
+    }
+  } catch (e) {
+    try {
+      t = await navigator.clipboard.readText();
+    } catch (e) {}
+  }
+  pasteText(t, asChild, html);
+}
 /** Węzły pod nagłówkami: stos nagłówków (`#` › `##` …) i miejsce na kolejne węzły. */
 function heads() {
   /** @type {MapNode[]} */

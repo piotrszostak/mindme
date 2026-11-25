@@ -59,7 +59,7 @@ Każda czynność ma skrót zwykły i skrót vim:
 | emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
 | wszystkie polecenia (paleta komend)        | Ctrl+K                               | `:`                                                   |
 
-Schowek: kopiowanie i wycinanie zapisują gałąź także w schowku systemowym jako listę Markdown (można ją wkleić do notatki). Ctrl+V / Ctrl+Shift+V wklejają też tekst z innych aplikacji, np. notatkę z Obsidiana albo fragment strony: nagłówki tworzą poziomy, lista z wcięciami staje się gałęzią, a linie bez wcięcia – rodzeństwem. `p` / `P` i „Wklej” w menu zawsze wklejają gałąź skopiowaną w aplikacji.
+Schowek: kopiowanie i wycinanie zapisują gałąź także w schowku systemowym jako listę Markdown (można ją wkleić do notatki). Ctrl+V / Ctrl+Shift+V wklejają też tekst z innych aplikacji, np. notatkę z Obsidiana albo fragment strony: nagłówki tworzą poziomy, lista z wcięciami staje się gałęzią, a linie bez wcięcia – rodzeństwem. `p` / `P` i „Wklej” w menu zawsze wklejają gałąź skopiowaną w aplikacji – poza telefonem: tam „Wklej” w menu po przytrzymaniu węzła bierze najpierw schowek systemowy (przeglądarka może zapytać o zgodę).
 
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
 
