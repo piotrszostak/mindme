@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Etapy 0 i 1 są zrobione.
+Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Zrobione: etapy 0 i 1 oraz zadania 2.1 i 2.2.
 
 **Znaczniki:**
 - **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
@@ -65,14 +65,7 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
 
 ### 0.2 Ochrona przed utratą danych ✅ zrobione
 
-Dziś `parse()` po cichu pomija każdą linię, która nie jest `# tytułem`, elementem listy ani znacznikiem `<!--layout…-->` / `<!--style…-->`. Zapis do pliku kasuje więc akapity, nagłówki `##`, tabele i inne bloki. Lista YAML we frontmatterze (np. `tags:` i pod spodem `  - wyjazd`) zamienia się w węzły. Naprawa ma być prosta i **bez przełącznika**:
-- **Frontmatter** (blok `---` … `---` zaczynający się w pierwszej linii pliku) zostaje w pliku bez zmian i nie trafia na mapę. Zapis wstawia go na początek pliku dokładnie tak, jak go wczytano. Plik bez frontmattera zapisuje się bajt w bajt jak dziś.
-- **Linie, których mapa nie pokazuje** (niepuste, poza frontmatterem): przy otwarciu pliku `info()` z ich liczbą, np. „Pominięto 7 linii spoza mapy – plik na dysku bez zmian”.
-- **Taki plik nie zapisuje się sam** (decyzja 2026-11-25). Dziś w Chrome i Edge otwarty plik jest podłączony do autozapisu, a samo otwarcie liczy się jako zmiana, więc pominięte linie znikają z dysku przy pierwszym autozapisie. Do czasu „Nadpisz” autozapis trafia tylko do pamięci przeglądarki.
-- **Zapis takiego pliku** do otwartego pliku (Ctrl+S, `:w`): okienko „Ten plik ma treść, której mapa nie pokazuje (7 linii). Zapis ją usunie.” z przyciskami **Zapisz jako nowy plik** (domyślny), **Nadpisz**, **Anuluj**. Po wybraniu „Nadpisz” plik zostaje podłączony do autozapisu, a aplikacja nie pyta ponownie o ten plik do końca sesji. Autozapis w pamięci przeglądarki działa jak dziś.
-- Gdy dojdą notatki (4.1), wcięte akapity pod węzłami przestaną być „pomijanymi liniami” – licznik ma korzystać z tego samego parsera.
-- Testy: round-trip frontmattera i lista YAML, która nie staje się węzłami (`parser.spec.js`); licznik pominiętych linii; otwarcie takiego pliku przez okno wyboru (podstawiony uchwyt pliku) niczego nie zapisuje do pliku, dopóki nie padnie „Nadpisz” – ten test piszesz pierwszy; okienko przy zapisie i każdy z trzech przycisków (nowy plik `files.spec.js`, wpis w `tests/README.md`).
-- Opis w README („Format pliku”) i w `HELP`.
+Frontmatter zostaje w pliku bez zmian; linie, których mapa nie pokazuje, są liczone przy otwarciu, a taki plik nie zapisuje się sam (przy zapisie okienko: Zapisz jako nowy plik / Nadpisz / Anuluj). Szczegóły w `docs/decyzje.md` i w historii gita.
 
 ## Etap 1 – Skróty klawiszowe ✅ zrobione
 
@@ -84,54 +77,20 @@ Poprawki (Backspace, Ctrl+Shift+Z, Shift+Tab), nowe skróty i paleta komend (Ctr
 
 ## Etap 2 – Szukanie, schowek i paleta komend
 
-### 2.1 Szukanie Ctrl+F i „/” – testy i naprawa ✅ zrobione (2026-11-25: drugi Ctrl+F w otwartym polu otwierał szukanie przeglądarki; kliknięcie mapy przy otwartym polu zostawiało tryb SEARCH – klawisze martwe; teraz kliknięcie zamyka pole)
+### 2.1 Szukanie Ctrl+F i „/” ✅ zrobione
 
-Użytkownik zgłosił, że szukanie ostatnio nie działało.
-
-1. Zapytaj użytkownika o kroki: który skrót, która przeglądarka lub urządzenie, co było zrobione wcześniej, co się stało.
-2. Uruchom istniejące testy w Chromium i Firefoksie (`keys.spec.js`): wiersz „szukaj” w tabeli skrótów oraz testy „szukanie „/” jak w vim…”, „szukanie „/”: Shift+Enter…” i „szukanie Ctrl+F jak w przeglądarce…”. Jeśli przechodzą, błąd siedzi w scenariuszu, którego nie pokrywają.
-3. Przenieś te testy do nowego pliku `tests/search.spec.js` (wpis w `tests/README.md`, Firefox w `playwright.config.js`) i dopisz – najpierw te, które odtwarzają zgłoszenie:
-   - szukanie uruchomione z palety (Ctrl+K → „szukaj” → Enter) i z menu „…”;
-   - Ctrl+F i „/” po zamknięciu palety (Esc), po zatwierdzeniu edycji węzła, po zamknięciu okienka emoji, po kliknięciu przycisku na pasku górnym (fokus na przycisku);
-   - bez zaznaczonego węzła;
-   - trafienie w zwiniętej gałęzi: gałąź się rozwija, węzeł jest widoczny i wyśrodkowany;
-   - „/” w Firefoksie nie otwiera szybkiego wyszukiwania przeglądarki, a Ctrl+F w obu przeglądarkach nie otwiera szukania na stronie;
-   - kliknięcie mapy przy otwartym polu Ctrl+F: sprawdź, jak jest dziś, a gdy zachowanie jest niejasne, zapytaj; potem klawisze znów sterują mapą;
-   - puste zapytanie i Enter; brak trafień („0 trafień”), a potem n / N niczego nie psują;
-   - polskie znaki w zapytaniu („żółw” znajduje „Żółw”).
-4. Popraw błąd. Wszystkie testy z 2.1 przechodzą w obu przeglądarkach.
+Testy obu trybów w `search.spec.js` (Chromium i Firefox). Naprawione: drugi Ctrl+F w otwartym polu otwierał szukanie przeglądarki, a kliknięcie mapy przy otwartym polu zostawiało martwe klawisze.
 
 ### 2.2 Wklejanie ze schowka systemowego ✅ zrobione
 
-Ta decyzja cofa wcześniejszą „wklejanie tylko w obrębie aplikacji”. Przed startem sprawdź w historii gita (`git log -S clipboard`, `git log --grep wklej`) i w `HANDOVER.md`, dlaczego wtedy je wycofano. Jeśli ten powód nadal obowiązuje, zapytaj.
-
-Zasady:
-- `p` / `P` (vim) zawsze wklejają z **wewnętrznego schowka** (`yank`), jak nienazwany rejestr w vim. Schowek systemowy ich nie dotyczy.
-- Każde kopiowanie i wycinanie (Ctrl+C, Ctrl+X, `yy`, `dd`, menu podręczne) zapisuje gałąź **także** do schowka systemowego jako listę Markdown (`serialize` gałęzi, wcięcia od zera) i zapamiętuje ten tekst (np. `clipLast`). Gdy zapis się nie uda (brak uprawnień, http, WebView), pomijamy to po cichu – wewnętrzny schowek działa dalej.
-- Ctrl+V i Ctrl+Shift+V obsługuj w zdarzeniu `paste` (`clipboardData.getData('text/plain')`), nie przez `navigator.clipboard.readText()`, bo ta funkcja pyta o zgodę. Dziś `normal()` obsługuje Ctrl+V w `keydown`; nie może tam robić `preventDefault()`, bo wtedy zdarzenie `paste` nie nadejdzie.
-  - tekst równy `clipLast` albo pusty → wklej wewnętrzny `yank` (zachowuje zwinięcia i wszystko, czego nie ma w tekście);
-  - inny tekst → sparsuj: lista Markdown z wcięciami daje gałąź z hierarchią, zwykłe linie dają rodzeństwo, jedna linia daje jeden węzeł, puste linie pomijamy. Ctrl+V wkleja jako dziecko, Ctrl+Shift+V jako brata, bez zaznaczenia powstaje nowa mapa – jak dziś;
-  - jedno wklejenie to jeden krok cofania; `info('wklejono N węzłów')`.
-- W trybie edycji węzła wklejanie działa jak w zwykłym polu tekstowym: tylko tekst, a znaki nowej linii zamieniają się na spacje.
-- „Wklej” w menu podręcznym (dotyk) zostaje przy wewnętrznym schowku. Osobną pozycję „Wklej ze schowka systemowego” (przeglądarka zapyta o zgodę) dodaj tylko, jeśli użytkownik zechce – zapytaj.
-- Zaktualizuj `docs/decyzje.md`, README („Obsługa”, tabela klawiszy) i `HELP`.
-
-Testy w nowym `tests/clipboard.spec.js` (także w Firefoksie). W Chromium uprawnienia `clipboard-read` / `clipboard-write` nadaj przez `context.grantPermissions`. W Firefoksie wywołaj zdarzenie `paste` z `page.evaluate`, z obiektem `DataTransfer`.
-1. Ctrl+C, potem Ctrl+V w aplikacji → kopia gałęzi razem ze zwinięciami.
-2. `dd`, potem `p` przy innym tekście w schowku systemowym → wkleja wycięty węzeł.
-3. `dd`, potem Ctrl+V → wkleja wycięty węzeł, bo `dd` nadpisał schowek systemowy.
-4. `yy`, potem tekst skopiowany spoza aplikacji: Ctrl+V wkleja tekst z zewnątrz, a `p` nadal gałąź z `yy`.
-5. Lista Markdown z wcięciami z zewnątrz → poprawna hierarchia; zwykłe linie → rodzeństwo; tekst z końcami linii `\r\n`.
-6. Ctrl+Shift+V z zewnątrz → bracia; bez zaznaczenia → nowa mapa.
-7. Wklejanie w trakcie edycji → tylko tekst w polu, bez nowych węzłów.
-8. Jedno Ctrl+Z cofa całe wklejenie.
-9. Nieudany zapis do schowka systemowego nie psuje kopiowania wewnętrznego.
+`p` / `P` zawsze wklejają z wewnętrznego schowka. Ctrl+V / Ctrl+Shift+V wklejają tekst z innych aplikacji: lista z wcięciami daje hierarchię, kolejne zwykłe linie – jeden węzeł z kilkoma liniami, HTML z nagłówkami i listami – strukturę. Na dotyku „Wklej” w menu czyta schowek systemowy, a bez dostępu (http, Firefox na Androidzie) otwiera okienko „wklej tutaj”. Testy w `clipboard.spec.js`, decyzje w `docs/decyzje.md`.
 
 ### 2.3 Wyszukiwanie przybliżone (fuzzy) w palecie
 
 - Litery zapytania mają wystąpić w nazwie w tej kolejności, ale niekoniecznie obok siebie („zwwsz” → „Zwiń wszystko”). Słowa rozdzielone spacją dalej działają w dowolnej kolejności, każde dopasowane osobno. Bez polskich znaków i wielkości liter (`plain()`).
 - Ocena: premia za początek słowa, za litery leżące obok siebie i za dopasowanie od początku nazwy, kara za przerwy. Lista według oceny, a przy równej ocenie – 5 ostatnio użytych (jak dziś), potem stała kolejność.
 - Dopasowane litery są wyróżnione. Tekst wstawiaj przez `textContent` i osobne elementy, nigdy przez `innerHTML` z tekstu użytkownika.
+- **Karta decyzji przed kodem:** jak wyglądają wyróżnione litery (np. pogrubienie, kolor akcentu, podkreślenie) – pokaż w obu motywach.
 - Dotychczasowe testy palety (np. „zw wsz”) zostają. Dopisz testy dopasowania przybliżonego i kolejności.
 
 ### 2.4 Wygląd paska przewijania
@@ -145,6 +104,7 @@ Testy w nowym `tests/clipboard.spec.js` (także w Firefoksie). W Chromium uprawn
 Jedna droga do szukania węzłów: Ctrl+F i „/” skaczą po trafieniach, a gdy chcesz zobaczyć wszystkie naraz, otwiera się lista w palecie. Paleta nie dostaje osobnego, drugiego szukania węzłów.
 - W polu szukania **Alt+Enter** (sprawdź według punktu 0.5) albo przycisk „wszystkie” otwiera paletę w trybie „Trafienia (N)”: każde trafienie z tekstem i ścieżką od korzenia, napisaną drobnym, wyszarzonym tekstem.
 - Enter albo klik przechodzi do węzła (`go`, z rozwinięciem zwiniętych przodków). Esc zamyka listę. Tab i strzałki działają jak w palecie.
+- Węzeł z kilkoma liniami zajmuje na liście jedną linię – jak ją pokazać (np. linie złączone „ · ”), ustal z użytkownikiem.
 - Tego samego trybu listy użyje `:lint` (4.8).
 - Szukanie bez polskich znaków i wielkości liter, jak w palecie („zolw” znajduje „Żółw”). Dotyczy całego szukania: Ctrl+F, „/”, n / N i listy trafień, żeby liczba trafień wszędzie była ta sama. To założenie zmienia dzisiejsze zachowanie, więc potwierdź je z użytkownikiem.
 - Testy w `search.spec.js` i `palette.spec.js`.
@@ -227,7 +187,7 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
 
 Każda funkcja z tego etapu to wtyczka podstawy (3.1), poza 4.6, które zmienia istniejący widok Markdown.
 
-Uwaga do parsera: `parse()` w `core.js` **pomija linie, które nie są nagłówkiem ani elementem listy**. Każde rozszerzenie musi to uwzględnić (i licznik pominiętych linii z 0.2).
+Uwaga do parsera: `parse()` w `core.js` rozpoznaje tytuł mapy, elementy listy, wcięte linie tuż pod punktem (dalsze linie tekstu węzła), znaczniki `<!--layout…-->` / `<!--style…-->` i frontmatter; **inne linie pomija i liczy** (licznik z 0.2). Każde rozszerzenie musi to uwzględnić i nie może pomylić swojego zapisu z dalszą linią tekstu węzła.
 Tekst węzła w modelu pozostaje surowym Markdownem: edycja w węźle pokazuje źródło, a widok mapy pokazuje wersję wyrenderowaną.
 Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyświetlany**, np. bez `](url)`. Każdy wyróżniony fragment rysuj osobnym `<tspan>`, tak jak emoji.
 
@@ -259,7 +219,7 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 ### 4.3 Zadania 🗳
 
 - **Format:** `- [ ] tekst` / `- [x] tekst`. Model: `n.task?: 0 | 1` (brak pola = to nie jest zadanie).
-- Mapa: pole wyboru przed tekstem. Przełączanie: klik w pole, **Ctrl+Enter** albo vim **`t`**. Wykonane zadanie ma tekst przygaszony i przekreślony.
+- Mapa: pole wyboru przed tekstem. Przełączanie: klik w pole albo vim **`t`**. Skrót zwykły ustal z użytkownikiem: Ctrl+Enter to dziś „nowa linia” w edycji węzła, więc w trybie mapy nie powinien znaczyć czegoś innego. Wykonane zadanie ma tekst przygaszony i przekreślony.
 - Postęp: rodzic, który ma dzieci będące zadaniami, pokazuje mały znacznik „3/5”.
 - Przełączenie stanu jest zmianą modelu (`snap` / `changed`), więc da się je cofnąć.
 - Filtry dla 8.2: `is:task`, `is:done`. Terminy to rozszerzenie 8.3.
@@ -376,7 +336,7 @@ Bez elkjs; wszystko liczy deterministyczny kod własny. Zmiany wyglądu istniej�
 
 ### 7.1 Zaznaczanie wielu węzłów
 
-- Shift+klik dodaje lub usuwa węzeł z zaznaczenia. Vim: `v` zaczyna zaznaczanie, ruch je rozszerza, Esc kończy. Lasso: Shift+przeciąganie tła myszą. Gest na dotyku ustal z użytkownikiem, bo przytrzymanie tła dziś odznacza.
+- Shift+klik dodaje lub usuwa węzeł z zaznaczenia. Vim: `v` zaczyna zaznaczanie, ruch je rozszerza, Esc kończy. Lasso: Shift+przeciąganie tła myszą. Gest na dotyku ustal z użytkownikiem: przytrzymanie węzła i tła otwiera dziś menu (na tle przy tym odznacza).
 - Operacje na wielu węzłach: usuń, kopiuj / wytnij (w schowku lista gałęzi), przeciągnij, zwiń / rozwiń, wsuń / wysuń, przełącz zadanie.
 - Model: `sel` zostaje głównym (ostatnio zaznaczonym) węzłem, dochodzi zbiór zaznaczonych (np. `msel`). Dopisz go do słowniczka w `CLAUDE.md`.
 - Testy w nowym `multiselect.spec.js` oraz w `dnd.spec.js`.
