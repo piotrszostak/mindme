@@ -52,7 +52,7 @@ sv.addEventListener('pointermove', e => {
   moved = Math.max(moved, Math.abs(dx) + Math.abs(dy));
   if (moved <= (drag.touch ? 10 : 4)) return;
   clearTimeout(hold);
-  if (drag.id && dndStart(drag.id, drag.x, drag.y)) return dndMove(e.clientX, e.clientY);
+  if (drag.id && dndStart(drag.id, drag.x, drag.y, drag.touch)) return dndMove(e.clientX, e.clientY);
   tx = drag.tx + dx;
   ty = drag.ty + dy;
   apply();

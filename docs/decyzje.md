@@ -8,6 +8,8 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Podjęte
 
+- **2026-11-25 – Przeciąganie palcem: miejsce upuszczenia przenosi się ze zwłoką 0,2 s** (wybór użytkownika na karcie decyzji, A; po sprawdzeniu na telefonie: „inne węzły skaczą, bardzo tańczy”). Miejsce otwiera się dopiero, gdy palec postoi nad nowym miejscem ok. 0,2 s; przejazd przez mapę niczego nie rusza. Mysz bez zmian. Odrzucone: B – margines ok. 20 px za granicą (przy przejeździe przez kilka węzłów nadal skacze), C – bez zmian. Założenie agenta: puszczenie palca wstawia węzeł tam, gdzie jest palec, także przed upływem zwłoki – szybkie przeciągnięcie działa jak dotąd.
+
 - **2026-11-25 – Węzeł może mieć kilka linii tekstu; zapis: wcięte linie pod punktem** (wybór użytkownika na karcie decyzji, B; rozszerzenie formatu pliku). W edycji Ctrl+Enter wstawia nową linię (Enter nadal zatwierdza; na telefonie na razie bez nowej linii – decyzja użytkownika). W pliku:
   ```markdown
   - pierwsza linia

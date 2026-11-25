@@ -23,8 +23,9 @@ function branchCol(f) {
     cur = pf;
   }
 }
-/** zacznij przeciągać; false = nie da się (np. jedyny korzeń) @param {number} id @param {number} cx @param {number} cy */
-function dndStart(id, cx, cy) {
+/** zacznij przeciągać; false = nie da się (np. jedyny korzeń)
+ * @param {number} id @param {number} cx @param {number} cy @param {boolean} [touch] palcem (miejsce przenosi się ze zwłoką) */
+function dndStart(id, cx, cy, touch = false) {
   const f = find(id);
   const p = f && f.p;
   if (!f || !p || (p === root && root.children.length < 2))
@@ -66,6 +67,7 @@ function dndStart(id, cx, cy) {
     cx,
     cy,
     home: { p, before: a[i + 1] || null },
+    touch,
   };
   sel = id;
   sv.classList.add('dnd');
@@ -101,13 +103,19 @@ function dropAt(d, x, y) {
     after = dir === 'down' ? x > b.x + b.w / 2 : y > b.y;
   return { p: f.p, before: after ? a[i + 1] || null : b };
 }
+/** miejsce upuszczenia już jest tam @param {DragState} d @param {DropTarget} c */
+function samePlace(d, c) {
+  const cur = find(-1);
+  if (!cur || !cur.p) return false;
+  const a = cur.p.children;
+  return cur.p === c.p && (a[a.indexOf(d.ph) + 1] || null) === c.before;
+}
 /** przenieś miejsce upuszczenia; true = zmieniło się @param {DragState} d @param {DropTarget} c */
 function placePh(d, c) {
   const cur = find(-1);
-  if (!cur || !cur.p) return false;
+  if (!cur || !cur.p || samePlace(d, c)) return false;
   const a = cur.p.children,
     i = a.indexOf(d.ph);
-  if (cur.p === c.p && (a[i + 1] || null) === c.before) return false;
   a.splice(i, 1);
   const b = c.p.children,
     j = c.before ? b.indexOf(c.before) : -1;
@@ -125,8 +133,29 @@ function dndUpdate(cx, cy) {
   d.gx = mx - d.gdx;
   d.gy = my - d.gdy;
   const c = dropAt(d, mx, my);
-  if (c && placePh(d, c)) render(true);
+  if (!d.touch) {
+    if (c && placePh(d, c)) render(true);
+    return;
+  }
+  /* palcem: miejsce przenosi się dopiero, gdy palec postoi nad nowym miejscem – przejazd przez mapę jej nie rusza */
+  if (!c || samePlace(d, c)) {
+    d.wait = undefined;
+    return clearTimeout(dndT);
+  }
+  if (d.wait && d.wait.p === c.p && d.wait.before === c.before) return;
+  d.wait = c;
+  clearTimeout(dndT);
+  dndT = setTimeout(() => {
+    if (dnd !== d || d.wait !== c) return;
+    d.wait = undefined;
+    if (placePh(d, c)) render(true);
+    kick();
+  }, DND_WAIT);
 }
+/** ile ms palec musi postać nad nowym miejscem upuszczenia */
+const DND_WAIT = 200;
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let dndT;
 /** @param {number} cx @param {number} cy */
 function dndMove(cx, cy) {
   dndUpdate(cx, cy);
@@ -164,6 +193,8 @@ function edgePan() {
 function dndEnd(cancel) {
   const d = dnd;
   if (!d) return;
+  clearTimeout(dndT);
+  if (!cancel && d.wait) placePh(d, d.wait); /* puszczenie palca: węzeł trafia pod palec, bez czekania */
   dnd = null;
   sv.classList.remove('dnd');
   hint('');

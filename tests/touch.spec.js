@@ -181,6 +181,28 @@ test.describe('dotyk', () => {
     expect(await texts(page)).toContain('  - 1b\n    - Trzy\n');
   });
 
+  test('przeciąganie palcem: miejsce upuszczenia przenosi się dopiero, gdy palec postoi ok. 0,2 s', async ({
+    page,
+  }) => {
+    await loadMap(page, '# R\n- a\n- b\n- c\n- d\n');
+    /** dzieci R; „_” = miejsce upuszczenia */
+    const slots = () =>
+      page.evaluate(() => {
+        const f = find(-1);
+        return f && f.p.children.map(c => (c.ph ? '_' : c.text)).join(',');
+      });
+    const d = await box(page, 'd');
+    await swipe(page, [d.cx, d.cy], at(await box(page, 'b'), 0.15, 0.25), { up: false });
+    expect(await slots()).toBe('a,b,c,_'); // palec dopiero dojechał – węzły jeszcze stoją
+    await page.waitForTimeout(350);
+    expect(await slots()).toBe('a,_,b,c'); // postał – miejsce otwiera się przed „b”
+    const a = await box(page, 'a');
+    await touch(page, 'pointermove', ...at(a, 0.85, 0.5));
+    expect(await slots()).toBe('a,_,b,c'); // przejazd nad „a” niczego nie rusza
+    await touch(page, 'pointerup', ...at(a, 0.85, 0.5)); // puszczenie od razu – węzeł i tak trafia pod palec
+    expect(await texts(page)).toBe('# R\n\n- a\n  - d\n- b\n- c\n');
+  });
+
   test('przeciągnięcie tła palcem przesuwa widok', async ({ page }) => {
     await loadMap(page, MD);
     const sv = await page.locator('#sv').boundingBox(),

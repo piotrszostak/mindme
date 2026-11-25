@@ -99,6 +99,10 @@ interface DragState {
   home: DropTarget;
   target?: number;
   edgeT?: number;
+  /** przeciąganie palcem: miejsce upuszczenia przenosi się ze zwłoką */
+  touch?: boolean;
+  /** miejsce, nad którym palec czeka (jeszcze nieprzeniesione) */
+  wait?: DropTarget;
 }
 /** Miejsce upuszczenia: rodzic i brat, przed którym wstawić (`null` = na koniec). */
 interface DropTarget {
