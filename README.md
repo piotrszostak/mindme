@@ -90,6 +90,7 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 - `<!--c-->` na końcu linii oznacza zwinięty węzeł.
 - `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd. W pliku są tylko ustawienia różne od domyślnych.
 - Frontmatter, czyli blok `---` … `---` od pierwszej linii pliku (np. `tags:` z Obsidiana), zostaje w pliku bez zmian. Mapa go nie pokazuje, ale widać go i można poprawić w widoku tekstowym (`:text`).
+- Inne linie (akapity, nagłówki `##`, tabele) nie trafiają na mapę, a zapis by je usunął. Dlatego plik z takimi liniami nie zapisuje się sam: Ctrl+S pyta, czy zapisać mapę jako nowy plik, czy nadpisać ten.
 
 ## Instalacja
 

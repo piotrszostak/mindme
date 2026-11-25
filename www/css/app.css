@@ -697,6 +697,48 @@ svg {
   padding: 8px;
   opacity: 0.6;
 }
+/* okienko z pytaniem (`ask` w files.js), w stylu palety; pierwszy przycisk jest domyślny */
+#ask {
+  width: min(440px, calc(100vw - 16px));
+  box-sizing: border-box;
+  padding: 14px 16px;
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px #0004;
+}
+#ask::backdrop {
+  background: #0003;
+}
+#askt {
+  margin: 0 0 14px;
+  line-height: 1.45;
+}
+#askb {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+#askb button {
+  font: inherit;
+  padding: 7px 12px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+#askb button:first-child {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--card);
+}
+#askb button:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
 @media (hover: none) {
   #pall {
     --ph: 44px;

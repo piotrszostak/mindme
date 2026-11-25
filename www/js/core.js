@@ -95,9 +95,10 @@ function serialize(t) {
   );
 } /* bloki rozdziela dokładnie jedna pusta linia */
 const FM_RE = /^---[ \t]*$/;
-/** Markdown → model (zwraca kontener; ustawia też `dir` i `ST`). @param {string} md */
+/** Markdown → model (zwraca kontener z licznikiem `skip`; ustawia też `dir` i `ST`). @param {string} md */
 function parse(md) {
   const t = forest([]);
+  t.skip = 0;
   let st = null;
   dir = 'right';
   ST = JSON.parse(JSON.stringify(DEF));
@@ -144,7 +145,7 @@ function parse(md) {
       st[d].children.push(n);
       st.length = d + 1;
       st.push(n);
-    }
+    } else if (l.trim()) t.skip++; /* linia, której mapa nie pokazuje (akapit, `##`, tabela…) */
   }
   if (!t.children.length) t.children.push(mk('Mapa'));
   return t;
@@ -189,6 +190,9 @@ let hits = [];
 let hi = 0;
 /** @type {FileSystemFileHandle | null} otwarty plik (File System Access API) */
 let fh = null;
+/** linie otwartego pliku, których mapa nie pokazuje; > 0 – autozapis do pliku wstrzymany do „Nadpisz” */
+let fhSkip = 0;
+/** zmiany, których nie ma jeszcze w otwartym pliku (przeładowanie z dysku pyta wtedy o zgodę) */
 let dirty = false;
 /** @type {ReturnType<typeof setTimeout> | undefined} */
 let timer;

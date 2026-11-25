@@ -11,6 +11,8 @@ interface MapNode {
   top?: boolean;
   /** frontmatter pliku (`---` … `---`, bez końcowego znaku nowej linii) – tylko w kontenerze `root` */
   fm?: string;
+  /** liczba linii, których mapa nie pokazuje – tylko w kontenerze zwróconym przez `parse` */
+  skip?: number;
   /** miejsce upuszczenia w trakcie przeciągania (id −1) */
   ph?: boolean;
   x: number;
@@ -203,6 +205,9 @@ interface Elements {
   pal: HTMLDivElement;
   palq: HTMLInputElement;
   pall: HTMLDivElement;
+  ask: HTMLDialogElement;
+  askt: HTMLParagraphElement;
+  askb: HTMLDivElement;
   st: HTMLDivElement;
   mode: HTMLSpanElement;
   cmd: HTMLInputElement;

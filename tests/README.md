@@ -7,7 +7,8 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 
 | plik                                                                  | obszar                                                      |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `parser.spec.js`                                                      | Markdown ⇄ model, wiele korzeni, round-trip                 |
+| `parser.spec.js`                                                      | Markdown ⇄ model, wiele korzeni, round-trip, frontmatter    |
+| `files.spec.js`                                                       | otwieranie i zapis plików, ochrona linii spoza mapy         |
 | `layout.spec.js`, `wrap.spec.js`                                      | układy, brak nakładania, zawijanie, emoji w tekście         |
 | `topbar.spec.js`                                                      | pasek, przełącznik Markdown/mapa, menu „…”                  |
 | `menu.spec.js`                                                        | menu podręczne, kopiuj/wytnij/wklej/usuń                    |

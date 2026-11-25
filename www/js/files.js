@@ -9,7 +9,8 @@ async function autosave() {
   try {
     localStorage.setItem('mm.md', serialize(root));
   } catch (e) {}
-  if (fh) {
+  const toFile = fh && !fhSkip; /* plik z liniami spoza mapy czeka na „Nadpisz” (zob. save) */
+  if (fh && toFile) {
     try {
       const w = await fh.createWritable();
       await w.write(serialize(root));
@@ -20,8 +21,8 @@ async function autosave() {
       return;
     }
   }
-  dirty = false;
-  $('save').textContent = fh ? '✓ zapisano w pliku' : '✓ zapisano lokalnie';
+  if (!fh || toFile) dirty = false;
+  $('save').textContent = toFile ? '✓ zapisano w pliku' : '✓ zapisano lokalnie';
 }
 async function save() {
   if (editing) endEdit();
@@ -29,31 +30,109 @@ async function save() {
     root = parse($('txt').value);
     syncLayout();
   }
-  if (window.showSaveFilePicker && !fh) {
+  if (fh && fhSkip) {
+    const c = await ask(
+      `Ten plik ma treść, której mapa nie pokazuje (${fhSkip} ${lin(fhSkip, 'linia')}). Zapis ją usunie.`,
+      ['Zapisz jako nowy plik', 'Nadpisz', 'Anuluj']
+    );
+    if (c === 1) {
+      fhSkip = 0;
+      return autosave();
+    }
+    if (c === 0) return saveNew();
+    return;
+  }
+  return fh ? autosave() : saveNew();
+}
+/** zapis do nowego pliku: okno zapisu (Chrome/Edge), a bez niego pobranie `mapa.md` */
+async function saveNew() {
+  if (window.showSaveFilePicker) {
     try {
       fh = await window.showSaveFilePicker({
         suggestedName: 'mapa.md',
         types: [{ accept: { 'text/markdown': ['.md'] } }],
       });
+      fhSkip = 0;
       return autosave();
     } catch (e) {
       if (isAbort(e)) return;
     }
   }
-  if (fh) return autosave();
   dl(new Blob([serialize(root)], { type: 'text/markdown' }), 'mapa.md');
   $('save').textContent = '✓ pobrano mapa.md';
 }
-/** wczytaj mapę z Markdownu (cofalne) @param {string} txt */
+/** forma słowa „linia” po liczbie @param {number} n @param {'linia' | 'linię'} one forma dla 1 */
+const lin = (n, one) =>
+  n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'linie' : 'linii';
+/** komunikat po otwarciu pliku z liniami spoza mapy @param {number} n */
+const skipInfo = n =>
+  `Pominięto ${n} ${lin(n, 'linię')}, ${n === 1 ? 'której' : 'których'} mapa nie pokazuje – plik na dysku bez zmian`;
+/**
+ * Okienko z pytaniem; pierwszy przycisk jest domyślny (Enter), Esc = −1.
+ * @param {string} text @param {string[]} labels @returns {Promise<number>} numer wybranego przycisku
+ */
+function ask(text, labels) {
+  const d = $('ask');
+  askEnd(-1); /* poprzednie pytanie (jeśli jeszcze otwarte) kończy się jak „Anuluj” */
+  askKey = false;
+  $('askt').textContent = text;
+  $('askb').replaceChildren(
+    ...labels.map((l, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = l;
+      b.onclick = e => {
+        if (e.detail || askKey) askEnd(i); /* Enter, który otworzył okienko (np. z palety „:w”), nie wybiera */
+      };
+      return b;
+    })
+  );
+  d.showModal();
+  /** @type {HTMLElement} */ ($('askb').firstChild).focus();
+  return new Promise(res => (askRes = res));
+}
+/* Wynik oddajemy od razu przy wyborze, nie w zdarzeniu `close`: przychodzi z opóźnieniem i trafiłoby
+   w pytanie otwarte zaraz po nim; `returnValue` też nie – Esc w Chromium zamyka z pustym (Number('') = 0). */
+/** @type {((i: number) => void) | null} */
+let askRes = null;
+/** klawisz naciśnięty w otwartym okienku – dopiero wtedy przycisk wybrany klawiaturą działa */
+let askKey = false;
+/** @param {number} i numer przycisku, −1 = Anuluj */
+function askEnd(i) {
+  const d = $('ask'),
+    res = askRes;
+  askRes = null;
+  if (d.open) {
+    if (asEl(document.activeElement)?.closest('#ask')) /** @type {HTMLElement} */ (document.activeElement).blur();
+    d.close();
+  }
+  if (res) res(i);
+}
+$('ask').addEventListener('keydown', e => {
+  askKey = true;
+  e.stopPropagation(); /* klawisze okienka nie sterują mapą */
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    askEnd(-1);
+  }
+});
+$('ask').addEventListener('cancel', e => {
+  e.preventDefault(); /* inne prośby o zamknięcie (np. „wstecz” na Androidzie) – jak Anuluj */
+  askEnd(-1);
+});
+/** wczytaj mapę z Markdownu (cofalne) @param {string} txt @returns {number} linie, których mapa nie pokazuje */
 function load(txt) {
   if (editing) endEdit();
   snap();
   root = parse(txt);
+  const n = root.skip || 0;
+  delete root.skip;
   syncLayout();
   syncSide();
   sel = first().id;
   ty = 0;
   changed();
+  return n;
 }
 /** nowa mapa z jednym korzeniem (cofalne) @param {string} t tytuł (pusty – „Nowa mapa”) */
 function newMap(t) {
@@ -61,7 +140,15 @@ function newMap(t) {
   root = forest([mk(t || 'Nowa mapa')]);
   sel = first().id;
   fh = null;
+  fhSkip = 0;
   changed();
+}
+/** otwarty plik: linie spoza mapy wstrzymują zapis do niego (zob. save) @param {string} txt */
+function loadFile(txt) {
+  fhSkip = load(txt);
+  dirty = false;
+  if (fhSkip) info(skipInfo(fhSkip));
+  return fhSkip;
 }
 async function openFile() {
   if (window.showOpenFilePicker) {
@@ -70,11 +157,12 @@ async function openFile() {
       fh = h;
       const f = await h.getFile();
       lastMod = f.lastModified;
-      load(await f.text());
+      loadFile(await f.text());
       return;
     } catch (e) {
       if (isAbort(e)) return;
       fh = null;
+      fhSkip = 0;
     }
   }
   const i = document.createElement('input');
@@ -82,7 +170,7 @@ async function openFile() {
   i.accept = '.md,.txt';
   i.onchange = async () => {
     const file = i.files && i.files[0];
-    if (file) load(await file.text());
+    if (file) loadFile(await file.text());
   };
   i.click();
 }

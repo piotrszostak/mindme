@@ -63,6 +63,7 @@ const HELP = {
     ['- tekst', 'węzeł; wcięcie o 2 spacje = dziecko'],
     ['<!--c-->', 'zwinięty węzeł (na końcu linii)'],
     ['<!--layout:both-->', 'układ mapy (pod tytułem)'],
+    ['inne linie', 'akapity, ## itp.: poza mapą; zapis pyta, zanim je usunie'],
   ],
 };
 function buildHelp() {

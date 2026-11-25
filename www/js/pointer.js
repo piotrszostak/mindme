@@ -169,7 +169,8 @@ sv.addEventListener(
 sv.addEventListener('touchend', () => {
   pd = 0;
 });
-setInterval(async () => {
+/** otwarty plik zmieniony na dysku (np. w innym programie) → wczytaj go ponownie; sprawdzane co 2 s */
+async function reloadIfChanged() {
   if (!fh || editing) return;
   try {
     const f = await fh.getFile();
@@ -178,11 +179,10 @@ setInterval(async () => {
     lastMod = f.lastModified;
     if (t === serialize(root)) return;
     if (dirty && !confirm('Plik zmieniony na dysku. Wczytać (utrata lokalnych zmian)?')) return;
-    load(t);
-    dirty = false;
-    info('przeładowano zmiany z pliku');
+    if (!loadFile(t)) info('przeładowano zmiany z pliku');
   } catch (e) {}
-}, 2000);
+}
+setInterval(reloadIfChanged, 2000);
 /** pobierz plik @param {Blob} b @param {string} n nazwa */
 function dl(b, n) {
   const a = document.createElement('a');

@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Etap 1 i zadanie 0.1 są zrobione.
+Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Etapy 0 i 1 są zrobione.
 
 **Znaczniki:**
 - **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
@@ -63,7 +63,7 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
 
 - Decyzje z 2026-11-25 przeniesione do `docs/decyzje.md`. Nowe decyzje trafiają od razu tam.
 
-### 0.2 Ochrona przed utratą danych 🗳
+### 0.2 Ochrona przed utratą danych ✅ zrobione
 
 Dziś `parse()` po cichu pomija każdą linię, która nie jest `# tytułem`, elementem listy ani znacznikiem `<!--layout…-->` / `<!--style…-->`. Zapis do pliku kasuje więc akapity, nagłówki `##`, tabele i inne bloki. Lista YAML we frontmatterze (np. `tags:` i pod spodem `  - wyjazd`) zamienia się w węzły. Naprawa ma być prosta i **bez przełącznika**:
 - **Frontmatter** (blok `---` … `---` zaczynający się w pierwszej linii pliku) zostaje w pliku bez zmian i nie trafia na mapę. Zapis wstawia go na początek pliku dokładnie tak, jak go wczytano. Plik bez frontmattera zapisuje się bajt w bajt jak dziś.
