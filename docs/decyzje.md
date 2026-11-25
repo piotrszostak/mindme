@@ -4,10 +4,11 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Otwarte
 
-- **appId aplikacji na Androida** – teraz `pl.example.mindmap` (`capacitor.config.json`). Ustalić przed pierwszym wydaniem: po publikacji zmiana oznacza nową aplikację w sklepie, a użytkownicy tracą zapisane mapy.
+- **appId aplikacji na Androida** – teraz `pl.example.mindmap` (`capacitor.config.json`). Ustalić przed pierwszym wydaniem (zadanie T.2): po publikacji zmiana oznacza nową aplikację w sklepie, a użytkownicy tracą zapisane mapy.
 
 ## Podjęte
 
+- **2026-11-25 – Plan: nowy etap T „Telefon i wydanie” zaraz po etapie 2** (wybór użytkownika przy przeglądzie planu). Adres https (schowek bez okienka, tryb offline, instalacja), `appId` i pierwszy APK, zapis plików na Androidzie (przeniesiony z etapu 9). Powód: większość pracy z 25.11 dotyczyła telefonu, a adres http blokuje schowek i `sw.js`, a mapy z telefonu są tylko w pamięci przeglądarki. Założenia agenta: miejsce zaraz po etapie 2 (zaproponowane przy przeglądzie); etapy dodane później mają litery, żeby numery zadań w tym dzienniku się zgadzały.
 - **2026-11-25 – Przewijanie mapy przy krawędzi w trakcie przeciągania palcem: bez zmian** (wybór użytkownika na karcie decyzji, C; po sprawdzeniu na telefonie: „cała mapa ucieka”, ale po zwłoce miejsca upuszczenia „wszystko wygląda w porządku”). Zostaje pas 40 px, start po 0,35 s, do ok. 300 px/s. Odrzucone: A – spokojniej na dotyku (pas 24 px, start po 0,6 s, do ok. 180 px/s), B – wyłączenie na dotyku.
 - **2026-11-25 – Przeciąganie palcem: miejsce upuszczenia przenosi się ze zwłoką 0,2 s** (wybór użytkownika na karcie decyzji, A; po sprawdzeniu na telefonie: „inne węzły skaczą, bardzo tańczy”). Miejsce otwiera się dopiero, gdy palec postoi nad nowym miejscem ok. 0,2 s; przejazd przez mapę niczego nie rusza. Mysz bez zmian. Odrzucone: B – margines ok. 20 px za granicą (przy przejeździe przez kilka węzłów nadal skacze), C – bez zmian. Założenie agenta: puszczenie palca wstawia węzeł tam, gdzie jest palec, także przed upływem zwłoki – szybkie przeciągnięcie działa jak dotąd.
 

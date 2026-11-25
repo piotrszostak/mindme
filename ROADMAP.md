@@ -5,6 +5,8 @@ Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgad
 
 Plan przebudowany 2026-11-25: przegląd inspiracji (Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode), a potem podział na **podstawę** i **rozszerzenia**. Zrobione: etapy 0 i 1 oraz zadania 2.1 i 2.2.
 
+**Kolejność etapów:** 2 → T → 3 → 4 → 5 → 6 → 7 → 8. Etapy dodane później mają litery zamiast numerów, żeby numery zadań w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
+
 **Znaczniki:**
 - **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
 - **⏸ STOP** – zadanie kończy się pokazaniem wyniku albo pytaniem. Czekaj na zgodę użytkownika.
@@ -117,6 +119,32 @@ Jedna droga do szukania węzłów: Ctrl+F i „/” skaczą po trafieniach, a gd
 - Testy w `keys.spec.js`, także w Firefoksie.
 
 **Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` są aktualne.
+
+---
+
+## Etap T – Telefon i wydanie
+
+Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowej. Przeglądarka uznaje taki adres za niebezpieczny: nie daje dostępu do schowka (stąd okienko „wklej tutaj”), nie uruchamia `sw.js` (bez trybu offline i instalacji na ekranie głównym), a mapy żyją tylko w jej pamięci. Ten etap daje aplikację na telefon na stałe.
+
+### T.1 Adres https ⏸ STOP
+
+- **Karta decyzji:** gdzie (np. GitHub Pages – darmowe dla publicznego repozytorium – albo inny darmowy hosting), pod jakim adresem i czy wdrażać automatycznie po wysłaniu na serwer (GitHub Actions), czy ręcznie. Publikuje i wysyła użytkownik.
+- Strona może działać z podkatalogu (np. `/mindmap/`): sprawdź ścieżki w `index.html`, `sw.js` i `manifest.webmanifest`; zmianę pokryj testem w `pwa.spec.js`.
+- Po wdrożeniu `/na-telefonie`: wklejanie bez okienka „wklej tutaj”, instalacja na ekranie głównym, praca bez sieci, autozapis po ponownym otwarciu.
+- Zaktualizuj pułapki w `CLAUDE.md` i skill `/na-telefonie` (gdzie wystarczy adres https zamiast `10.0.0.x`).
+
+### T.2 Identyfikator aplikacji i pierwszy APK 🗳
+
+- **Karta decyzji:** `appId` (otwarta sprawa w `docs/decyzje.md`; po publikacji w sklepie zmiana oznacza nową aplikację) i nazwa aplikacji na ekranie telefonu.
+- `npx cap add android` i APK w wersji testowej, zgodnie z dokumentacją Capacitora **6**. Co z folderu `android/` trafia do gita – według tej dokumentacji. Klucze podpisu tylko w plikach z `.gitignore`.
+- Android SDK to duże pobranie – zapytaj przed instalacją i opisz, co i gdzie trafi.
+- W aplikacji (WebView) sprawdź `/na-telefonie`: wklejanie (okienko „wklej tutaj”), przytrzymanie, przeciąganie, klawiaturę ekranową przy edycji.
+
+### T.3 Otwieranie i zapis plików na Androidzie
+
+- Przeniesione z etapu 9. W APK „Otwórz” i „Zapisz” działają na plikach telefonu; w przeglądarce bez zmian.
+- Nowa biblioteka (np. `@capacitor/filesystem` w wersji dla Capacitora 6) albo systemowe okno wyboru pliku – karta z opcjami, rozmiarem, licencją i datą wydania. Zgodnie z 0.1 bez budowania: wtyczka Capacitora przez globalny `Capacitor.Plugins`.
+- Testy: logika zapisu na podstawionym obiekcie w `page.evaluate`; całość `/na-telefonie`.
 
 ---
 
@@ -425,7 +453,7 @@ Każde rozszerzenie jest wtyczką (3.1), ma wpis z krótkim opisem na liście �
 ## Etap 9 – Później (nie zaczynaj bez zgody użytkownika)
 
 - **Import notatki Markdown** (np. z Obsidiana): „Importuj notatkę…” tworzy nową mapę z kopii notatki – nagłówki i listy stają się węzłami, a akapity, tabele i kod notatkami tekstowymi (wymaga 4.1). Oryginał zostaje nietknięty; bez zapisu z powrotem do formatu notatki.
-- Z dawnego etapu 5: szybkie wpisywanie pomysłów; eksport PDF / OPML / FreeMind / Xmind oraz import z nich; AI; historia wersji; bezpośredni zapis na Androidzie (`@capacitor/filesystem`); współpraca na żywo (zob. punkt 0.10).
+- Z dawnego etapu 5: szybkie wpisywanie pomysłów; eksport PDF / OPML / FreeMind / Xmind oraz import z nich; AI; historia wersji; współpraca na żywo (zob. punkt 0.10).
 - Układ dla jednej gałęzi (`<!--layout:nazwa-->` na końcu linii węzła).
 - Odłożone 2026-11-25:
   - eksport do bloku Mermaid `mindmap` i do jednego pliku HTML ze zwijaniem (jak Markmap);
