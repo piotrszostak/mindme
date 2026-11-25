@@ -114,3 +114,19 @@ test(':layout i przycisk układu zmieniają układ i są zapisywane w markdownie
   const b = byText(await boxes(page));
   expect(b['Jeden'].right).toBeLessThan(b['Środek'].x);
 });
+
+test('cofanie obejmuje układ: zmianę układu i wczytanie pliku z innym układem', async ({ page }) => {
+  const state = () => page.evaluate(() => [dir, first().text, $('bl').dataset.tip]);
+  await page.evaluate(() => load('# A\n<!--layout:both-->\n\n- a\n'));
+  await page.evaluate(() => setLayout('down'));
+  expect((await state())[0]).toBe('down');
+  await page.evaluate(() => undo());
+  expect(await state()).toEqual(['both', 'A', 'Układ mapy: ' + (await page.evaluate(() => LAY.both[1]))]);
+  await page.evaluate(() => redo());
+  expect((await state())[0]).toBe('down');
+
+  await page.evaluate(() => load('# B\n\n- b\n'));
+  expect((await state()).slice(0, 2)).toEqual(['right', 'B']);
+  await page.evaluate(() => undo());
+  expect((await state()).slice(0, 2)).toEqual(['down', 'A']);
+});

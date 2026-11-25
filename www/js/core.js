@@ -226,7 +226,7 @@ const vis = (n = root, a = []) => {
 /** @type {(n: MapNode) => MapNode} */
 const clone = n =>
   /** @type {MapNode} */ ({ id: ++uid, text: n.text, collapsed: n.collapsed, children: n.children.map(clone) });
-const snapStr = () => JSON.stringify({ root, sel, st: ST });
+const snapStr = () => JSON.stringify({ root, sel, st: ST, dir });
 function snap() {
   undoS.push(snapStr());
   if (undoS.length > 300) undoS.shift();
@@ -237,6 +237,10 @@ function restore(s) {
   const o = JSON.parse(s);
   root = o.root;
   sel = o.sel;
+  if (o.dir && o.dir !== dir) {
+    dir = o.dir;
+    syncLayout();
+  }
   if (o.st) {
     ST = o.st;
     stDirty = true;

@@ -132,7 +132,8 @@ function nodeScreen() {
 }
 /** @param {string} d right | left | both | down */
 function setLayout(d) {
-  if (!LAY[d]) return;
+  if (!LAY[d] || d === dir) return;
+  snap(); /* układ zapisuje się w pliku, więc jego zmianę da się cofnąć */
   dir = d;
   ty = 0;
   syncLayout();

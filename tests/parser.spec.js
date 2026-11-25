@@ -175,14 +175,14 @@ test('frontmatter: przechowują go autozapis, cofanie i widok tekstowy; nowa map
   await page.keyboard.press('Escape');
   expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_FM);
 
-  /* cofanie sprawdza tylko frontmatter: układu (layout) cofanie dziś nie przywraca – osobna sprawa */
   await page.evaluate(() => load('# Inna\n\n- y\n'));
   expect(await page.evaluate(() => root.fm)).toBeUndefined();
   await page.evaluate(() => undo());
-  expect(await page.evaluate(() => [root.fm, root.children.map(r => r.text)])).toEqual([FM_BLOCK, ['Plan', 'Drugi']]);
+  expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_FM);
 
+  /* nowa mapa zachowuje bieżący układ (tu „obie strony”), ale nie frontmatter */
   await page.evaluate(() => newMap('Nowa'));
-  expect(await page.evaluate(() => serialize(root))).toBe('# Nowa\n\n');
+  expect(await page.evaluate(() => serialize(root))).toBe('# Nowa\n<!--layout:both-->\n\n');
 });
 
 test('komenda :test raportuje round-trip OK', async ({ page }) => {
