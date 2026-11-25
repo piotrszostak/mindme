@@ -40,11 +40,10 @@ function holdFire() {
   const d = drag;
   drag = null;
   if (editing) endEdit();
-  if (d.id) {
-    go(d.id, true);
-    ctxMenu(d.x, d.y, true);
-  } else deselect();
-} /* przytrzymanie: węzeł → menu, tło → odznacz */
+  if (d.id) go(d.id, true);
+  else deselect();
+  ctxMenu(d.x, d.y, true);
+} /* przytrzymanie: węzeł → jego menu; tło → odznacz i menu całej mapy (tam „Wklej jako nowy korzeń”) */
 sv.addEventListener('pointermove', e => {
   if (!drag) return;
   if (dnd) return dndMove(e.clientX, e.clientY);

@@ -68,7 +68,7 @@ test.describe('dotyk', () => {
     await expect(page.locator('#ed')).toBeFocused();
   });
 
-  test('przytrzymanie tła → odznacza węzeł (bez menu)', async ({ page }) => {
+  test('przytrzymanie tła → odznacza węzeł i otwiera menu całej mapy (z wklejaniem)', async ({ page }) => {
     await loadMap(page, MD);
     const b = await box(page, 'Dwa');
     await tap(page, b.cx, b.cy);
@@ -76,10 +76,13 @@ test.describe('dotyk', () => {
     await page.waitForTimeout(450);
     await touch(page, 'pointerdown', sv.x + 15, sv.y + sv.height - 15);
     await page.waitForTimeout(650);
-    await expect(menu(page)).toBeHidden();
     expect(await page.evaluate(() => sel)).toBe(0);
     await expect(page.locator('#g .n.sel')).toHaveCount(0);
+    await expect(page.locator('#menu .mh')).toHaveText('Brak zaznaczenia – cała mapa');
+    await expect(act(page, 'paste')).toHaveText(/Wklej jako nowy korzeń/);
+    await expect(act(page, 'paste')).toBeEnabled(); // schowek systemowy, nawet gdy w aplikacji nic nie skopiowano
     await touch(page, 'pointerup', sv.x + 15, sv.y + sv.height - 15);
+    await expect(menu(page)).toBeVisible(); // puszczenie nie zamyka menu
   });
 
   test('podwójne stuknięcie tła bez zaznaczenia → menu całej mapy', async ({ page }) => {

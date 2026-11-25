@@ -51,6 +51,6 @@ render();
 info(selfTest() ? 'round-trip OK · ? = pomoc' : 'round-trip BŁĄD');
 hint(
   matchMedia('(hover: none)').matches
-    ? 'przytrzymaj węzeł – menu · przytrzymaj tło – odznacz · stuknij 2× – edytuj'
+    ? 'przytrzymaj – menu (na tle też odznacza) · stuknij 2× – edytuj'
     : 'dwuklik – edytuj · PPM – menu · przeciągnij węzeł – przenieś'
 );

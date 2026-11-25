@@ -23,14 +23,14 @@ Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zap
 
 ## Obsługa
 
-|                      | Mysz                    | Dotyk                                        |
-| -------------------- | ----------------------- | -------------------------------------------- |
-| zaznacz              | klik                    | stuknięcie                                   |
-| edytuj tekst         | dwuklik węzła           | podwójne stuknięcie węzła                    |
-| menu podręczne       | prawy przycisk          | przytrzymanie węzła, podwójne stuknięcie tła |
-| odznacz              | dwuklik tła             | przytrzymanie tła                            |
-| przenieś gałąź       | przeciągnij węzeł       | przeciągnij węzeł                            |
-| przesuń widok / zoom | przeciągnij tło / kółko | przeciągnij tło / dwa palce                  |
+|                      | Mysz                    | Dotyk                                                   |
+| -------------------- | ----------------------- | ------------------------------------------------------- |
+| zaznacz              | klik                    | stuknięcie                                              |
+| edytuj tekst         | dwuklik węzła           | podwójne stuknięcie węzła                               |
+| menu podręczne       | prawy przycisk          | przytrzymanie (węzła albo tła), podwójne stuknięcie tła |
+| odznacz              | dwuklik tła             | przytrzymanie tła (otwiera też menu mapy)               |
+| przenieś gałąź       | przeciągnij węzeł       | przeciągnij węzeł                                       |
+| przesuń widok / zoom | przeciągnij tło / kółko | przeciągnij tło / dwa palce                             |
 
 **Przenoszenie:** węzeł upuszczony na prawej części innego węzła zostaje jego dzieckiem, a upuszczony na lewej górnej lub dolnej części staje się bratem przed nim lub za nim. Esc anuluje przeciąganie, Ctrl+Z cofa przeniesienie.
 

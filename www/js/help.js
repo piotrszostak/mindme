@@ -24,7 +24,7 @@ const HELP = {
     ['stuknij', 'zaznacz'],
     ['stuknij 2× węzeł', 'edytuj w węźle'],
     ['przytrzymaj węzeł', 'zaznacz i otwórz menu podręczne'],
-    ['przytrzymaj tło', 'odznacz węzeł'],
+    ['przytrzymaj tło', 'odznacz węzeł i otwórz menu całej mapy'],
     ['stuknij 2× tło', 'menu podręczne (zaznaczonego węzła albo całej mapy)'],
     ['przeciągnij węzeł', 'przenieś (jak myszą)'],
     ['przeciągnij tło', 'przesuń widok'],

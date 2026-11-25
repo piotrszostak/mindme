@@ -135,7 +135,7 @@ test.describe('pasek: kolejność', () => {
 });
 
 test.describe('pasek stanu', () => {
-  const HINT = 'przytrzymaj węzeł – menu · przytrzymaj tło – odznacz · stuknij 2× – edytuj';
+  const HINT = 'przytrzymaj – menu (na tle też odznacza) · stuknij 2× – edytuj';
   const MSG = 'Pominięto 2 linie spoza mapy – plik na dysku bez zmian';
   const show = page =>
     page.evaluate(
