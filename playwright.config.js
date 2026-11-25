@@ -37,7 +37,7 @@ module.exports = defineConfig({
     // Firefox: skróty klawiszowe przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”
     {
       name: 'firefox',
-      testMatch: /(keys|search)\.spec\.js/,
+      testMatch: /(keys|search|clipboard)\.spec\.js/,
       use: {
         browserName: 'firefox',
         launchOptions: {

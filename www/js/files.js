@@ -62,8 +62,7 @@ async function saveNew() {
   $('save').textContent = '✓ pobrano mapa.md';
 }
 /** forma słowa „linia” po liczbie @param {number} n @param {'linia' | 'linię'} one forma dla 1 */
-const lin = (n, one) =>
-  n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'linie' : 'linii';
+const lin = (n, one) => pl(n, one, 'linie', 'linii');
 /** komunikat po otwarciu pliku z liniami spoza mapy @param {number} n */
 const skipInfo = n => `Pominięto ${n} ${lin(n, 'linię')} spoza mapy – plik na dysku bez zmian`;
 /**

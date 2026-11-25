@@ -54,6 +54,10 @@ var dir = 'right';
 let uid = 0;
 /** @type {(t: string, ch?: MapNode[]) => MapNode} nowy węzeł (pola układu uzupełnia `lay()`) */
 const mk = (t, ch = []) => /** @type {MapNode} */ ({ id: ++uid, text: t, children: ch, collapsed: false });
+/** polska odmiana po liczbie: 1 węzeł, 2–4 węzły, 5 węzłów (ale 22 węzły, 12 węzłów)
+ * @param {number} n @param {string} one @param {string} few @param {string} many */
+const pl = (n, one, few, many) =>
+  n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many;
 /** anulowanie okna wyboru pliku przez użytkownika @param {unknown} e */
 const isAbort = e => e instanceof DOMException && e.name === 'AbortError';
 /** cel zdarzenia jako element (lub null) @param {EventTarget | null} t @returns {Element | null} */
@@ -69,6 +73,15 @@ const esc = s =>
 /** @param {MapNode[]} ch */
 const forest = ch => /** @type {MapNode} */ ({ id: 0, text: '', children: ch, collapsed: false, top: true });
 const C_RE = /\s*<!--c-->\s*$/;
+/** gałąź jako lista Markdown, jak w pliku (także w schowku systemowym)
+ * @param {MapNode} n @param {number} [d] głębokość @returns {string} */
+const branchMd = (n, d = 0) =>
+  '  '.repeat(d) +
+  '- ' +
+  n.text +
+  (n.collapsed && n.children.length ? ' <!--c-->' : '') +
+  '\n' +
+  n.children.map(c => branchMd(c, d + 1)).join('');
 /** Model → Markdown. @param {MapNode} t kontener `root` */
 function serialize(t) {
   return (
@@ -83,12 +96,7 @@ function serialize(t) {
           (i === 0 && dir !== 'right' ? '<!--layout:' + dir + '-->\n' : '') +
           (i === 0 && styleStr() ? '<!--style:' + styleStr() + '-->\n' : '') +
           '\n';
-        (function w(n, d) {
-          for (const c of n.children) {
-            o += '  '.repeat(d) + '- ' + c.text + (c.collapsed && c.children.length ? ' <!--c-->' : '') + '\n';
-            w(c, d + 1);
-          }
-        })(r, 0);
+        o += r.children.map(c => branchMd(c)).join('');
         return i < t.children.length - 1 ? o.replace(/\n\n$/, '\n') : o;
       })
       .join('\n')
@@ -174,6 +182,8 @@ let undoS = [];
 let redoS = [];
 /** @type {MapNode | null} skopiowana / wycięta gałąź */
 let yank = null;
+/** tekst, który aplikacja ostatnio zapisała do schowka systemowego (Ctrl+V z nim = wklej `yank`) */
+let clipLast = '';
 /** licznik vim (np. 3 w „3j”) i pierwszy znak skrótu dwuznakowego (np. g w „gg”) */
 let cnt = 0;
 let pend = '';

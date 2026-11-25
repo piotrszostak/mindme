@@ -70,7 +70,16 @@ const ACT = [
     off: needSel,
   },
   { id: 'cut', ic: 'cut', t: 'Wytnij gałąź', k: ['Ctrl+X'], v: ['dd'], f: () => cut(), off: needDel },
-  { id: 'paste', ic: 'paste', t: 'Wklej jako dziecko', k: ['Ctrl+V'], v: ['p'], f: () => paste(true), off: needYank },
+  {
+    id: 'paste',
+    ic: 'paste',
+    t: 'Wklej jako dziecko',
+    k: ['Ctrl+V'],
+    v: ['p'],
+    tip: 'Ctrl+V także tekst z innych aplikacji (lista → gałąź)',
+    f: () => paste(true),
+    off: needYank,
+  },
   {
     id: 'pastesib',
     ic: 'paste',

@@ -29,7 +29,6 @@ function normal(ev) {
       c: copy,
       d: duplicate,
       x: cut,
-      v: () => paste(!sh),
       f: () => openCmd('/', true),
       k: () => openPal(),
       g: () => jump(sh ? -1 : 1),
@@ -39,6 +38,16 @@ function normal(ev) {
         openEmoji(x, y);
       },
     };
+    if (k === 'v') {
+      /* wkleja zdarzenie `paste` (niżej) – bez preventDefault, inaczej nie nadejdzie; fokus na chwilę w niewidocznym
+         polu, bo Firefox poza polem tekstowym nie wysyła `paste` dla Ctrl+Shift+V */
+      pasteSib = sh;
+      const c = $('clip');
+      c.value = '';
+      c.focus();
+      setTimeout(() => document.activeElement === c && c.blur(), 300); /* nic nie wklejono – fokus wraca */
+      return;
+    }
     const m = ctrlKeys[k];
     if (m) {
       ev.preventDefault();
@@ -287,6 +296,19 @@ $('cmd').addEventListener('keydown', ev => {
     closeCmd();
     v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1), d);
   }
+});
+/* Ctrl+V / Ctrl+Shift+V w trybie mapy: tekst ze schowka systemowego (bez pytania o zgodę, w odróżnieniu od
+   navigator.clipboard.readText); pola tekstowe wklejają same */
+let pasteSib = false;
+document.addEventListener('paste', e => {
+  const sib = pasteSib;
+  pasteSib = false;
+  const clip = e.target === $('clip');
+  if (clip) $('clip').blur();
+  if (mode !== 'NORMAL' || tv || editing || menuOpen || emoOpen) return;
+  if (!clip && asEl(e.target)?.closest('input, textarea')) return;
+  e.preventDefault();
+  pasteText(e.clipboardData?.getData('text/plain') || '', !sib);
 });
 /* kliknięcie poza polem (mapa, pasek) zamyka je – inaczej tryb zostaje SEARCH i klawisze nie sterują mapą,
    a Ctrl+F i „/” trafiają do przeglądarki; trafienia zostają dla n / N */

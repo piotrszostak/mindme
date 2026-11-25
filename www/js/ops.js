@@ -8,7 +8,7 @@ function del(cut) {
   if (!f || !p) return;
   if (p === root && root.children.length < 2) return info('nie można usunąć jedynego korzenia');
   snap();
-  if (cut) yank = clone(f.n);
+  if (cut) clipPut((yank = clone(f.n)));
   const i = p.children.indexOf(f.n);
   p.children.splice(i, 1);
   sel = (p.children[i] || p.children[i - 1] || p).id;
@@ -32,22 +32,89 @@ function duplicate() {
 function copy() {
   const f = need();
   if (!f) return;
-  yank = clone(f.n);
+  clipPut((yank = clone(f.n)));
   info('skopiowano gałąź');
 }
+/** gałąź także do schowka systemowego (lista Markdown); gdy się nie da (brak zgody, http, WebView) – po cichu
+ * @param {MapNode} n */
+function clipPut(n) {
+  const t = (clipLast = branchMd(n));
+  /* najpierw zdarzenie „kopiuj” (działa też na http i w WebView, bez pytania o zgodę), potem Clipboard API */
+  /** @param {ClipboardEvent} e */
+  const h = e => {
+    e.clipboardData?.setData('text/plain', t);
+    e.preventDefault();
+  };
+  document.addEventListener('copy', h);
+  let ok = false;
+  try {
+    ok = document.execCommand('copy');
+  } catch (e) {}
+  document.removeEventListener('copy', h);
+  if (!ok)
+    try {
+      navigator.clipboard.writeText(t).catch(() => {});
+    } catch (e) {}
+}
 /* bez zaznaczenia wklejana gałąź staje się bratem korzeni (nowym korzeniem) */
-/** @param {boolean} asChild jako dziecko zaznaczonego (inaczej jako brat) */
+/** wklej gałąź z wewnętrznego schowka (vim p / P, menu) @param {boolean} asChild jako dziecko zaznaczonego (inaczej jako brat) */
 function paste(asChild) {
   if (!yank) return info('schowek pusty');
+  insert([clone(yank)], asChild);
+}
+/** Ctrl+V: tekst ze schowka systemowego; własny (skopiowany w aplikacji) albo pusty – gałąź z wewnętrznego schowka
+ * @param {string} t @param {boolean} asChild */
+function pasteText(t, asChild) {
+  t = t.replace(/\r\n?/g, '\n');
+  const ns = t === clipLast ? [] : textNodes(t);
+  if (!ns.length) return paste(asChild);
+  insert(ns, asChild);
+}
+/** tekst z innej aplikacji → węzły: lista z wcięciami daje hierarchię, inne linie (też nagłówki) – rodzeństwo
+ * @param {string} t @returns {MapNode[]} */
+function textNodes(t) {
+  const LI = /^(\s*)[-*+]\s+(.*)$/,
+    ls = t
+      .split('\n')
+      .map(l => l.replace(/\t/g, '  '))
+      .filter(l => l.trim()),
+    ind = ls.map(l => LI.exec(l)).flatMap(m => (m ? [m[1].length] : [])),
+    base = ind.length ? Math.min(...ind) : 0; /* wcięcie liczone od najmniej wciętej linii listy */
+  /** @type {MapNode[]} */
+  const top = [];
+  /** @type {MapNode[]} ostatni węzeł na każdej głębokości */
+  let st = [];
+  for (const l of ls) {
+    const m = LI.exec(l);
+    if (!m) {
+      top.push(mk(l.trim().replace(/^#+\s+/, '')));
+      st = [];
+      continue;
+    }
+    const d = Math.min(Math.floor((m[1].length - base) / 2), st.length),
+      n = mk(m[2].replace(C_RE, ''));
+    n.collapsed = C_RE.test(m[2]);
+    (d ? st[d - 1].children : top).push(n);
+    st.length = d;
+    st.push(n);
+  }
+  return top;
+}
+/** wstaw węzły jako dzieci / braci zaznaczonego (bez zaznaczenia – nowe mapy); jeden krok cofania
+ * @param {MapNode[]} ns @param {boolean} asChild */
+function insert(ns, asChild) {
   snap();
-  const f = S(),
-    c = clone(yank);
-  if (!f) root.children.push(c);
+  const f = S();
+  if (!f) root.children.push(...ns);
   else if (asChild || !f.p) {
-    f.n.children.push(c);
+    f.n.children.push(...ns);
     f.n.collapsed = false;
-  } else f.p.children.splice(f.p.children.indexOf(f.n) + 1, 0, c);
-  sel = c.id;
+  } else f.p.children.splice(f.p.children.indexOf(f.n) + 1, 0, ...ns);
+  sel = ns[0].id;
+  /** @type {(n: MapNode) => number} */
+  const size = n => 1 + n.children.reduce((a, c) => a + size(c), 0),
+    c = ns.reduce((a, n) => a + size(n), 0);
+  info(`wklejono ${c} ${pl(c, 'węzeł', 'węzły', 'węzłów')}`);
   changed();
 }
 /** @param {number} d −1 w górę, 1 w dół */

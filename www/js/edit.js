@@ -147,6 +147,18 @@ ed.addEventListener('keydown', ev => {
   }
   if (edKey(ev.key, ev.shiftKey)) ev.preventDefault();
 });
+/* wklejanie w edycji: tylko tekst, nowe linie jako spacje (inaczej nowa linia zatwierdza edycję) */
+ed.addEventListener('paste', e => {
+  const t = e.clipboardData?.getData('text/plain');
+  if (!editing || !t || !/[\r\n]/.test(t)) return;
+  e.preventDefault();
+  const one = t
+    .replace(/\r\n?/g, '\n')
+    .replace(/^\n+|\n+$/g, '')
+    .replace(/\s*\n\s*/g, ' ');
+  ed.setRangeText(one, ed.selectionStart, ed.selectionEnd, 'end');
+  ed.dispatchEvent(new Event('input'));
+});
 ed.addEventListener('blur', () => {
   if (editing && document.hasFocus()) endEdit();
 });

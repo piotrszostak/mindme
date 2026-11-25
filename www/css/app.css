@@ -718,6 +718,15 @@ svg {
   padding: 8px;
   opacity: 0.6;
 }
+/* niewidoczne pole na Ctrl+V w trybie mapy (keys.js) – poza ekranem, ale nie display:none, bo musi przyjąć fokus */
+#clip {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
 /* okienko z pytaniem (`ask` w files.js), w stylu palety; pierwszy przycisk jest domyślny */
 #ask {
   width: min(440px, calc(100vw - 16px));

@@ -59,6 +59,8 @@ Każda czynność ma skrót zwykły i skrót vim:
 | emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
 | wszystkie polecenia (paleta komend)        | Ctrl+K                               | `:`                                                   |
 
+Schowek: kopiowanie i wycinanie zapisują gałąź także w schowku systemowym jako listę Markdown (można ją wkleić do notatki). Ctrl+V / Ctrl+Shift+V wklejają też tekst z innych aplikacji: lista z wcięciami staje się gałęzią, zwykłe linie – rodzeństwem. `p` / `P` i „Wklej” w menu zawsze wklejają gałąź skopiowaną w aplikacji.
+
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
 
 **Szukanie:** po Ctrl+F pole zostaje otwarte jak w przeglądarce: Enter i Shift+Enter przechodzą do następnego i poprzedniego trafienia, a Esc zamyka pole. Po `/` Enter szuka i zamyka pole jak w vim, a dalej działają `n` i `N`.

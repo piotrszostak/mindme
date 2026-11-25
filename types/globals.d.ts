@@ -205,6 +205,7 @@ interface Elements {
   pal: HTMLDivElement;
   palq: HTMLInputElement;
   pall: HTMLDivElement;
+  clip: HTMLTextAreaElement;
   ask: HTMLDialogElement;
   askt: HTMLParagraphElement;
   askb: HTMLDivElement;

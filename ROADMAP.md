@@ -101,7 +101,7 @@ Użytkownik zgłosił, że szukanie ostatnio nie działało.
    - polskie znaki w zapytaniu („żółw” znajduje „Żółw”).
 4. Popraw błąd. Wszystkie testy z 2.1 przechodzą w obu przeglądarkach.
 
-### 2.2 Wklejanie ze schowka systemowego
+### 2.2 Wklejanie ze schowka systemowego ✅ zrobione
 
 Ta decyzja cofa wcześniejszą „wklejanie tylko w obrębie aplikacji”. Przed startem sprawdź w historii gita (`git log -S clipboard`, `git log --grep wklej`) i w `HANDOVER.md`, dlaczego wtedy je wycofano. Jeśli ten powód nadal obowiązuje, zapytaj.
 
