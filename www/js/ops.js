@@ -125,7 +125,7 @@ function heads() {
   };
 }
 /** tekst z innej aplikacji → węzły: nagłówki `#` tworzą poziomy, lista z wcięciami – hierarchię; kolejne zwykłe linie
- * (bez pustej linii między nimi) to jeden węzeł, jak akapit, a linia pod punktem listy – jego ciąg dalszy
+ * (bez pustej linii między nimi) to jeden węzeł z kilkoma liniami, a linia pod punktem listy – jego kolejna linia
  * @param {string} t @returns {MapNode[]} */
 function textNodes(t) {
   const HD = /^\s{0,3}(#{1,6})\s+(.*)$/,
@@ -152,7 +152,7 @@ function textNodes(t) {
     }
     const m = LI.exec(l);
     if (!m && last) {
-      last.text += ' ' + l.trim();
+      last.text += '\n' + l.trim(); /* kolejna linia tego samego węzła */
       continue;
     }
     const ind = m ? m[1].length : l.length - l.trimStart().length,
@@ -171,13 +171,19 @@ function textNodes(t) {
  * @param {string} html @returns {MapNode[]} */
 function htmlNodes(html) {
   const doc = new DOMParser().parseFromString(html, 'text/html'),
+    BR = '\u2028' /* <br> – nowa linia w węźle (zwykłe \n w źródle HTML to tylko spacja) */,
     BLOCK = /^(H[1-6]|UL|OL|LI|P|DIV|PRE|BLOCKQUOTE|TABLE|TR|SECTION|ARTICLE|HEADER|FOOTER|MAIN|DL|DT|DD|FIGURE|HR)$/;
-  doc.querySelectorAll('br').forEach(b => b.replaceWith(' '));
+  doc.querySelectorAll('br').forEach(b => b.replaceWith(BR));
   doc.querySelectorAll('script, style, template, noscript').forEach(e => e.remove());
   const h = heads();
   /** @param {string} s */
   const lines = s => {
-    const x = s.replace(/\s+/g, ' ').trim(); /* akapit (także z <br>) to jeden węzeł */
+    /* akapit to jeden węzeł; <br> w nim – kolejna linia węzła */
+    const x = s
+      .split(BR)
+      .map(p => p.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join('\n');
     if (x) h.into().push(mk(x));
   };
   /** tekst punktu listy bez list w nim zagnieżdżonych @param {Element} li */
@@ -226,6 +232,8 @@ function htmlNodes(html) {
 function insert(ns, asChild) {
   snap();
   const f = S();
+  /* nowe mapy (bez zaznaczenia albo bracia tytułu mapy): tytuł mapy ma jedną linię */
+  if (!f || (!asChild && f.p === root)) ns.forEach(n => (n.text = n.text.replace(/\n/g, ' ')));
   if (!f) root.children.push(...ns);
   else if (asChild || !f.p) {
     f.n.children.push(...ns);

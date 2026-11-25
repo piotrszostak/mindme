@@ -170,15 +170,18 @@ ed.addEventListener('keydown', ev => {
   }
   if (edKey(ev.key, ev.shiftKey)) ev.preventDefault();
 });
-/* wklejanie w edycji: tylko tekst, nowe linie jako spacje (inaczej nowa linia zatwierdza edycję) */
+/* wklejanie w edycji: tylko tekst; nowe linie zostają liniami węzła (w tytule mapy – spacje); bez tego nowa linia
+   zatwierdziłaby edycję jak Enter z klawiatury ekranowej */
 ed.addEventListener('paste', e => {
   const t = e.clipboardData?.getData('text/plain');
   if (!editing || !t || !/[\r\n]/.test(t)) return;
   e.preventDefault();
-  const one = t
-    .replace(/\r\n?/g, '\n')
-    .replace(/^\n+|\n+$/g, '')
-    .replace(/\s*\n\s*/g, ' ');
+  const f = find(editing.id),
+    one = t
+      .replace(/\r\n?/g, '\n')
+      .replace(/^\s*\n|\n\s*$/g, '')
+      .replace(/[ \t]*\n\s*/g, f && f.p === root ? ' ' : '\n');
+  edNl += (one.match(/\n/g) || []).length;
   ed.setRangeText(one, ed.selectionStart, ed.selectionEnd, 'end');
   ed.dispatchEvent(new Event('input'));
 });

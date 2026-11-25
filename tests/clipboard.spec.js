@@ -124,11 +124,11 @@ test('tekst z zewnątrz: lista z wcięciami → hierarchia, kolejne zwykłe lini
     ['- x\n  - x1\n    - x2\n- y', '- c\n  - x\n    - x1\n      - x2\n  - y\n'],
     ['    - wcięta\n      - dalej', '- c\n  - wcięta\n    - dalej\n'], // wcięcie liczone od najmniej wciętej linii
     ['jeden\n\ndwa\n   \ntrzy', '- c\n  - jeden\n  - dwa\n  - trzy\n'], // pusta linia rozdziela węzły
-    ['pierwsza linia\ndruga linia\n\nnowy akapit', '- c\n  - pierwsza linia druga linia\n  - nowy akapit\n'], // kolejne linie = jeden węzeł
-    ['- punkt\n  dalszy ciąg punktu\n- drugi', '- c\n  - punkt dalszy ciąg punktu\n  - drugi\n'], // ciąg dalszy punktu listy
+    ['pierwsza linia\ndruga linia\n\nnowy akapit', '- c\n  - pierwsza linia\n    druga linia\n  - nowy akapit\n'], // kolejne linie = jeden węzeł z kilkoma liniami
+    ['- punkt\n  dalszy ciąg punktu\n- drugi', '- c\n  - punkt\n    dalszy ciąg punktu\n  - drugi\n'], // ciąg dalszy punktu listy
     ['Tylko jedna linia', '- c\n  - Tylko jedna linia\n'],
     ['# Tytuł\n- punkt', '- c\n  - Tytuł\n    - punkt\n'], // lista pod nagłówkiem to jego dzieci
-    ['Zakupy\n  mleko\n  chleb', '- c\n  - Zakupy mleko chleb\n'], // zwykłe linie jedna pod drugą – jeden węzeł, także wcięte
+    ['Zakupy\n  mleko\n  chleb', '- c\n  - Zakupy\n    mleko\n    chleb\n'], // zwykłe linie jedna pod drugą – jeden węzeł, także wcięte
     ['- a\n\t- a1\n\t\t- a2', '- c\n  - a\n    - a1\n      - a2\n'], // tabulatory (Obsidian)
   ];
   for (const [text, tail] of cases) {
@@ -155,12 +155,12 @@ test('tekst Markdown z notatki: nagłówki tworzą poziomy, lista i zwykłe lini
 test('wyrenderowana notatka (widok czytania w Obsidianie, strona WWW): struktura z wersji HTML schowka', async ({
   page,
 }) => {
-  const tail = '- c\n  - Nagłówek\n    - a\n      - a1\n    - b\n    - zwykła linia\n';
+  const tail = '- c\n  - Nagłówek\n    - a\n      - a1\n    - b\n    - zwykła\n      linia\n';
   for (const html of [
-    '<h2>Nagłówek</h2><ul><li>a<ul><li>a1</li></ul></li><li>b</li></ul><p>zwykła<br>linia</p>', // <br> w akapicie – jeden węzeł
+    '<h2>Nagłówek</h2><ul><li>a<ul><li>a1</li></ul></li><li>b</li></ul><p>zwykła<br>linia</p>', // <br> w akapicie – jeden węzeł, dwie linie
     /* jak w Obsidianie: bloki w <div>, znaczniki punktów bez tekstu, akapit w punkcie listy */
     '<div class="el-h2"><h2 dir="auto">Nagłówek</h2></div><div class="el-ul"><ul><li><span class="list-bullet"></span><p>a</p>' +
-      '<ul><li><span class="list-bullet"></span>a1</li></ul></li><li>b</li></ul></div><div class="el-p"><p>zwykła linia</p></div>',
+      '<ul><li><span class="list-bullet"></span>a1</li></ul></li><li>b</li></ul></div><div class="el-p"><p>zwykła<br>\nlinia</p></div>',
   ]) {
     await loadMap(page, MD);
     await copyRendered(page, html);
@@ -178,6 +178,14 @@ test('tekst z zewnątrz z końcami linii \\r\\n (Windows)', async ({ page }) => 
   expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- b\n- c\n  - x\n    - x1\n  - y\n');
 });
 
+test('wklejony tekst kilku linii jako nowa mapa: tytuł mapy w jednej linii', async ({ page }) => {
+  await loadMap(page, MD);
+  await copyOutside(page, 'pierwsza\ndruga');
+  await page.evaluate(() => deselect());
+  await keys(page, ['Control+v']);
+  expect(await page.evaluate(() => root.children.map(r => r.text))).toEqual(['R', 'pierwsza druga']);
+});
+
 test('Ctrl+Shift+V z zewnątrz wkleja jako braci; bez zaznaczenia powstaje nowa mapa', async ({ page }) => {
   await loadMap(page, MD);
   await copyOutside(page, '- p\n- q');
@@ -192,14 +200,16 @@ test('Ctrl+Shift+V z zewnątrz wkleja jako braci; bez zaznaczenia powstaje nowa 
   expect(await page.evaluate(() => S().n.text)).toBe('Nowa');
 });
 
-test('wklejanie w trakcie edycji: tylko tekst w polu, nowe linie jako spacje, bez nowych węzłów', async ({ page }) => {
+test('wklejanie w trakcie edycji: tylko tekst w polu, nowe linie zostają liniami węzła, bez nowych węzłów', async ({
+  page,
+}) => {
   await loadMap(page, MD);
   await copyOutside(page, 'raz\ndwa');
   await select(page, 'b');
   await keys(page, ['i', 'End', 'Control+v']);
-  await expect(page.locator('#ed')).toHaveValue('braz dwa');
+  await expect(page.locator('#ed')).toHaveValue('braz\ndwa'); // Enter po wklejeniu nadal zatwierdza
   await keys(page, ['Enter']);
-  expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- braz dwa\n- c\n');
+  expect(await md(page)).toBe('# R\n\n- a <!--c-->\n  - a1\n- braz\n  dwa\n- c\n');
 });
 
 test('jedno Ctrl+Z cofa całe wklejenie', async ({ page }) => {
