@@ -178,13 +178,18 @@ function layD(n, l, d) {
   n.s = 0;
   const w = sw(n),
     ch = n.collapsed ? [] : n.children;
-  n.x = l + (w - n.w) / 2;
   n.y = RT[d] + RH[d] / 2;
   let x = l;
   for (const c of ch) {
     layD(c, x, d + 1);
     x += sw(c) + ST.gapY + 6;
   }
+  /* nad skrajnymi dziećmi (jak w układach poziomych), nie nad środkiem całej gałęzi – przy głębokiej
+     gałęzi tamto dawało poziome linie przez pół mapy; w granicach własnej gałęzi, żeby nie wejść na sąsiada */
+  const f = ch[0],
+    z = ch[ch.length - 1],
+    c = ch.length ? (f.x + z.x + z.w) / 2 : l + w / 2;
+  n.x = Math.min(Math.max(c - n.w / 2, l), l + w - n.w);
 }
 /** układ jednego drzewa (korzeń w x=0) @param {MapNode} r */
 function layTree(r) {
@@ -209,12 +214,17 @@ function layTree(r) {
     R = ch.slice(0, m);
     L = ch.slice(m);
   }
-  const hr = R.length ? grp(R, 0, r.w, 0, 1) : 0,
-    hl = L.length ? grp(L, 0, r.w, 0, -1) : 0,
-    T = Math.max(hr, hl, H);
-  R.forEach(c => shY(c, (T - hr) / 2));
-  L.forEach(c => shY(c, (T - hl) / 2));
-  r.y = T / 2;
+  if (R.length) grp(R, 0, r.w, 0, 1);
+  if (L.length) grp(L, 0, r.w, 0, -1);
+  /* korzeń w połowie między skrajnymi dziećmi, jak każdy węzeł (layN); środek całej wysokości
+     odsuwał go daleko od dzieci przy głębokiej gałęzi */
+  /** @param {MapNode[]} a */
+  const mid = a => (a[0].y + a[a.length - 1].y) / 2;
+  r.y = R.length ? mid(R) : L.length ? mid(L) : H / 2;
+  if (R.length && L.length) {
+    const d = r.y - mid(L);
+    L.forEach(c => shY(c, d));
+  }
 }
 /** @param {MapNode} n @param {number} dx @param {number} dy */
 function shXY(n, dx, dy) {

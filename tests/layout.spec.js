@@ -61,6 +61,49 @@ test('poziomo: rodzic wyśrodkowany pionowo między skrajnymi dziećmi', async (
   }
 });
 
+/** Głęboka gałąź z nagrania: ta sama 7-węzłowa gałąź wklejana raz po raz jako dziecko poprzedniej. */
+const DEEP = (d, n = 15) => {
+  const kids = i => {
+    const p = '  '.repeat(i);
+    return `${p}- Gówno\n${p}  - Szczegół 1\n${p}  - Szczegół 2\n${p}- Dupa\n${p}  - Szczegół 3\n${p}- Cycki\n`;
+  };
+  let md = `# Mapa myśli\n<!--layout:${d}-->\n` + kids(0);
+  for (let i = 0; i < n; i++) md += `${'  '.repeat(i)}- Mapa myśli\n` + kids(i + 1);
+  return md;
+};
+/** Rodzic i jego skrajne dzieci (pierwsze, ostatnie) dla każdego widocznego węzła z dziećmi. */
+const families = page =>
+  page.evaluate(() =>
+    vis()
+      .filter(n => !n.collapsed && n.children.length)
+      .map(n => {
+        const b = /** @param {MapNode} m */ m => ({ text: m.text, x: m.x, y: m.y, w: m.w, cx: m.x + m.w / 2 });
+        return { p: b(n), f: b(n.children[0]), l: b(n.children[n.children.length - 1]), top: n === root.children[0] };
+      })
+  );
+
+test('głęboka gałąź: korzeń zostaje przy dzieciach (prawo, lewo)', async ({ page }) => {
+  for (const d of ['right', 'left']) {
+    await loadMap(page, DEEP(d));
+    const r = (await families(page)).find(f => f.top);
+    expect(r.p.y, `układ ${d}: korzeń w połowie między skrajnymi dziećmi`).toBeCloseTo((r.f.y + r.l.y) / 2);
+  }
+});
+
+test('głęboka gałąź: korzeń zostaje przy dzieciach (obie strony)', async ({ page }) => {
+  await loadMap(page, DEEP('both'));
+  const [r, ...c] = await page.evaluate(() => [root.children[0], ...root.children[0].children].map(n => n.y));
+  // prawa strona: Gówno, Dupa; lewa: Cycki, Mapa myśli
+  expect(r, 'prawa strona').toBeCloseTo((c[0] + c[1]) / 2);
+  expect(r, 'lewa strona').toBeCloseTo((c[2] + c[3]) / 2);
+});
+
+test('głęboka gałąź: w układzie „dół” rodzic nad skrajnymi dziećmi, bez długich linii', async ({ page }) => {
+  await loadMap(page, DEEP('down'));
+  for (const { p, f, l } of await families(page))
+    expect(p.cx, `„${p.text}” między „${f.text}” a „${l.text}”`).toBeCloseTo((f.x + l.x + l.w) / 2);
+});
+
 test('zwinięte węzły ukrywają dzieci i dostają „…”', async ({ page }) => {
   const list = await loadMap(page, '# R\n- a <!--c-->\n  - ukryte\n- b\n');
   expect(list.map(b => b.text)).toEqual(['R', 'a', 'b']);
