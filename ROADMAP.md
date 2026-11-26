@@ -298,7 +298,7 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 
 - **`f`** i komenda `:focus` włączają i wyłączają tryb. Esc też go wyłącza.
 - Widoczne są tylko: ścieżka od korzenia do zaznaczonego węzła oraz całe poddrzewo zaznaczonego węzła. Reszta jest ukryta i nie zajmuje miejsca – mapa układa się od nowa (stan widoku, **nie zapisuje się do pliku**). Przygaszanie zostaje dla filtra tagów (4.4), więc oba tryby wyglądają różnie.
-- Wejście i wyjście animują istniejące sprężyny i „duchy”. Na pasku górnym widać wskaźnik „Skupienie: tekst węzła”.
+- Wejście i wyjście animują istniejące sprężyny i „duchy”. Na pasku górnym zamiast wskaźnika „Skupienie: tekst węzła” stoi **klikalna ścieżka** „Nowy projekt › Marketing › Strona www” (decyzja 2026-11-26, wzór: Logseq): klik w element przenosi skupienie na ten węzeł, Esc wychodzi z trybu jak dotąd. Stała ścieżka nad mapą (Workflowy) zostaje w etapie 9.
 
 ### 4.6 Edytowalny widok konspektu
 
