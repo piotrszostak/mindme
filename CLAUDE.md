@@ -18,19 +18,19 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 
 ## Mapa plików `www/js/` (zwykłe skrypty, NIE moduły – wspólny zakres globalny, kolejność w index.html ma znaczenie)
 
-| plik                          | zawartość                                                                                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| core.js                       | `DEF`/`ST` (styl mapy), `parse`/`serialize`, stan, `snap`/`undo`/`redo`, `find`, `vis`, `S()`, `need()`, `deselect()`                                  |
-| icons.js                      | `IC`, `icon()`, `LAY` (nazwy układów)                                                                                                                  |
-| layout.js                     | `applyStyle`, pomiar `tw`, `wrap`, `fit(n)` (rozmiar węzła), `lay()` (wiele korzeni), `layD` (układ „dół”)                                             |
-| render.js                     | `render(keepView)`, animacja (`pos`, `step`, `draw`, `kick`, duchy), `edgeD`, `nodeHTML`, `fitView`, `centerSel`, `changed()`                          |
-| edit.js                       | edycja w węźle: `startEdit`, `endEdit`, `placeEd`, `addSib`, `addChild`                                                                                |
-| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                            |
-| emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                        |
-| keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                      |
-| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, motyw / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`, `cleanStyle` – sprawdza styl z pliku            |
-| actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd` |
-| dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                          |
+| plik                          | zawartość                                                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| core.js                       | `DEF`/`ST` (styl mapy), `parse`/`serialize`, stan, `snap`/`undo`/`redo`, `find`, `vis`, `S()`, `need()`, `deselect()`                                     |
+| icons.js                      | `IC`, `icon()`, `LAY` (nazwy układów)                                                                                                                     |
+| layout.js                     | `applyStyle`, pomiar `tw`, `wrap`, `fit(n)` (rozmiar węzła), `lay()` (wiele korzeni), `layD` (układ „dół”)                                                |
+| render.js                     | `render(keepView)`, animacja (`pos`, `step`, `draw`, `kick`, duchy), `edgeD`, `nodeHTML`, `fitView`, `centerSel`, `changed()`                             |
+| edit.js                       | edycja w węźle: `startEdit`, `endEdit`, `placeEd`, `addSib`, `addChild`                                                                                   |
+| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                               |
+| emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                           |
+| keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                         |
+| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, tryb jasny / ciemny / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`, `cleanStyle` – sprawdza styl z pliku |
+| actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd`    |
+| dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                             |
 
 ## Słowniczek stanu (krótkie nazwy)
 

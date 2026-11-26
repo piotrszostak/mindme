@@ -39,12 +39,12 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 
 ## Wygląd
 
-| Pojęcie              | Znaczenie                                                                                                                                              | W kodzie         |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
-| styl mapy            | wszystkie ustawienia z panelu „Wygląd mapy”; plik zapisuje tylko różnice od domyślnych (`<!--style:…-->`)                                              | `ST`, `DEF`      |
-| motyw mapy           | gotowy zestaw wartości stylu, wygląd według poziomów: Klasyczny, Minimalistyczny, Czytelny (5.7), Organiczny, Odręczny (7.5) – **zob. „Do ustalenia”** |                  |
-| motyw jasny / ciemny | wygląd całej aplikacji („Motyw jasny / ciemny”, `:theme`); nie zapisuje się w pliku mapy                                                               | `mm.theme`       |
-| paleta kolorów       | zestaw kolorów gałęzi („Kolory gałęzi” w panelu); zawsze z dopowiedzeniem „kolorów”, bo samo „paleta” myli się z paletą komend                         | `PAL0`, `mm.pal` |
+| Pojęcie             | Znaczenie                                                                                                                                                           | W kodzie         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| styl mapy           | wszystkie ustawienia z panelu „Wygląd mapy”; plik zapisuje tylko różnice od domyślnych (`<!--style:…-->`)                                                           | `ST`, `DEF`      |
+| motyw mapy          | gotowy zestaw wartości stylu, wygląd według poziomów: Klasyczny, Minimalistyczny, Czytelny (5.7), Organiczny, Odręczny (7.5); samo „motyw” znaczy zawsze motyw mapy |                  |
+| tryb jasny / ciemny | wygląd całej aplikacji („Tryb jasny / ciemny”, `:theme`); nie zapisuje się w pliku mapy; nie nazywaj go „motywem”                                                   | `mm.theme`       |
+| paleta kolorów      | zestaw kolorów gałęzi („Kolory gałęzi” w panelu); zawsze z dopowiedzeniem „kolorów”, bo samo „paleta” myli się z paletą komend                                      | `PAL0`, `mm.pal` |
 
 ## Ekran i obsługa
 
@@ -97,7 +97,7 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | ----------------------------------------------------------------------------- | ------------------------------------- |
 | topic (SimpleMind, Xmind), block (Logseq), headline (Org-mode), card (Gingko) | węzeł                                 |
 | theme (Xmind)                                                                 | motyw mapy                            |
-| dark mode                                                                     | motyw jasny / ciemny                  |
+| dark mode, theme (jasny / ciemny)                                             | tryb jasny / ciemny                   |
 | summary (Mind Elixir, Xmind)                                                  | klamra podsumowania                   |
 | boundary (Xmind)                                                              | granice                               |
 | relationship, arrow (Xmind, Mind Elixir)                                      | relacja                               |
@@ -106,7 +106,3 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | hoist, zoom in, narrow (Workflowy, Logseq, Org-mode)                          | tryb skupienia                        |
 | command palette                                                               | paleta komend („Wszystkie polecenia”) |
 | vault (Obsidian)                                                              | — (odrzucone)                         |
-
-## Do ustalenia
-
-- **„motyw”** – dziś w interfejsie oznacza jasny albo ciemny wygląd aplikacji („Motyw jasny / ciemny”, `:theme`), a plan (5.7) nazywa tak zestawy stylu mapy. Przed zadaniem 5.7 jedna z tych nazw musi się zmienić – karta decyzji.

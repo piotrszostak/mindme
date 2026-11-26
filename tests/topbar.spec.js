@@ -76,7 +76,7 @@ test.describe('górny pasek', () => {
     expect(await page.evaluate(() => dir)).toBe('both');
   });
 
-  test('menu „więcej”: motyw, pomoc', async ({ page }) => {
+  test('menu „więcej”: tryb jasny / ciemny, pomoc', async ({ page }) => {
     await page.click('#bm');
     await act(page, 'theme').click();
     const t1 = await page.evaluate(() => document.documentElement.dataset.theme);

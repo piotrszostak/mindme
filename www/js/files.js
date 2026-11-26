@@ -1,4 +1,4 @@
-/* Pliki (otwórz/zapisz/autozapis), widok tekstowy Markdown, motyw. */
+/* Pliki (otwórz/zapisz/autozapis), widok tekstowy Markdown, tryb jasny / ciemny. */
 /* ---- pliki i autozapis ---- */
 async function autosave() {
   if (dnd) {
@@ -220,7 +220,7 @@ $('txt').addEventListener('keydown', e => {
     toggleText();
   }
 });
-/* ---- motyw ---- */
+/* ---- tryb jasny / ciemny ---- */
 /** @param {string} [v] dark | light; bez argumentu – przełącz */
 function toggleTheme(v) {
   const d = document.documentElement,

@@ -159,7 +159,7 @@ const ACT = [
   ),
   { id: 'text', ic: 'text', t: 'Widok Markdown', c: 'text', f: () => toggleText() },
   { id: 'side', ic: 'sliders', t: 'Wygląd mapy', f: () => toggleSide() },
-  { id: 'theme', ic: 'theme', t: 'Motyw jasny / ciemny', c: 'theme', f: () => toggleTheme() },
+  { id: 'theme', ic: 'theme', t: 'Tryb jasny / ciemny', c: 'theme', f: () => toggleTheme() },
   /* układy – z listy układów, nowe dochodzą same */
   ...Object.keys(LAY).map(
     d =>

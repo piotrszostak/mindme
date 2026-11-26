@@ -54,7 +54,7 @@ const HELP = {
     [':text', 'widok Markdown'],
     [':layout ' + Object.keys(LAY)[0], 'układ: ' + Object.keys(LAY).join(', ')],
     [':export svg', 'eksport: svg albo png'],
-    [':theme dark', 'motyw: dark albo light'],
+    [':theme dark', 'tryb jasny / ciemny: dark albo light'],
     [':fit|:test', 'dopasuj całą mapę / test zapisu'],
   ],
   'Format pliku': [

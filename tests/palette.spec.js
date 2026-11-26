@@ -114,7 +114,7 @@ test.describe('paleta komend', () => {
     ]);
     const at = t => n.indexOf(t);
     expect(at('Cofnij')).toBeLessThan(at('Dopasuj całą mapę')); // „Ponów” jest teraz niedostępne – na końcu
-    expect(at('Motyw jasny / ciemny')).toBeLessThan(at('Układ w prawo'));
+    expect(at('Tryb jasny / ciemny')).toBeLessThan(at('Układ w prawo'));
     expect(at('Układ w dół')).toBeLessThan(at('Otwórz plik…'));
     expect(at('Eksportuj PNG')).toBeLessThan(at('Pomoc i skróty'));
     // bez samego poruszania się i bez samej palety

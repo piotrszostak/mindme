@@ -352,7 +352,7 @@ function cmdFind(c) {
     return { id: '', t: 'Test zapisu', f: () => info(selfTest() ? 'round-trip OK' : 'round-trip BŁĄD') };
   if (a === 'new' && arg) return { id: 'new', t: `Nowa mapa „${arg}”`, f: () => newMap(arg) };
   if (a === 'theme' && (arg === 'dark' || arg === 'light'))
-    return { id: 'theme', t: arg === 'dark' ? 'Motyw ciemny' : 'Motyw jasny', f: () => toggleTheme(arg) };
+    return { id: 'theme', t: arg === 'dark' ? 'Tryb ciemny' : 'Tryb jasny', f: () => toggleTheme(arg) };
   /** @param {(n: string) => boolean} ok */
   const by = ok => ACT.find(x => x.f && x.c && [x.c, ...(x.ca || [])].some(ok));
   /* cała komenda (np. „layout down”), inaczej pierwsze słowo komendy bez argumentów (np. „w plik.md” jak „w”) */

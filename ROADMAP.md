@@ -150,14 +150,14 @@ Testy obu trybów w `search.spec.js` (Chromium i Firefox). Naprawione: drugi Ctr
 - Litery zapytania mają wystąpić w nazwie w tej kolejności, ale niekoniecznie obok siebie („zwwsz” → „Zwiń wszystko”). Słowa rozdzielone spacją dalej działają w dowolnej kolejności, każde dopasowane osobno. Bez polskich znaków i wielkości liter (`plain()`).
 - Ocena: premia za początek słowa, za litery leżące obok siebie i za dopasowanie od początku nazwy, kara za przerwy. Lista według oceny, a przy równej ocenie – 5 ostatnio użytych (jak dziś), potem stała kolejność.
 - Dopasowane litery są wyróżnione. Tekst wstawiaj przez `textContent` i osobne elementy, nigdy przez `innerHTML` z tekstu użytkownika.
-- **Karta decyzji przed kodem:** jak wyglądają wyróżnione litery (np. pogrubienie, kolor akcentu, podkreślenie) – pokaż w obu motywach.
+- **Karta decyzji przed kodem:** jak wyglądają wyróżnione litery (np. pogrubienie, kolor akcentu, podkreślenie) – pokaż w trybie jasnym i ciemnym.
 - Dotychczasowe testy palety (np. „zw wsz”) zostają. Dopisz testy dopasowania przybliżonego i kolejności.
 
 ### 2.4 Wygląd paska przewijania
 
 - Cienki pasek w kolorach motywu (jasnego i ciemnego): `scrollbar-width: thin` i `scrollbar-color` (Firefox) oraz `::-webkit-scrollbar` (Chromium, Android WebView).
 - Jedna wspólna reguła w `app.css` dla wszystkich przewijanych miejsc: paleta, panel „Wygląd mapy”, widok Markdown, pomoc, okienko emoji.
-- Sprawdź w podglądzie w obu motywach i w rozmiarze telefonu. Przed commitem pokaż użytkownikowi zrzut ekranu.
+- Sprawdź w podglądzie w trybie jasnym i ciemnym oraz w rozmiarze telefonu. Przed commitem pokaż użytkownikowi zrzut ekranu.
 
 ### 2.5 Lista wszystkich trafień
 
@@ -211,7 +211,7 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
    - czy ma być zawsze widoczny, czy na żądanie;
    - podział na „Mapa”, „Węzeł” i „Ustawienia aplikacji”;
    - ikony czy podpisy.
-3. **Makiety** (`/prototyp`, `www/_prototyp/panel/`): 2–3 warianty, każdy w rozmiarze komputera i telefonu, w obu motywach, ze zmiennymi kolorów z `app.css`. Każda makieta wypisuje, **co znika z wierzchu** w porównaniu z dziś. Pokaż je w panelu podglądu i na telefonie (`/na-telefonie`).
+3. **Makiety** (`/prototyp`, `www/_prototyp/panel/`): 2–3 warianty, każdy w rozmiarze komputera i telefonu, w trybie jasnym i ciemnym, ze zmiennymi kolorów z `app.css`. Każda makieta wypisuje, **co znika z wierzchu** w porównaniu z dziś. Pokaż je w panelu podglądu i na telefonie (`/na-telefonie`).
 4. **Czekaj na wybór użytkownika.** Zapisz decyzję w `docs/decyzje.md`: wariant, powody, odrzucone opcje.
 
 ### 3.3 Nowy panel boczny i menu

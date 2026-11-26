@@ -8,6 +8,7 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Podjęte
 
+- **2026-11-26 – „Motyw” to tylko motyw mapy; jasny i ciemny wygląd aplikacji to „tryb”** (wybór użytkownika na karcie decyzji, A; konflikt nazw znaleziony przy pisaniu słownika pojęć, `docs/slownik.md`). Napisy: „Tryb jasny / ciemny” (menu „…”, paleta, pomoc), „Tryb jasny” / „Tryb ciemny” (`:theme`), podpowiedź przycisku menu „… jasny/ciemny …”. Komenda `:theme` i klucz `mm.theme` bez zmian (zapis użytkownika). Odrzucone: B – „motyw” zostaje dla jasnego i ciemnego, a zestawy stylu mapy to „styl” (myliłoby się ze stylem mapy, czyli wszystkimi ustawieniami panelu). Wzór: Xmind (theme = wygląd mapy), Windows („tryb ciemny”).
 - **2026-11-26 – Pomysły z Logseq, Org-mode i Gingko Writer** (wybory użytkownika po wyjaśnieniu; ROADMAP.md).
   - **„Przenieś do…” (nowe 2.7, wzór: refile w Org-mode)** – gałąź przenosi się pod węzeł wybrany przez wpisanie kilku liter w palecie komend; bez pozycji w menu podręcznym (zasada prostoty). Powód: na telefonie i na dużej mapie przeciąganie przez cały ekran to najsłabsze miejsce. Założenie agenta: przeniesiona gałąź zostaje ostatnim dzieckiem celu.
   - **Dziedziczenie tagów w filtrze (4.4, wzór: Org-mode)** – tag działa na całą gałąź; zapis `#tag` w tekście bez zmian (tagi na końcu linii jak w Org-mode nie pasują do Markdownu i Obsidiana).
