@@ -177,6 +177,14 @@ Jedna droga do szukania węzłów: Ctrl+F i „/” skaczą po trafieniach, a gd
 - Kolejny klawisz albo Esc zamyka dymek. Szybko wpisana cała sekwencja nie pokazuje go wcale, więc dymek nie przeszkadza i **nie ma przełącznika**. Animacja zgodnie z punktem 0.6.
 - Testy w `keys.spec.js`, także w Firefoksie.
 
+### 2.7 „Przenieś do…” (wzór: refile w Org-mode)
+
+- **Decyzja 2026-11-26.** Na zaznaczonej gałęzi „Przenieś do…” w palecie komend: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista jak w 2.5), Enter przenosi gałąź pod wybrany węzeł. Np. na „Strona www” wpisujesz „bad” i gałąź trafia pod „🔍 Badania” – bez przeciągania przez całą mapę.
+- **Bez nowej pozycji w menu podręcznym** (zasada prostoty); na telefonie przez „…” → „Wszystkie polecenia…”. Komenda „:” i skróty według zasady 0.5 – ustal przy zadaniu.
+- Lista nie pokazuje samej gałęzi ani jej potomków. Założenie agenta: przeniesiona gałąź zostaje ostatnim dzieckiem celu, zaznaczenie zostaje na niej, a mapa pokazuje ją w nowym miejscu.
+- Zmiana modelu (`snap` / `changed`) – jeden krok cofania.
+- Testy w `palette.spec.js`, także w Firefoksie.
+
 **Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` są aktualne.
 
 ---
@@ -192,7 +200,7 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
    - lista układów (dzisiejsze 4, później radialny z etapu X);
    - które dzisiejsze suwaki i przełączniki panelu „Wygląd mapy” zostają pod „Więcej”, a które znikają z panelu, gdy dojdą motywy (5.7); pola usunięte z panelu nadal wczytują się i zapisują w pliku bez zmian;
    - przyciski „+” przy zaznaczonym węźle (3.4, ustalone); pasek narzędzi przy węźle na komputerze – tylko jeśli wywiad pokaże potrzebę;
-   - przełącznik trzech widoków: Mapa, .md, Drzewko (3.6) – dziś jeden przycisk Mapa ↔ .md;
+   - przełącznik trzech widoków: Mapa, .md, Drzewko (3.6) – dziś jeden przycisk Mapa ↔ .md; jednym z wariantów wyglądu drzewka są kolumny jak w Gingko Writer (rodzic, węzeł i dzieci obok siebie);
    - minimapa, relacje, klamra podsumowania i kartka (etap X) – tylko miejsce w projekcie (np. „Podsumuj”, „Nowa kartka”), bez kodu;
    - lista „Rozszerzenia” (8.0) z krótkim opisem każdego;
    - pytanie otwarte: czy potrzebny jest panel właściwości węzła, czy wystarczy edycja na mapie i menu.
@@ -234,7 +242,7 @@ Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba 
 
 - **Decyzja 2026-11-26** (wzór: panel konspektu w SimpleMind): trzeci widok obok „Mapa” i „.md”, **na cały ekran zamiast mapy** – na komputerze i na telefonie. Odrzucone: panel obok mapy.
 - Przełącznik trzech widoków w miejscu z projektu 3.2.
-- Co da się robić w drzewku (zwijanie, szukanie, przejście do węzła na mapie, ewentualna edycja) – ustal w wywiadzie i makietach 3.2; bez drugiej drogi do tego, co już jest (zasada prostoty).
+- Co da się robić w drzewku (zwijanie, szukanie, przejście do węzła na mapie, ewentualna edycja) – ustal w wywiadzie i makietach 3.2; bez drugiej drogi do tego, co już jest (zasada prostoty). Jeden z wariantów makiety: kolumny jak w Gingko Writer (decyzja 2026-11-26).
 - Testy przełączania widoków w `view.spec.js`.
 
 ---
@@ -283,6 +291,7 @@ Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyś
 - Tag to `#słowo` poprzedzone początkiem tekstu lub spacją. Wzorzec: `(^|\s)#[\p{L}\d_-]+` z flagą `u`. Nie traktuj jako tagów `#` wewnątrz adresu URL.
 - Tag wyświetla się jako „pigułka” w kolorze gałęzi.
 - Filtrowanie włącza klik w tag albo `:tag nazwa`. Węzły bez tagu są przyciemnione (krycie ok. 0,25), a układ się nie zmienia. `:tag` bez argumentu albo Esc wyłącza filtr.
+- **Dziedziczenie** (decyzja 2026-11-26, wzór: Org-mode): tag działa na całą gałąź – filtr pokazuje pełnym kolorem węzeł z tagiem i wszystkich jego potomków, przygasa reszta. Zapis w pliku bez zmian.
 - Filtr dla 8.2: `#tag`. Tryb `#` w palecie i grupowanie według tagu – odrzucone 2026-11-26.
 
 ### 4.5 Tryb skupienia
@@ -547,6 +556,7 @@ Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu
 ## Etap 9 – Później (nie zaczynaj bez zgody użytkownika)
 
 - **Import notatki Markdown** (np. z Obsidiana): „Importuj notatkę…” tworzy nową mapę z kopii notatki – nagłówki i listy stają się węzłami, a akapity, tabele i kod notatkami tekstowymi (wymaga 4.1). Oryginał zostaje nietknięty; bez zapisu z powrotem do formatu notatki.
+- **Eksport mapy jako dokument** (wzór: Gingko Writer, dopisane 2026-11-26): nagłówki i akapity zamiast listy, notatki do węzłów jako akapity – odwrotność importu notatki.
 - Z dawnego etapu 5: szybkie wpisywanie pomysłów; eksport PDF / OPML / FreeMind / Xmind oraz import z nich; AI; historia wersji; współpraca na żywo (zob. punkt 0.10).
 - Układ dla jednej gałęzi (`<!--layout:nazwa-->` na końcu linii węzła).
 - Odłożone 2026-11-25:
@@ -558,7 +568,7 @@ Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu
 - Odłożone 2026-11-26 (duży koszt w kodzie przy małej wartości dla jednej osoby; najpierw etap R):
   - układy **oś czasu** i **ość ryby** – każdy nowy układ to nawigacja, przeciąganie, krawędzie i wiele korzeni od nowa;
   - **granice** (obrys gałęzi) – nowe znaczniki w pliku i miejsce w `lay()`. Klamra podsumowania i motyw odręczny wróciły 2026-11-26 do etapu X (7.3, 7.5).
-- **Do omówienia** (2026-11-26): pomysły z Logseq, Org-mode i Gingko Writer – agent wyjaśni je dokładniej, gdy użytkownik o to poprosi.
+- **Logseq, Org-mode, Gingko Writer** – omówione 2026-11-26: „Przenieś do…” (2.7), dziedziczenie tagów (4.4), kolumny w makietach drzewka (3.2, 3.6), eksport jako dokument (wyżej).
 
 ## Odrzucone (nie proponuj ponownie)
 

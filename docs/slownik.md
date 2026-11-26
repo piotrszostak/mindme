@@ -25,7 +25,7 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | notatka do węzła      | dłuższy tekst pod węzłem (`>` w pliku), na mapie ikona 📝; **nie mylić z kartką**         | 4.1     |
 | zadanie (pole wyboru) | węzeł z polem wyboru (`- [ ]` / `- [x]`); gdy chodzi o punkt planu, mów „zadanie z planu” | 4.3     |
 | tag                   | `#słowo` w tekście węzła                                                                  | 4.4     |
-| filtr tagu            | przygasza węzły bez wybranego tagu, układ się nie zmienia                                 | 4.4     |
+| filtr tagu            | przygasza węzły bez wybranego tagu; tag działa na całą gałąź; układ się nie zmienia       | 4.4     |
 | link, obrazek         | `[tekst](url)`, `![opis](url)` w tekście węzła                                            | 4.2     |
 
 ## Elementy poza drzewem
