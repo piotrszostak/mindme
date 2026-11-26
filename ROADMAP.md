@@ -3,9 +3,9 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem), `docs/decyzje.md` i `docs/znane-problemy.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Uzupełniony 2026-11-26 wieczorem o pomysły z SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical (zob. `docs/decyzje.md`). Zrobione: etapy 0 i 1, zadania 2.1 i 2.2 oraz etap A poza odłożonym A.4.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Uzupełniony 2026-11-26 wieczorem o pomysły z SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical (zob. `docs/decyzje.md`). Zrobione: etapy 0 i 1, zadania 2.1, 2.2 i T.1 oraz etap A poza odłożonym A.4. APK (T.2–T.4) przeniesione 2026-11-26 na koniec planu.
 
-**Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
+**Kolejność etapów:** A → T.1 → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P → T.2–T.4 (APK). Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
 **Dlaczego taka kolejność:** najpierw naprawy i rzeczy tanie, które dają najwięcej (bezpieczeństwo pliku, telefon, treść węzła). Funkcje, które naraz dotykają przeciągania, nawigacji, układu i formatu pliku (zaznaczanie wielu węzłów, układ radialny, relacje, minimapa), są na końcu (etap X). Przed nimi etap R dostosowuje kod tak, żeby każda z nich była osobnym plikiem i małą zmianą w głównych plikach, a nie łataniem w dziesięciu miejscach.
 
@@ -102,34 +102,11 @@ Claude Code w osobnym `Containerfile.agent` (obraz projektu bez agenta). Znane p
 
 Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowej. Przeglądarka uznaje taki adres za niebezpieczny: nie daje dostępu do schowka (stąd okienko „wklej tutaj”), nie uruchamia `sw.js` (bez trybu offline i instalacji na ekranie głównym), a mapy żyją tylko w jej pamięci. Ten etap daje aplikację na telefon na stałe.
 
-### T.1 Adres https ⏸ STOP
+### T.1 Adres https ✅ zrobione
 
-- **W toku (2026-11-26):** działa https://piotrszostak.github.io/mindme/ – publikacja po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Zostało sprawdzenie na telefonie – lista w `docs/znane-problemy.md`.
-- **Karta decyzji:** gdzie (np. GitHub Pages – darmowe dla publicznego repozytorium – albo inny darmowy hosting), pod jakim adresem i czy wdrażać automatycznie po wysłaniu na serwer (GitHub Actions), czy ręcznie. Publikuje i wysyła użytkownik.
-- Strona może działać z podkatalogu (np. `/mindmap/`): sprawdź ścieżki w `index.html`, `sw.js` i `manifest.webmanifest`; zmianę pokryj testem w `pwa.spec.js`.
-- Po wdrożeniu `/na-telefonie`: wklejanie bez okienka „wklej tutaj”, instalacja na ekranie głównym, praca bez sieci, autozapis po ponownym otwarciu.
-- Zaktualizuj pułapki w `CLAUDE.md` i skill `/na-telefonie` (gdzie wystarczy adres https zamiast `10.0.0.x`).
+Działa https://piotrszostak.github.io/mindme/ – publikacja automatyczna po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Na telefonie (26.11, użytkownik): instalacja z Firefoksa, „Wklej” po przytrzymaniu – jako dziecko i jako nowa mapa – bez okienka „wklej tutaj”; przed wklejeniem trzeba jeszcze kliknąć przycisk „Wklej” Androida. Decyzje w `docs/decyzje.md`.
 
-### T.2 Identyfikator aplikacji i pierwszy APK 🗳
-
-- **Karta decyzji:** `appId` (otwarta sprawa w `docs/decyzje.md`; po publikacji w sklepie zmiana oznacza nową aplikację) i nazwa aplikacji na ekranie telefonu.
-- `npx cap add android` i APK w wersji testowej, zgodnie z dokumentacją Capacitora **6**. Co z folderu `android/` trafia do gita – według tej dokumentacji. Klucze podpisu tylko w plikach z `.gitignore`.
-- Android SDK to duże pobranie – zapytaj przed instalacją i opisz, co i gdzie trafi.
-- W aplikacji (WebView) sprawdź `/na-telefonie`: wklejanie (okienko „wklej tutaj”), przytrzymanie, przeciąganie, klawiaturę ekranową przy edycji.
-
-### T.3 Otwieranie i zapis plików na Androidzie
-
-- Przeniesione z etapu 9. W APK „Otwórz” i „Zapisz” działają na plikach telefonu; w przeglądarce bez zmian.
-- **Bez przeglądarki plików** (decyzja 2026-11-26, wzór: Markor): systemowe okienka „Otwórz” i „Zapisz” (zwykle otwierają ostatni folder, np. folder Syncthinga); aplikacja pamięta otwarty plik i sama do niego zapisuje. Lista plików z folderu – odrzucona (zob. „Folder jako vault”).
-- Nowa biblioteka (np. `@capacitor/filesystem` w wersji dla Capacitora 6) albo systemowe okno wyboru pliku – karta z opcjami, rozmiarem, licencją i datą wydania. Zgodnie z 0.1 bez budowania: wtyczka Capacitora przez globalny `Capacitor.Plugins`.
-- Testy: logika zapisu na podstawionym obiekcie w `page.evaluate`; całość `/na-telefonie`.
-
-### T.4 „Udostępnij” do mindme (wzór: Markor)
-
-- Tekst udostępniony z innej aplikacji (notatka, fragment strony) staje się **nową mapą na końcu otwartego pliku** i jest zaznaczony (decyzja 2026-11-26). Struktura jak przy wklejaniu bez zaznaczenia (2.2): lista z wcięciami to gałąź, kolejne linie to jeden węzeł, HTML z listami i nagłówkami daje strukturę.
-- Zmiana modelu (`snap` / `changed`) – cofnięcie usuwa dodaną mapę.
-- Aplikacja zainstalowana z przeglądarki: `share_target` w `manifest.webmanifest` (wymaga https z T.1; sprawdź, które przeglądarki na Androidzie to obsługują). APK: odbieranie udostępnień przez wtyczkę – karta biblioteki (opcje, rozmiar, licencja, data wydania, wersja dla Capacitora 6).
-- Testy: zamiana udostępnionego tekstu na mapę przez `page.evaluate`; całość `/na-telefonie`.
+T.2–T.4 (APK, pliki na Androidzie, „Udostępnij”) – na końcu planu, po etapie P.
 
 ---
 
@@ -550,6 +527,33 @@ Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu
 
 - Tylko to, co przekracza progi z A.2, zaczynając od miejsca, które pomiar wskazał jako najwolniejsze.
 - Każda poprawka to osobny commit z pomiarem „przed i po” w opisie. Działanie i wygląd bez zmian – wszystkie testy przechodzą.
+
+---
+
+## Etap T, ciąg dalszy – APK (na koniec)
+
+Przeniesione 2026-11-26 z początku planu (decyzja użytkownika, `docs/decyzje.md`). Aplikacja zainstalowana z przeglądarki (T.1) działa na telefonie; na komputerze nie ma jeszcze Javy, Android SDK ani `adb`.
+
+### T.2 Identyfikator aplikacji i pierwszy APK 🗳
+
+- `appId` i nazwa pod ikoną – wybrane 2026-11-26 (`io.github.piotrszostak.mindme`, „mindme”; `docs/decyzje.md`).
+- `npx cap add android` i APK w wersji testowej, zgodnie z dokumentacją Capacitora **6**. Co z folderu `android/` trafia do gita – według tej dokumentacji. Klucze podpisu tylko w plikach z `.gitignore`.
+- Android SDK to duże pobranie – zapytaj przed instalacją i opisz, co i gdzie trafi. Karta z 26.11 bez odpowiedzi: A – sama linia poleceń (Java 17 instaluje użytkownik, ok. 2–2,5 GB) – polecana, B – Android Studio (ok. 3–4 GB), C – APK w CI (inny klucz podpisu przy każdym budowaniu).
+- W aplikacji (WebView) sprawdź `/na-telefonie`: wklejanie (okienko „wklej tutaj”; czy znika dodatkowy przycisk „Wklej” Androida), przytrzymanie, przeciąganie, klawiaturę ekranową przy edycji.
+
+### T.3 Otwieranie i zapis plików na Androidzie
+
+- Przeniesione z etapu 9. W APK „Otwórz” i „Zapisz” działają na plikach telefonu; w przeglądarce bez zmian.
+- **Bez przeglądarki plików** (decyzja 2026-11-26, wzór: Markor): systemowe okienka „Otwórz” i „Zapisz” (zwykle otwierają ostatni folder, np. folder Syncthinga); aplikacja pamięta otwarty plik i sama do niego zapisuje. Lista plików z folderu – odrzucona (zob. „Folder jako vault”).
+- Nowa biblioteka (np. `@capacitor/filesystem` w wersji dla Capacitora 6) albo systemowe okno wyboru pliku – karta z opcjami, rozmiarem, licencją i datą wydania. Zgodnie z 0.1 bez budowania: wtyczka Capacitora przez globalny `Capacitor.Plugins`.
+- Testy: logika zapisu na podstawionym obiekcie w `page.evaluate`; całość `/na-telefonie`.
+
+### T.4 „Udostępnij” do mindme (wzór: Markor)
+
+- Tekst udostępniony z innej aplikacji (notatka, fragment strony) staje się **nową mapą na końcu otwartego pliku** i jest zaznaczony (decyzja 2026-11-26). Struktura jak przy wklejaniu bez zaznaczenia (2.2): lista z wcięciami to gałąź, kolejne linie to jeden węzeł, HTML z listami i nagłówkami daje strukturę.
+- Zmiana modelu (`snap` / `changed`) – cofnięcie usuwa dodaną mapę.
+- Aplikacja zainstalowana z przeglądarki: `share_target` w `manifest.webmanifest` (wymaga https z T.1; sprawdź, które przeglądarki na Androidzie to obsługują). APK: odbieranie udostępnień przez wtyczkę – karta biblioteki (opcje, rozmiar, licencja, data wydania, wersja dla Capacitora 6).
+- Testy: zamiana udostępnionego tekstu na mapę przez `page.evaluate`; całość `/na-telefonie`.
 
 ---
 

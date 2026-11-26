@@ -9,7 +9,6 @@ Otwarte sprawy, które nie są zadaniem w planie (`ROADMAP.md`) ani decyzją (`d
 ## Do sprawdzenia
 
 - **Na telefonie:** wklejanie kilku linii przez „Wklej jako dziecko” dało spację, choć test zachowuje linie. Użytkownik uznał, że działa. Jeśli wróci: najpierw odświeżenie karty (podejrzenie: stary kod w karcie otwartej przed `3166f4b`).
-- **T.1 na telefonie** (https://piotrszostak.github.io/mindme/): „Wklej” po przytrzymaniu bez okienka „wklej tutaj”, praca bez sieci (tryb samolotowy, start z ikony), autozapis po zamknięciu i ponownym otwarciu. Sprawdzone 26.11: instalacja w Firefoksie działa (okienko, aplikacja bez paska adresu); w Brave na komputerze widać przycisk instalacji, wynik niepewny.
 - **W Obsidianie:** plik z węzłem wielolinijkowym (linie wcięte pod punktem) – czy Obsidian pokazuje go jako jeden punkt listy.
 
 ## Zależności
