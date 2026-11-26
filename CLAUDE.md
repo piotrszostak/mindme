@@ -7,7 +7,8 @@ PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs 
 - `npm run serve` – podgląd (http://localhost:3000); w aplikacji desktopowej panel podglądu, serwer `mapa` z `.claude/launch.json`
 - `npx playwright test tests/menu.spec.js` – jeden obszar w trakcie pracy; `-g "nazwa"` – jeden test
 - `npm run check` – TypeScript (JSDoc, tryb strict) – szybki, uruchamiaj po każdej zmianie
-- `npm run format` – Prettier (po edycji robi to automat); `npm run verify` – typy + format + wszystkie testy, uruchamia je bramka `.githooks/pre-commit`
+- `npm run format` – Prettier (po edycji robi to automat); `npm run verify` – typy + format + wszystkie testy + pomiar wydajności, uruchamia je bramka `.githooks/pre-commit`
+- `npm run perf` – sam pomiar wydajności (`tests/perf.spec.js`, progi w `docs/decyzje.md`); tylko sam, bez innych testów naraz
 - `npx playwright install --only-shell chromium firefox` – przeglądarki do testów (po zmianie wersji Playwrighta)
 
 ## Typy

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Bramka przed commitem: sekrety, komplet sprawdzanych plików w commicie, potem `npm run verify` (typy, formatowanie, testy).
+# Bramka przed commitem: sekrety, komplet sprawdzanych plików w commicie, potem `npm run verify` (typy, formatowanie, testy, wydajność).
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
 bad=$(printf '%s\n' "$staged" | grep -E '(^|/)(\.env(\..+)?|key\.properties)$|\.(jks|keystore|p12|pem)$')
 if [ -n "$bad" ]; then
@@ -17,7 +17,7 @@ if [ -n "$left" ]; then
 fi
 log=$(mktemp)
 if npm run verify >"$log" 2>&1; then
-  echo 'Bramka: OK (sekrety, typy, formatowanie, testy).'
+  echo 'Bramka: OK (sekrety, typy, formatowanie, testy, wydajność).'
   rm -f "$log"
 else
   tail -n 40 "$log" >&2

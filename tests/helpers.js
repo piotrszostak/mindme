@@ -71,7 +71,30 @@ const phParent = page =>
     return f && f.p.text;
   });
 
+/**
+ * Duża mapa do pomiarów wydajności (zawsze ta sama): `n` węzłów poza korzeniem, 8 głównych gałęzi,
+ * każdy węzeł do 4 dzieci (ok. 5 poziomów), co trzeci tekst dłuższy (zawija się).
+ * Zwinięte: cała 3. gałąź główna i co 9. węzeł z dziećmi od 3. poziomu.
+ */
+function bigMap(n) {
+  const root = { t: 'Duża mapa', ch: [], d: 0 },
+    q = [root];
+  for (let i = 1; i <= n; i++) {
+    while (q[0].ch.length >= (q[0] === root ? 8 : 4)) q.shift();
+    const p = q[0],
+      c = { t: `Węzeł ${i}` + (i % 3 ? '' : ' z dłuższym opisem, który zawija się w dwie linie'), ch: [], d: p.d + 1 };
+    p.ch.push(c);
+    q.push(c);
+  }
+  let k = 0;
+  const md = (c, ind) =>
+    `${ind}- ${c.t}${c.ch.length && ((c.d === 1 && root.ch[2] === c) || (c.d >= 3 && ++k % 9 === 0)) ? ' <!--c-->' : ''}\n` +
+    c.ch.map(x => md(x, ind + '  ')).join('');
+  return `# ${root.t}\n\n` + root.ch.map(c => md(c, '')).join('');
+}
+
 module.exports = {
+  bigMap,
   open,
   loadMap,
   boxes,

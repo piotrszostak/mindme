@@ -22,6 +22,7 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 | `animation.spec.js`                                                   | sprężyny, wyrastanie/chowanie węzłów                        |
 | `style.spec.js`, `emoji.spec.js`, `multiroot.spec.js`, `view.spec.js` | panel wyglądu, emoji, wiele korzeni, pomoc i widok          |
 | `pwa.spec.js`                                                         | `sw.js` ma w cache każdy plik z `index.html`                |
+| `perf.spec.js` (tylko `npm run perf`)                                 | wydajność na dużej mapie (`bigMap`), progi                  |
 
 Wspólne pomocniki (`box`, `act`, `texts`, `MD`…) są w `helpers.js`.
 
