@@ -4,9 +4,8 @@ test-results/
 playwright-report/
 # biblioteki przeglądarek pobrane lokalnie (kontener bez roota)
 .pw-libs/
-# Capacitor / Tauri – generowane
+# Capacitor – generowane
 android/
-src-tauri/target/
 
 # notatki przekazania sesji (lokalne)
 HANDOVER.md

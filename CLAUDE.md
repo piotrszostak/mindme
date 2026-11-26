@@ -1,6 +1,6 @@
 # Mapa myśli – notatki dla agenta
 
-PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Docelowo także Android (Capacitor 6) i komputer (Tauri, jeszcze bez `src-tauri/`).
+PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Docelowo także Android (Capacitor 6).
 
 ## Polecenia
 

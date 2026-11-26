@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2 i A.1–A.3.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2, A.1–A.3 i A.5 (A.4 odłożone).
 
 **Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -79,17 +79,16 @@ Generator `bigMap(n)` (`tests/helpers.js`) i `tests/perf.spec.js` z progami (map
 
 Wybór użytkownika: wszystkie zostają. Ctrl+Y jest teraz widocznym drugim skrótem „Ponów” (pomoc, README), a F1, F2, F3 i Shift+F10 zostają ukryte – bez nich przeglądarka otwierałaby swoją pomoc, szukanie i menu. Szczegóły w `docs/decyzje.md`.
 
-### A.4 Edycja palet bez pamięci przeglądarki 🗳
+### A.4 Edycja palet bez pamięci przeglądarki 🗳 ⏭ odłożone
 
+- **Odłożone 2026-11-26** na prośbę użytkownika („pomijamy to zadanie na razie”), bez decyzji. Karta była gotowa: (a) edycja zostaje, ale zmienia tylko kolory tej mapy – polecana; (b) edycję usuwamy. Wróć do niej, gdy użytkownik o to poprosi, najpóźniej przy projekcie panelu (3.2).
 - Dziś „Edytuj paletę” w panelu zmienia gotową paletę na tym urządzeniu (klucz `mm.pal`), więc ta sama paleta wygląda różnie na komputerze i na telefonie. Kolory bieżącej mapy i tak są w pliku (`colors` w `<!--style-->`).
 - **Karta decyzji:** (a) usunąć edycję palet i klucz `mm.pal` – zostają gotowe palety, a kolory mapy w pliku; (b) zostawić edycję, ale zmieniać tylko kolory bieżącej mapy (zapis w pliku), bez `mm.pal`. W obu: co zrobić z poprawkami już zapisanymi w `mm.pal` (np. jednorazowo przenieść do otwartej mapy albo pominąć).
 - Pliki z `colors` wczytują się i zapisują bez zmian. Zaktualizuj `style.spec.js` i listę kluczy w `CLAUDE.md`.
 
-### A.5 Tauri dopiero wtedy, gdy będzie potrzebny
+### A.5 Tauri dopiero wtedy, gdy będzie potrzebny ✅ zrobione
 
-- Dziś `@tauri-apps/cli` i skrypt `tauri` są w `package.json`, ale nie ma `src-tauri/` – to zależność bez kodu. Usuń je, a z README sekcję „Linux (AppImage przez Tauri)” i wzmianki w `CLAUDE.md`. Wpis „Aplikacja na Linuksa (Tauri)” trafia do etapu 9.
-- Capacitor zostaje – używa go etap T.
-- `npm install` aktualizuje `package-lock.json`; `npm run verify` przechodzi.
+Usunięte: `@tauri-apps/cli`, skrypt `tauri`, sekcja „Linux (AppImage przez Tauri)” w README, wzmianki w `CLAUDE.md` i `.gitignore`. Capacitor zostaje (etap T). Wpis „Aplikacja na Linuksa (Tauri)” jest w etapie 9.
 
 ### A.6 Pytania porządkowe ⏸ STOP
 

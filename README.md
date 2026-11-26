@@ -111,16 +111,6 @@ npm run android          # otwiera Android Studio → Build > Build APK
 
 WebView na Androidzie nie ma File System Access API, więc pliki otwiera się przez systemowe okno wyboru, a zapis to pobranie pliku. Bezpośredni zapis wymaga dodania `@capacitor/filesystem`.
 
-### Linux (AppImage przez Tauri)
-
-```bash
-npm install
-npx tauri init           # frontendDist = ../www, bez serwera deweloperskiego
-npm run tauri
-```
-
-Wymaga Rusta i `webkit2gtk`.
-
 ## Rozwój
 
 ```
@@ -143,7 +133,7 @@ docs/                        zrzut ekranu i przykładowa mapa
 
 Pierwsze uruchomienie testów wymaga przeglądarek: `npx playwright install --with-deps chromium firefox`.
 
-**Dlaczego JavaScript, a nie TypeScript?** Aplikacja nie ma etapu budowania: pliki z `www/` działają od razu jako PWA, w Capacitorze i w Tauri. TypeScript sprawdza ten sam kod na podstawie adnotacji JSDoc (`npm run check`), więc korzyści z typów zostają, a kompilacji nie ma.
+**Dlaczego JavaScript, a nie TypeScript?** Aplikacja nie ma etapu budowania: pliki z `www/` działają od razu jako PWA i w Capacitorze. TypeScript sprawdza ten sam kod na podstawie adnotacji JSDoc (`npm run check`), więc korzyści z typów zostają, a kompilacji nie ma.
 
 **Pliki skryptów są zwykłymi skryptami, a nie modułami ES.** Dzielą jeden zakres globalny, więc ich kolejność w `index.html` ma znaczenie. Nowy plik trzeba dopisać także do listy cache w `www/sw.js`. Pilnuje tego test `tests/pwa.spec.js`.
 
