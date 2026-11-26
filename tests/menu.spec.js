@@ -67,7 +67,7 @@ test.describe('menu podręczne węzła', () => {
     const m = await menu(page).boundingBox();
     expect(Math.abs(m.x - b.cx)).toBeLessThan(2);
     await expect(act(page, 'fold')).toBeDisabled(); // „Dwa” nie ma dzieci
-    await expect(act(page, 'paste')).toBeDisabled(); // nic nie skopiowano
+    await expect(act(page, 'paste')).toBeEnabled(); // jak Ctrl+V: schowek systemowy może mieć tekst z innej aplikacji
     await page.keyboard.press('Escape');
     await expect(menu(page)).toBeHidden();
   });
@@ -184,7 +184,8 @@ test('kopiuj i wklej działają wewnątrz aplikacji (Ctrl+C → menu „Wklej ja
   await page.mouse.click(b.cx, b.cy, { button: 'right' });
   await expect(act(page, 'paste')).toBeEnabled();
   await act(page, 'paste').click();
-  expect(await texts(page)).toContain('- Trzy\n  - Jeden\n    - 1a\n    - 1b\n');
+  /* „Wklej” czeka na odpowiedź schowka systemowego (bez zgody – odmowa, więc gałąź z aplikacji) */
+  await expect.poll(() => texts(page)).toContain('- Trzy\n  - Jeden\n    - 1a\n    - 1b\n');
 });
 
 test('menu: kopiuj, wytnij i usuń to osobne polecenia; usuń nie nadpisuje schowka', async ({ page }) => {
@@ -199,12 +200,12 @@ test('menu: kopiuj, wytnij i usuń to osobne polecenia; usuń nie nadpisuje scho
   await menuOn('Trzy');
   await act(page, 'del').click(); // usunięcie – schowek dalej ma „Dwa”
   await menuOn('Jeden');
-  await act(page, 'paste').click();
-  expect(await texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n  - Dwa\n- Dwa\n');
+  await act(page, 'paste').click(); // czeka na odpowiedź schowka systemowego
+  await expect.poll(() => texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n  - Dwa\n- Dwa\n');
   await menuOn('1a');
   await act(page, 'cut').click(); // wycięcie – usuwa i kopiuje
   expect(await texts(page)).not.toContain('1a');
   await menuOn('Dwa');
   await act(page, 'paste').click();
-  expect(await texts(page)).toContain('  - Dwa\n    - 1a\n');
+  await expect.poll(() => texts(page)).toContain('  - Dwa\n    - 1a\n');
 });

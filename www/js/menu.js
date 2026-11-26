@@ -104,8 +104,10 @@ function ctxMenu(x, y, touch) {
       mi('cut'),
       mi('paste', {
         t: n ? 'Wklej jako dziecko' : 'Wklej jako nowy korzeń',
-        /* na dotyku nie ma Ctrl+V: schowek systemowy (przeglądarka może zapytać o zgodę), a bez dostępu – okienko z polem */
-        ...(touch && { f: () => pasteClip(true), off: false }),
+        /* jak Ctrl+V: schowek systemowy (przeglądarka może zapytać o zgodę); bez dostępu na dotyku okienko z polem */
+        tip: 'Tekst z innych aplikacji (lista → gałąź) albo gałąź skopiowana w mapie – jak Ctrl+V',
+        f: () => pasteClip(true, !!touch) /* przy PPM `touch` bywa pominięte */,
+        off: false,
       }),
       mi('del'),
       '-',

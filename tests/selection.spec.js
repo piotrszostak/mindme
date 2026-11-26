@@ -75,7 +75,7 @@ test.describe('bez zaznaczenia', () => {
     await expect(act(page, 'sib').locator('span')).toHaveText('Nowy korzeń');
     await expect(act(page, 'paste').locator('span')).toHaveText('Wklej jako nowy korzeń');
     for (const a of ['child', 'emoji', 'fold', 'copy', 'cut', 'del']) await expect(act(page, a)).toBeDisabled();
-    await act(page, 'paste').click();
-    expect(await texts(page)).toContain('\n# Jeden\n');
+    await act(page, 'paste').click(); // czeka na odpowiedź schowka systemowego
+    await expect.poll(() => texts(page)).toContain('\n# Jeden\n');
   });
 });

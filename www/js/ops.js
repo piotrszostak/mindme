@@ -76,10 +76,11 @@ function pasteText(t, asChild, html = '') {
   if (!ns.length) return paste(asChild);
   insert(ns, asChild);
 }
-/** „Wklej” z menu na dotyku: tekst (i HTML) ze schowka systemowego; gdy przeglądarka nie daje dostępu (http,
- * Firefox na Androidzie, WebView) albo odmówi – okienko z polem, w które wkleja się systemowym „Wklej”
- * @param {boolean} asChild */
-async function pasteClip(asChild) {
+/** „Wklej” z menu (jak Ctrl+V): tekst (i HTML) ze schowka systemowego; gdy przeglądarka nie daje dostępu (http,
+ * Firefox na Androidzie, WebView) albo odmówi – na dotyku okienko z polem, w które wkleja się systemowym „Wklej”,
+ * a myszą gałąź skopiowana w mapie (na komputerze tekst z innych aplikacji wkleja Ctrl+V)
+ * @param {boolean} asChild @param {boolean} [dialog] okienko „wklej tutaj” przy braku dostępu (dotyk) */
+async function pasteClip(asChild, dialog = true) {
   let t = '',
     html = '',
     ok = false;
@@ -96,6 +97,7 @@ async function pasteClip(asChild) {
     } catch (e) {}
   }
   if (ok) return pasteText(t, asChild, html);
+  if (!dialog) return yank ? paste(asChild) : info('przeglądarka nie daje dostępu do schowka – wklej przez Ctrl+V');
   const c = await ask(
     'Przytrzymaj pole i wybierz „Wklej”.',
     ['Wstaw', ...(yank ? ['Wklej skopiowaną gałąź'] : []), 'Anuluj'],
