@@ -67,9 +67,10 @@ Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie
 - Globalna reguła `svg` w `app.css` (100% szerokości i wysokości) rozdmuchuje każdą wstawioną ikonę (prototypy, porównania) → rozmiar w `style`.
 - Ukryty panel podglądu animuje wolno, zrzut łapie stan pośredni → nakładanie węzłów sprawdzaj liczbowo (pozycje docelowe), nie tylko na zrzucie.
 - Sprawdzanie w podglądzie (`load()`, zmiany na mapie) nadpisuje autozapis użytkownika (`mm.md`) → najpierw kopia `localStorage.getItem('mm.md')`, na koniec przywrócenie i przeładowanie strony.
-- Edycja skryptem (sed, python) omija automatyczny Prettier → przed commitem `npx prettier --write` na zmienionych plikach, inaczej bramka zatrzyma commit.
+- Edycja skryptem (sed, python) omija automatyczny Prettier → przed commitem `npx prettier --write` na zmienionych plikach z `www/`, `tests/`, `types/` (dokumentacji nie – zob. niżej), inaczej bramka zatrzyma commit.
 - Serwer podglądu z poprzedniej sesji może dalej działać na :3000: `preview_start` z `name` się wtedy nie uruchomi – użyj `preview_start` z `url`; dziennik (`preview_logs`) ma tylko serwer uruchomiony w tej sesji.
 - Podgląd bez `reducedMotion`: tuż po `load()` węzły jeszcze jadą – symulowany dotyk trafia w zły węzeł; odczekaj ok. 1 s.
-- `ROADMAP.md` i `docs/*.md` nie przechodzą przez Prettiera (bramka sprawdza kod) – nie formatuj całych plików, diff zrobi się nieczytelny.
+- `ROADMAP.md` i `docs/*.md` nie przechodzą przez Prettiera (bramka sprawdza kod) – nie formatuj całych plików, diff zrobi się nieczytelny, a blokada gita nie pozwoli cofnąć tego przez `git checkout`.
 - Bramka zawodzi na pomiarze wydajności (`npm run perf`), gdy komputer jest zajęty (np. gra) → najpierw `uptime` i `ps -eo pcpu,comm --sort=-pcpu | head`, potem pomiar poprzedniego commitu (`git stash`, `npm run perf`, `git stash pop`); bramki nie omijasz – commit po zwolnieniu komputera.
+- Dwie sesje naraz w tym samym katalogu: bramka odrzuca commit, gdy w `www/` albo `tests/` są niezapisane zmiany drugiej sesji (testy sprawdzają dysk) → poczekaj na jej commit; nie rób `git stash` cudzej pracy (także przy pomiarze z linii wyżej) i nie omijaj bramki; `git add` tylko z listą własnych plików.
 - Kontener bez roota: biblioteki z `.pw-libs/` dokładane tylko w kontenerze, poza nim psują `/bin/sh` (zob. `tests/README.md`); Firefox ma własne NSS.
