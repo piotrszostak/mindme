@@ -685,9 +685,21 @@ svg {
   cursor: pointer;
   white-space: nowrap;
 }
+/* wybrana pozycja: pełne tło w kolorze akcentu (decyzja 2026-11-26) */
 #pall .pi.hi {
-  background: var(--bar);
-  box-shadow: inset 3px 0 0 var(--acc); /* widoczne także w ciemnym motywie */
+  background: var(--acc);
+  color: var(--card);
+}
+#pall .pi.hi kbd {
+  border-color: currentColor;
+}
+/* dopasowane litery (2.3); na wybranej pozycji niebieskich by nie było widać – pogrubione */
+#pall .m {
+  color: var(--acc);
+}
+#pall .pi.hi .m {
+  color: inherit;
+  font-weight: 700;
 }
 #pall .pi.off {
   cursor: default;

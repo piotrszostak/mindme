@@ -166,6 +166,8 @@ interface PalItem {
   f: () => unknown;
   /** id zapamiętywane jako ostatnio użyte ('' – nie zapamiętuj) */
   rec: string;
+  /** pozycje dopasowanych znaków nazwy (`[...t]`) – wyróżnione litery */
+  hit?: number[];
 }
 
 /** Pozycja menu (`openMenu`). */

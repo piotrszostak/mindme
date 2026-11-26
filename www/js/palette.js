@@ -23,6 +23,42 @@ const words = s =>
   plain(s)
     .split(/[^a-z0-9]+/)
     .filter(Boolean);
+/** ocena dopasowania (2.3): litera na początku słowa, na początku nazwy, tuż po poprzedniej; kara za przerwę (najwyżej) */
+const FZ = { word: 8, start: 4, next: 4, gap: 4 };
+/**
+ * dopasowanie przybliżone: litery każdego słowa zapytania po kolei, niekoniecznie obok siebie; oceny słów się sumują
+ * @param {string[]} w słowa zapytania (już bez polskich znaków) @param {string} t przeszukiwany tekst
+ * @returns {{s: number, at: number[]} | null} ocena i pozycje dopasowanych znaków (`[...t]`); null – nie pasuje
+ */
+function fuzzy(w, t) {
+  const h = [...t].map(c => plain(c)[0] || ' '),
+    n = h.length,
+    isWord = (/** @type {number} */ j) => j === 0 || !/[a-z0-9]/.test(h[j - 1]);
+  let s = 0;
+  /** @type {Set<number>} */
+  const at = new Set();
+  for (const q of w) {
+    /* best[i][j] – najlepsza ocena, gdy i-ta litera zapytania stoi na znaku j; from – poprzednia litera */
+    const best = [...q].map(() => Array(n).fill(-Infinity)),
+      from = [...q].map(() => Array(n).fill(-1));
+    for (let i = 0; i < q.length; i++)
+      for (let j = i; j < n; j++) {
+        if (h[j] !== q[i]) continue;
+        const own = 1 + (isWord(j) ? FZ.word : 0) + (j === 0 ? FZ.start : 0);
+        if (i === 0) best[0][j] = own;
+        for (let k = i - 1; i > 0 && k < j; k++) {
+          const v = best[i - 1][k] + own + (k === j - 1 ? FZ.next : -Math.min(j - k - 1, FZ.gap));
+          if (v > best[i][j]) [best[i][j], from[i][j]] = [v, k];
+        }
+      }
+    const last = best[q.length - 1],
+      top = Math.max(...last);
+    if (top === -Infinity) return null;
+    s += top;
+    for (let i = q.length - 1, j = last.indexOf(top); i >= 0; j = from[i][j], i--) at.add(j);
+  }
+  return { s, at: [...at].sort((a, b) => a - b) };
+}
 /** skróty w palecie: zwykły i vim (gdy vim nie ma – komenda „:”) @param {Act} a @returns {string[]} */
 const palKeys = a =>
   [a.k && a.k[0], (a.v && a.v[0]) || (a.c && ':' + a.c)].filter(/** @returns {x is string} */ x => !!x);
@@ -38,31 +74,61 @@ function palList(q) {
     order = [...palRecent.map(id => all.find(a => a.id === id)), ...all].filter(
       /** @returns {a is Act} */ (a, i, l) => !!a && l.indexOf(a) === i
     );
-  /* każde wpisane słowo musi być początkiem któregoś słowa nazwy (po „:” także komendy) */
+  /* litery każdego wpisanego słowa po kolei w nazwie (po „:” także w komendzie); najlepsze dopasowanie na górze,
+     przy równej ocenie kolejność z `order` (sortowanie stabilne): ostatnio użyte, potem stała */
+  const len = (/** @type {Act} */ a) => [...a.t].length;
   const items = order
     .filter(a => a.id !== (x && x.id))
-    .filter(a => {
-      const h = words(a.t + (isCmd && a.c ? ' ' + a.c : ''));
-      return w.every(p => h.some(y => y.startsWith(p)));
+    .flatMap(a => {
+      const m = fuzzy(w, a.t + (isCmd && a.c ? ' ' + a.c : ''));
+      return m ? [{ a, m }] : [];
     })
-    .map(a => ({ id: a.id, t: a.t, keys: palKeys(a), off: a.off ? a.off() : '', f: a.f || (() => {}), rec: a.id }));
+    .sort((p, q) => q.m.s - p.m.s)
+    .map(({ a, m }) => ({
+      id: a.id,
+      t: a.t,
+      keys: palKeys(a),
+      off: a.off ? a.off() : '',
+      f: a.f || (() => {}),
+      rec: a.id,
+      hit: m.at.filter(i => i < len(a)), // litery z komendy „:” nie mają czego wyróżnić w nazwie
+    }));
   return [...top, ...items.filter(i => !i.off), ...items.filter(i => i.off)];
+}
+/** element z klasą i tekstem (zawsze `textContent`, nigdy HTML) @param {string} tag @param {string} cls @param {string} t */
+function palEl(tag, cls, t) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  e.textContent = t;
+  return e;
+}
+/** wiersz palety; dopasowane litery w `<span class="m">` (sąsiednie razem) @param {PalItem} it @param {number} i */
+function palRow(it, i) {
+  const r = palEl('div', 'pi' + (it.off ? ' off' : ''), '');
+  r.id = 'pi' + i;
+  r.setAttribute('role', 'option');
+  r.dataset.i = String(i);
+  r.dataset.act = it.id;
+  if (it.off) r.setAttribute('aria-disabled', 'true');
+  const t = palEl('span', 'pt', ''),
+    hit = new Set(it.hit);
+  /** @type {{m: boolean, s: string}[]} kawałki nazwy: dopasowane i zwykłe na przemian */
+  const parts = [];
+  [...it.t].forEach((c, k) => {
+    const m = hit.has(k),
+      p = parts[parts.length - 1];
+    if (p && p.m === m) p.s += c;
+    else parts.push({ m, s: c });
+  });
+  parts.forEach(p => t.append(p.m ? palEl('span', 'm', p.s) : p.s));
+  r.append(t, ...(it.off ? [palEl('span', 'why', it.off)] : it.keys.map(k => palEl('kbd', '', k))));
+  return r;
 }
 function drawPal() {
   palItems = palList($('palq').value);
   palHi = palItems.findIndex(it => !it.off);
   const L = $('pall');
-  L.innerHTML = palItems.length
-    ? palItems
-        .map(
-          (it, i) =>
-            `<div class="pi${it.off ? ' off' : ''}" id="pi${i}" role="option" data-i="${i}" data-act="${esc(it.id)}"` +
-            `${it.off ? ' aria-disabled="true"' : ''}><span class="pt">${esc(it.t)}</span>` +
-            (it.off ? `<span class="why">${esc(it.off)}</span>` : it.keys.map(k => `<kbd>${esc(k)}</kbd>`).join('')) +
-            '</div>'
-        )
-        .join('')
-    : '<div class="none">Brak pasujących poleceń</div>';
+  L.replaceChildren(...(palItems.length ? palItems.map(palRow) : [palEl('div', 'none', 'Brak pasujących poleceń')]));
   L.scrollTop = 0;
   palSet(palHi);
 }

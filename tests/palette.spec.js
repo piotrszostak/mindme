@@ -137,24 +137,27 @@ test.describe('paleta komend', () => {
     expect(await names(page)).toEqual(lay);
   });
 
-  test('filtrowanie: słowa w dowolnej kolejności, od początku słowa, bez polskich znaków i wielkości liter', async ({
+  test('filtrowanie: słowa w dowolnej kolejności, od początku słowa na górze, bez polskich znaków i wielkości liter', async ({
     page,
   }) => {
     await loadMap(page, MD);
     await page.keyboard.press('Control+k');
+    // od 2.3 pasują też litery ze środka słowa („ro-zw-iń”), ale niżej (decyzja 2026-11-26)
     await palq(page).fill('zw wsz');
-    expect(await names(page)).toEqual(['Zwiń wszystko']);
+    expect(await names(page)).toEqual(['Zwiń wszystko', 'Rozwiń wszystko']);
     await palq(page).fill('DÓŁ układ');
     expect(await names(page)).toEqual(['Układ w dół']);
     await palq(page).fill('dol uklad');
     expect(await names(page)).toEqual(['Układ w dół']);
     await palq(page).fill('zwin');
-    expect(await names(page)).toEqual(['Zwiń / rozwiń', 'Zwiń wszystko']);
+    expect(await names(page)).toEqual(['Zwiń / rozwiń', 'Zwiń wszystko', 'Rozwiń wszystko']);
     await palq(page).fill('poziomu 3');
     expect(await names(page)).toEqual(['Pokaż do poziomu 3']);
     await expect(hi(page).locator('.pt')).toHaveText('Pokaż do poziomu 3');
-    // „ozwi” jest w środku słowa „rozwiń” – nie pasuje
+    // „ozwi” jest w środku słowa „rozwiń” – od 2.3 pasuje
     await palq(page).fill('ozwi');
+    expect((await names(page)).sort()).toEqual(['Rozwiń wszystko', 'Zwiń / rozwiń']);
+    await palq(page).fill('xyz');
     expect(await names(page)).toEqual([]);
     await expect(page.locator('#pall .none')).toHaveText('Brak pasujących poleceń');
     const before = await texts(page);
@@ -227,6 +230,85 @@ test.describe('paleta komend', () => {
     await row(page, 'lay-down').click();
     await expect(pal(page)).toBeHidden();
     expect(await page.evaluate(() => dir)).toBe('down');
+  });
+});
+
+test.describe('paleta: dopasowanie przybliżone (2.3)', () => {
+  test('litery po kolei, nie muszą stać obok siebie; bez polskich znaków i wielkości liter', async ({ page }) => {
+    await loadMap(page, MD);
+    await page.keyboard.press('Control+k');
+    await palq(page).fill('zwwsz');
+    expect(await names(page)).toEqual(['Zwiń wszystko', 'Rozwiń wszystko']);
+    await palq(page).fill('ZWWSZ');
+    expect(await names(page)).toEqual(['Zwiń wszystko', 'Rozwiń wszystko']);
+    await palq(page).fill('dpcm');
+    expect(await names(page)).toEqual(['Dopasuj całą mapę']);
+    await expect(hi(page).locator('.pt')).toHaveText('Dopasuj całą mapę');
+  });
+
+  test('kolejność: początek słowa i litery obok siebie wyżej niż litery rozrzucone', async ({ page }) => {
+    await loadMap(page, MD);
+    await page.keyboard.press('Control+k');
+    await palq(page).fill('dod');
+    expect(await names(page)).toEqual([
+      'Dodaj brata', // d-o-d od początku nazwy, obok siebie (trzy równe – stała kolejność)
+      'Dodaj brata powyżej',
+      'Dodaj dziecko',
+      'Edytuj od pustego tekstu', // „od” od początku słowa
+      'Widok Markdown', // „do” w środku słowa, potem daleko „d”
+    ]);
+  });
+
+  test('przy równej ocenie wygrywa ostatnio użyta; lepsze dopasowanie wygrywa z ostatnio użytą', async ({ page }) => {
+    await loadMap(page, MD);
+    await run(page, 'zwin wsz'); // „Zwiń wszystko” – ostatnio użyta
+    await page.keyboard.press('Control+k');
+    await palq(page).fill('zwin');
+    expect(await names(page)).toEqual(['Zwiń wszystko', 'Zwiń / rozwiń', 'Rozwiń wszystko']);
+    await page.keyboard.press('Escape');
+    await run(page, 'rozwin wsz'); // „Rozwiń wszystko” – najnowsza, ale do „zwin” pasuje gorzej
+    await page.keyboard.press('Control+k');
+    await palq(page).fill('zwin');
+    expect(await names(page)).toEqual(['Zwiń wszystko', 'Zwiń / rozwiń', 'Rozwiń wszystko']);
+    await palq(page).fill(''); // puste pole: ostatnio użyte na górze jak dawniej
+    expect((await names(page)).slice(0, 2)).toEqual(['Rozwiń wszystko', 'Zwiń wszystko']);
+  });
+
+  test('dopasowane litery w kolorze akcentu; wybrana pozycja: tło w kolorze akcentu, litery pogrubione', async ({
+    page,
+  }) => {
+    await loadMap(page, MD);
+    await page.keyboard.press('Control+k');
+    await palq(page).fill('zwwsz');
+    const first = rows(page).nth(0),
+      second = rows(page).nth(1);
+    await expect(first).toHaveClass(/\bhi\b/);
+    await expect(first.locator('.pt')).toHaveText('Zwiń wszystko');
+    await expect(first.locator('.pt .m')).toHaveText(['Zw', 'wsz']);
+    await expect(second.locator('.pt')).toHaveText('Rozwiń wszystko');
+    await expect(second.locator('.pt .m')).toHaveText(['zw', 'wsz']);
+    /* kolory z motywu aplikacji, zamienione na postać rgb(…) jak w getComputedStyle */
+    const c = await page.evaluate(() => {
+      const p = document.createElement('i');
+      document.body.append(p);
+      const col = v => ((p.style.color = `var(${v})`), getComputedStyle(p).color);
+      const r = { acc: col('--acc'), card: col('--card') };
+      p.remove();
+      return r;
+    });
+    /** @param {import('@playwright/test').Locator} l */
+    const st = l =>
+      l.evaluate(e => {
+        const s = getComputedStyle(e);
+        return { color: s.color, bg: s.backgroundColor, w: s.fontWeight };
+      });
+    expect(await st(second.locator('.m').first())).toMatchObject({ color: c.acc, w: '400' });
+    expect(await st(first)).toMatchObject({ bg: c.acc, color: c.card });
+    expect(await st(first.locator('.m').first())).toMatchObject({ color: c.card, w: '700' });
+    // tekst użytkownika (komenda „:new”) zawsze jako tekst, nigdy jako HTML
+    await palq(page).fill(':new <b>x</b>');
+    await expect(hi(page).locator('.pt')).toHaveText('Nowa mapa „<b>x</b>”');
+    await expect(hi(page).locator('.pt b')).toHaveCount(0);
   });
 });
 

@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem), `docs/decyzje.md` i `docs/znane-problemy.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Uzupełniony 2026-11-26 wieczorem o pomysły z SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical (zob. `docs/decyzje.md`). Zrobione: etapy 0 i 1, zadania 2.1, 2.2 i T.1 oraz etap A poza odłożonym A.4. APK (T.2–T.4) przeniesione 2026-11-26 na koniec planu.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Uzupełniony 2026-11-26 wieczorem o pomysły z SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical (zob. `docs/decyzje.md`). Zrobione: etapy 0 i 1, zadania 2.1–2.3 i T.1 oraz etap A poza odłożonym A.4. APK (T.2–T.4) przeniesione 2026-11-26 na koniec planu.
 
 **Kolejność etapów:** A → T.1 → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P → T.2–T.4 (APK). Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -122,13 +122,9 @@ Testy obu trybów w `search.spec.js` (Chromium i Firefox). Naprawione: drugi Ctr
 
 `p` / `P` zawsze wklejają z wewnętrznego schowka. Ctrl+V / Ctrl+Shift+V wklejają tekst z innych aplikacji: lista z wcięciami daje hierarchię, kolejne zwykłe linie – jeden węzeł z kilkoma liniami, HTML z nagłówkami i listami – strukturę. Na dotyku „Wklej” w menu czyta schowek systemowy, a bez dostępu (http, Firefox na Androidzie) otwiera okienko „wklej tutaj”. Testy w `clipboard.spec.js`, decyzje w `docs/decyzje.md`.
 
-### 2.3 Wyszukiwanie przybliżone (fuzzy) w palecie
+### 2.3 Wyszukiwanie przybliżone (fuzzy) w palecie ✅ zrobione
 
-- Litery zapytania mają wystąpić w nazwie w tej kolejności, ale niekoniecznie obok siebie („zwwsz” → „Zwiń wszystko”). Słowa rozdzielone spacją dalej działają w dowolnej kolejności, każde dopasowane osobno. Bez polskich znaków i wielkości liter (`plain()`).
-- Ocena: premia za początek słowa, za litery leżące obok siebie i za dopasowanie od początku nazwy, kara za przerwy. Lista według oceny, a przy równej ocenie – 5 ostatnio użytych (jak dziś), potem stała kolejność.
-- Dopasowane litery są wyróżnione. Tekst wstawiaj przez `textContent` i osobne elementy, nigdy przez `innerHTML` z tekstu użytkownika.
-- **Karta decyzji przed kodem:** jak wyglądają wyróżnione litery (np. pogrubienie, kolor akcentu, podkreślenie) – pokaż w trybie jasnym i ciemnym.
-- Dotychczasowe testy palety (np. „zw wsz”) zostają. Dopisz testy dopasowania przybliżonego i kolejności.
+Litery każdego wpisanego słowa po kolei, także ze środka słowa („zwwsz” → „Zwiń wszystko”); najlepsze dopasowanie na górze, przy równej ocenie ostatnio użyte. Dopasowane litery w kolorze akcentu; wybrana pozycja na niebieskim tle z pogrubionymi literami. Testy w `palette.spec.js`, decyzje w `docs/decyzje.md`.
 
 ### 2.4 Wygląd paska przewijania
 
