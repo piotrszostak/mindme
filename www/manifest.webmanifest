@@ -1,6 +1,6 @@
 {
   "name": "Mapa myśli",
-  "short_name": "MindMap",
+  "short_name": "mindme",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1b1c1f",
