@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2, A.1 i A.2.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2 i A.1–A.3.
 
 **Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -34,7 +34,7 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
 3. **Model:** przed zmianą `snap()`, po zmianie `changed()`. Nowe pola węzła dopisz do `MapNode` w `types/globals.d.ts`. Nowe pola stylu dopisz do `DEF` (zapisują się tylko różnice od domyślnych).
 4. **Nowy plik w `www/`:** dopisz go do `index.html` (we właściwej kolejności), do listy w `www/sw.js` i do mapy plików w `CLAUDE.md`.
 5. **Skróty:** każda czynność ma jeden skrót zwykły i jeden vim. Nazwę i skróty wpisz w tabeli `ACT` (`actions.js`), z której biorą pomoc, menu i paleta komend. Naciśnięcie obsłuż w `normal()` (`keys.js`). Zaktualizuj `keys.spec.js` i tabelę w README.
-   - **Bez ukrytych aliasów.** Nie dodawaj nowych; dawne usuwa zadanie A.3 (zostają tylko te, które użytkownik tam zachowa).
+   - **Bez nowych ukrytych aliasów.** Zostają tylko dawne F1, F2, F3 i Shift+F10 (decyzja A.3: bez nich przeglądarka otwiera swoją pomoc, szukanie i menu); Ctrl+Y jest widocznym drugim skrótem „Ponów”.
    - Sprawdzaj `ev.code` tam, gdzie `ev.key` zależy od układu klawiatury (np. `Digit1`). Przy Caps Lock normalizuj literę według Shift.
    - **Kombinacje zakazane** (nie przypisuj im niczego):
      - `Ctrl+Alt+litera`: na Windowsie z polskim układem to AltGr (ą ć ę ł ń ó ś ź ż);
@@ -75,10 +75,9 @@ Cel: zamknąć znane luki i usunąć to, co dokłada kodu i testów bez wartośc
 
 Generator `bigMap(n)` (`tests/helpers.js`) i `tests/perf.spec.js` z progami (mapa 500 węzłów w każdym układzie); `npm run verify` uruchamia pomiar osobno (`npm run perf`). **Cel: płynnie do 500 węzłów, także na telefonie; 1000 nie jest celem.** Progi, wyniki z komputera i telefonu – `docs/decyzje.md` (2026-11-26). Od tej chwili obowiązuje zasada 0.17.
 
-### A.3 Usunięcie ukrytych aliasów klawiszy ⏸ STOP
+### A.3 Ukryte aliasy klawiszy ✅ zrobione
 
-- Dziś działają klawisze, których nie ma w pomocy, menu ani README: Ctrl+Y, F1, F2, F3, Shift+F10 (sprawdź komentarze „ukryty alias” w `keys.js`). To kod i testy, których nikt nie widzi.
-- Pokaż listę i zapytaj, które zostają (np. z przyzwyczajenia). Pozostałe usuń razem z ich testami w `keys.spec.js`. Wynik zapisz w `docs/decyzje.md` (zmienia decyzję z 2026-11-24 o aliasach).
+Wybór użytkownika: wszystkie zostają. Ctrl+Y jest teraz widocznym drugim skrótem „Ponów” (pomoc, README), a F1, F2, F3 i Shift+F10 zostają ukryte – bez nich przeglądarka otwierałaby swoją pomoc, szukanie i menu. Szczegóły w `docs/decyzje.md`.
 
 ### A.4 Edycja palet bez pamięci przeglądarki 🗳
 

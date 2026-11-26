@@ -52,7 +52,7 @@ Każda czynność ma skrót zwykły i skrót vim:
 | wklej jako dziecko / brata                 | Ctrl+V / Ctrl+Shift+V                | `p` / `P`                                             |
 | zwiń / rozwiń                              | Shift+Spacja                         | `za` (wszystko: `zM` / `zR`, do poziomu N: `z1`…`z9`) |
 | przesuń, wsuń, wysuń                       | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
-| cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z                | `u` / Ctrl+R                                          |
+| cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z, Ctrl+Y        | `u` / Ctrl+R                                          |
 | szukaj, następne, poprzednie               | Ctrl+F, Ctrl+G, Ctrl+Shift+G         | `/`, `n`, `N`                                         |
 | dopasuj całą mapę / pokaż zaznaczony węzeł | Shift+1 / Shift+2 (z przybliżeniem)  | `=` / `zz`                                            |
 | menu podręczne / odznacz                   | klawisz Menu / Esc                   |                                                       |

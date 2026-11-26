@@ -1,7 +1,7 @@
 /* Klawiatura (tryb Normal: skrót zwykły + vim), wiersz poleceń „:” i wyszukiwanie „/”. */
 /* ---- tryb Normal (klawiatura) ---- */
-/* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (F1, F2, F3, Shift+F10, Ctrl+Y)
-   zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy, w menu ani w README. */
+/* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (F1, F2, F3, Shift+F10)
+   zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy, w menu ani w README (decyzja A.3); nowych nie dodajemy. */
 /* Nie przypisujemy: Ctrl+Alt+litera (AltGr: ą ć ę…), Alt+litera (menu przeglądarki, znaki na macOS), Ctrl+W/T/N/Tab,
    Ctrl+Shift+N/T (przeglądarka ich nie oddaje), Ctrl+Spacja (macOS), Ctrl+strzałki (pulpity macOS), Alt+1…8 (karty Chrome). */
 /** tryb Normal: wszystkie skróty mapy @param {KeyboardEvent} ev */
@@ -22,7 +22,7 @@ function normal(ev) {
     /** @type {Record<string, (() => unknown) | null>} */
     const ctrlKeys = {
       z: sh ? redo : undo,
-      y: redo /* ukryty alias */,
+      y: redo /* drugi zwykły skrót „Ponów” (jak w Office), widoczny w pomocy */,
       r: redo,
       s: save,
       o: openFile,

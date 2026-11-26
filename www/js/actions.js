@@ -125,7 +125,7 @@ const ACT = [
     id: 'redo',
     ic: 'redo',
     t: 'Ponów',
-    k: ['Ctrl+Shift+Z'],
+    k: ['Ctrl+Shift+Z', 'Ctrl+Y'],
     v: ['Ctrl+R'],
     f: () => redo(),
     off: () => (redoS.length ? '' : 'nic do ponowienia'),

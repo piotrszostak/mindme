@@ -120,7 +120,7 @@ const PAIRS = [
     ['Delete', 'Control+z', 'Control+Shift+Z'],
     ['x', 'u', 'Control+r'],
     async p => expect(await md(p)).not.toContain('- b\n'),
-    [['Delete', 'Control+z', 'Control+y']], // ukryty alias
+    [['Delete', 'Control+z', 'Control+y']], // drugi zwykły skrót, widoczny w pomocy
   ],
   [
     'szukaj',
@@ -334,7 +334,7 @@ test('Ctrl+Alt+litera (AltGr: ą ć ę ł ń ó ś ź ż) nic nie robi', async (
   expect(await page.evaluate(() => window.__saved)).toBe(0);
 });
 
-test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu, palecie ani podpowiedziach', async ({
+test('ukryte aliasy (F1, F2, F3, F10) nie są pokazywane w pomocy, menu, palecie ani podpowiedziach; Ctrl+Y jest w pomocy', async ({
   page,
 }) => {
   await loadMap(page, MD);
@@ -354,7 +354,8 @@ test('ukryte aliasy (F1, F2, F3, F10, Ctrl+Y) nie są pokazywane w pomocy, menu,
     closePal();
     return t.join('\n');
   });
-  expect(shown).not.toMatch(/\bF(1|2|3|10)\b|Ctrl\+Y/);
+  expect(shown).not.toMatch(/\bF(1|2|3|10)\b/);
+  expect(await page.evaluate(() => JSON.stringify(HELP))).toContain('Ctrl+Shift+Z|Ctrl+Y|Ctrl+R'); // drugi zwykły skrót „Ponów” (A.3)
 });
 
 test('usunięte skróty nic nie robią: Insert, zo, zc, Alt+h/j/k/l', async ({ page }) => {
