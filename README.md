@@ -99,7 +99,7 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 
 ### PWA (telefon i komputer)
 
-Opublikuj katalog `www/` przez HTTPS, np. na GitHub Pages lub Netlify. W Chrome lub Edge wybierz _Zainstaluj aplikację_, a na Androidzie _Dodaj do ekranu głównego_. Aplikacja działa wtedy offline.
+Wersja z `main` publikuje się sama na GitHub Pages, gdy testy w CI przejdą: **https://piotrszostak.github.io/mindme/** (`.github/workflows/ci.yml`). W Chrome lub Edge wybierz _Zainstaluj aplikację_, a na Androidzie _Dodaj do ekranu głównego_. Aplikacja działa wtedy offline.
 
 ### Android (APK przez Capacitor)
 
