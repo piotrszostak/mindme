@@ -61,7 +61,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 - Emoji: osobne `<tspan class="emo">` z kolorową czcionką + osobny pomiar (`cvE`), dzielenie słów po grafemach.
 - Okienko z pytaniem (`ask`, `<dialog>` w `files.js`): wynik oddawaj przy wyborze, nie w zdarzeniu `close` (przychodzi z opóźnieniem i trafia w następne pytanie); `returnValue` po Esc jest w Chromium pusty, a `Number('')` = 0 = przycisk domyślny; Enter, który okienko otworzył (np. `:w` z palety), nie może wybrać przycisku.
 - Ctrl+V w trybie mapy: fokus na chwilę w niewidocznym `#clip` (Firefox poza polem tekstowym nie wysyła `paste` dla Ctrl+Shift+V); nie rób `preventDefault()` na Ctrl+V, bo `paste` nie nadejdzie.
-- Schowek: pod `http://` innym niż localhost (telefon przez `10.0.0.x`) i w Firefoksie na Androidzie nie ma `navigator.clipboard` → wklejanie idzie przez okienko „wklej tutaj”. Brak `sw.js` w dzienniku serwera = przeglądarka uznała adres za niebezpieczny.
+- Schowek: pod `http://` innym niż localhost (telefon przez `10.0.0.x`) i w Firefoksie na Androidzie nie ma `navigator.clipboard` → wklejanie idzie przez okienko „wklej tutaj” (na https://piotrszostak.github.io/mindme/ schowek działa). Brak `sw.js` w dzienniku serwera = przeglądarka uznała adres za niebezpieczny.
 - Globalna reguła `svg` w `app.css` (100% szerokości i wysokości) rozdmuchuje każdą wstawioną ikonę (prototypy, porównania) → rozmiar w `style`.
 - Ukryty panel podglądu animuje wolno, zrzut łapie stan pośredni → nakładanie węzłów sprawdzaj liczbowo (pozycje docelowe), nie tylko na zrzucie.
 - Sprawdzanie w podglądzie (`load()`, zmiany na mapie) nadpisuje autozapis użytkownika (`mm.md`) → najpierw kopia `localStorage.getItem('mm.md')`, na koniec przywrócenie i przeładowanie strony.

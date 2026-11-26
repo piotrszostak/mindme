@@ -5,6 +5,7 @@ description: Sprawdzenie na prawdziwym telefonie. Użyj po zmianach dotyku, prze
 
 Testy i przeglądarka na komputerze nie pokażą prawdziwego dotyku, płynności ani zachowania Androida. Ten skill prowadzi krótkie sprawdzenie na telefonie użytkownika.
 
+0. Wersja już wysłana na `main` (CI zielone) jest pod **https://piotrszostak.github.io/mindme/** – tam działają schowek, tryb offline i instalacja, bez serwera i zapory; kroki 1–3 tylko dla zmian jeszcze niewysłanych. Każdy adres ma osobną pamięć przeglądarki (mapy z `10.0.0.x` nie przechodzą same).
 1. Uruchom serwer `mapa` z panelu podglądu albo `npx serve www -l 3000`; oba słuchają w całej sieci lokalnej. Adres dla telefonu: `http://<adres komputera z ip -4 -br addr>:3000`.
 2. Zapora ufw bywa włączona (2026-11-25 była wyłączona – niech użytkownik sprawdzi `sudo ufw status`). Gdy jest aktywna, podaj użytkownikowi komendę do samodzielnego uruchomienia, np. `sudo ufw allow from <sieć lokalna z kroku 1> to any port 3000 proto tcp`, i komendę, która to cofa (`sudo ufw delete allow …`). Zapory nie zmieniasz sam.
 3. Napisz: telefon w tej samej sieci, adres w przeglądarce (użytkownik używa też Brave – ten nie pyta o zgodę); Chrome na Androidzie poprosi o zgodę „Urządzenia w pobliżu” – bez niej strona się nie otworzy, a w dzienniku serwera nie widać żądań z telefonu. Uprzedź, że przez taki adres nie działa tryb offline ani instalacja aplikacji, co nie przeszkadza w sprawdzaniu dotyku.

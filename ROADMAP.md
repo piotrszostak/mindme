@@ -102,7 +102,7 @@ Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowe
 
 ### T.1 Adres https ⏸ STOP
 
-- **W toku (2026-11-26):** wybrane GitHub Pages z publikacją po zielonych testach na `main` (`ci.yml`, zadanie `pages`), test podkatalogu w `pwa.spec.js`. Czeka na użytkownika: Settings → Pages → Source „GitHub Actions” i wysłanie commitów; potem `/na-telefonie` i pułapki.
+- **W toku (2026-11-26):** działa https://piotrszostak.github.io/mindme/ – publikacja po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Zostało sprawdzenie na telefonie – lista w `docs/znane-problemy.md`.
 - **Karta decyzji:** gdzie (np. GitHub Pages – darmowe dla publicznego repozytorium – albo inny darmowy hosting), pod jakim adresem i czy wdrażać automatycznie po wysłaniu na serwer (GitHub Actions), czy ręcznie. Publikuje i wysyła użytkownik.
 - Strona może działać z podkatalogu (np. `/mindmap/`): sprawdź ścieżki w `index.html`, `sw.js` i `manifest.webmanifest`; zmianę pokryj testem w `pwa.spec.js`.
 - Po wdrożeniu `/na-telefonie`: wklejanie bez okienka „wklej tutaj”, instalacja na ekranie głównym, praca bez sieci, autozapis po ponownym otwarciu.
