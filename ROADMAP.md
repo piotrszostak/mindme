@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2 i A.1.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2, A.1 i A.2.
 
 **Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -71,13 +71,9 @@ Cel: zamknąć znane luki i usunąć to, co dokłada kodu i testów bez wartośc
 
 `cleanStyle` (`side.js`) przepuszcza z `<!--style:{…}-->` tylko wartości, które da się ustawić w panelu; reszta zostaje domyślna, a nieznany układ to „w prawo”. Pasek stanu wymienia pominięte pola. Wcześniej spreparowany plik uruchamiał skrypt (obrazek z `onerror` w SVG mapy i w próbkach palet), a nieznany układ wywracał wczytywanie i – zapisany w autozapisie – blokował start aplikacji. Pozostałe `innerHTML` przejrzane: tekst z pliku i od użytkownika idzie przez `esc()` albo `textContent`. Testy w `parser.spec.js`, decyzje w `docs/decyzje.md`.
 
-### A.2 Pomiar wydajności od początku ⏸ STOP (dawne P.1)
+### A.2 Pomiar wydajności od początku ✅ zrobione
 
-- Generator dużej mapy (np. 500 i 1000 węzłów, kilka poziomów, część gałęzi zwinięta) w `tests/helpers.js`.
-- Pomiar w Playwrighcie, w każdym istniejącym układzie: czas `lay()` + `render()`, czas klatki przy przeciąganiu i przy rozwijaniu gałęzi.
-- Wynik pokaż użytkownikowi i ustal z nim progi (np. klatka ≤ 16 ms na komputerze); sprawdź też na telefonie (`/na-telefonie`).
-- Test progów z zapasem albo porównaniem względnym, żeby nie był chwiejny na wolniejszym komputerze. Zapytaj, czy ma wchodzić do `npm run verify`, czy działać osobno (jeśli jest wolny).
-- Od tej chwili obowiązuje zasada 0.17. Poprawki – dopiero w etapie P, chyba że próg przekroczy któreś zadanie.
+Generator `bigMap(n)` (`tests/helpers.js`) i `tests/perf.spec.js` z progami (mapa 500 węzłów w każdym układzie); `npm run verify` uruchamia pomiar osobno (`npm run perf`). **Cel: płynnie do 500 węzłów, także na telefonie; 1000 nie jest celem.** Progi, wyniki z komputera i telefonu – `docs/decyzje.md` (2026-11-26). Od tej chwili obowiązuje zasada 0.17.
 
 ### A.3 Usunięcie ukrytych aliasów klawiszy ⏸ STOP
 
@@ -480,7 +476,7 @@ Osobny plik i wpis w opisie układów z R.6. Wymaga:
 
 ## Etap P – Wydajność (na koniec)
 
-Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu zostają poprawki, gdy wszystkie funkcje już są.
+Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu zostają poprawki, gdy wszystkie funkcje już są. Cel: płynnie do 500 węzłów, także na telefonie; większe mapy nie są celem (decyzja 2026-11-26).
 
 ### P.2 Poprawki
 
