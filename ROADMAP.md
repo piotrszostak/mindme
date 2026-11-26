@@ -104,7 +104,7 @@ Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowe
 
 ### T.1 Adres https ✅ zrobione
 
-Działa https://piotrszostak.github.io/mindme/ – publikacja automatyczna po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Na telefonie (26.11, użytkownik): instalacja z Firefoksa, „Wklej” po przytrzymaniu – jako dziecko i jako nowa mapa – bez okienka „wklej tutaj”; przed wklejeniem trzeba jeszcze kliknąć przycisk „Wklej” Androida. Decyzje w `docs/decyzje.md`.
+Działa https://piotrszostak.github.io/mindme/ – publikacja automatyczna po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Na telefonie (26.11, użytkownik): instalacja z Firefoksa, „Wklej” po przytrzymaniu – jako dziecko i jako nowa mapa – bez okienka „wklej tutaj”; przed wklejeniem trzeba jeszcze kliknąć przycisk „Wklej” Androida. Praca bez sieci i autozapis po zamknięciu aplikacji działają. Decyzje w `docs/decyzje.md`.
 
 T.2–T.4 (APK, pliki na Androidzie, „Udostępnij”) – na końcu planu, po etapie P.
 
