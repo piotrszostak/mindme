@@ -39,6 +39,8 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 `pos` – pozycje wyświetlane (animacja) · `dnd` – trwające przeciąganie (`ph` = miejsce, id −1) ·
 `editing`/`edId` – edycja · `yank` – skopiowana gałąź · `ST` – styl mapy (zapisywany w pliku).
 
+Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie dopisz tam, zanim trafi do interfejsu albo planu; nie twórz drugiej nazwy dla tego samego.
+
 ## Zasady
 
 - Zmiana modelu → `snap()` przed, `changed()` po (cofanie + autozapis). Zaznaczenie bez zmian → `go(id)` / `render()`.
