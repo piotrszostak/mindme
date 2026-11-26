@@ -3,7 +3,7 @@
 Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1 i 2.2.
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2 i A.1.
 
 **Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -67,14 +67,9 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
 
 Cel: zamknąć znane luki i usunąć to, co dokłada kodu i testów bez wartości, zanim przybędzie funkcji.
 
-### A.1 Sprawdzanie stylu i układu z pliku (bezpieczeństwo)
+### A.1 Sprawdzanie stylu i układu z pliku (bezpieczeństwo) ✅ zrobione
 
-- Dziś `parse()` (`core.js`) kopiuje wartości z `<!--style:{…}-->` do `ST` bez sprawdzania typów, a `render.js` i `side.js` wstawiają je do `innerHTML` (np. `stroke="${kolor}"`). Spreparowany plik `.md` (z Syncthinga, pobrany z sieci) może więc wstrzyknąć HTML i skrypt.
-- **Najpierw test, który pada** (zasada 0.11), w `parser.spec.js`: plik z kolorem w rodzaju `"\"/><image href=x onerror=…>"` i z liczbą zapisaną jako tekst z HTML-em; test sprawdza, że na mapie nie powstaje żaden dodatkowy element i nic się nie uruchamia.
-- Jedna funkcja (np. `cleanStyle(o)`) dla każdego pola `DEF`: kolor tylko `#rgb` / `#rrggbb`; liczby jako liczby w zakresie z panelu (`min` / `max` w `SIDE`); wartości wyboru tylko z listy (`opts`, `FONTS`, palety); `colors` – tablica 6 kolorów. Wartość niepoprawna = wartość z `DEF` i jedno `info()` z nazwą pola.
-- `<!--layout:…-->` z nieznaną nazwą → układ domyślny (najpierw test, co dzieje się dziś).
-- Przejrzyj pozostałe miejsca z `innerHTML`: tekst z pliku i od użytkownika tylko przez `esc()` albo `textContent`.
-- Plik z poprawnym stylem zapisuje się bajt w bajt jak dziś (strażnicy formatu przechodzą bez zmian).
+`cleanStyle` (`side.js`) przepuszcza z `<!--style:{…}-->` tylko wartości, które da się ustawić w panelu; reszta zostaje domyślna, a nieznany układ to „w prawo”. Pasek stanu wymienia pominięte pola. Wcześniej spreparowany plik uruchamiał skrypt (obrazek z `onerror` w SVG mapy i w próbkach palet), a nieznany układ wywracał wczytywanie i – zapisany w autozapisie – blokował start aplikacji. Pozostałe `innerHTML` przejrzane: tekst z pliku i od użytkownika idzie przez `esc()` albo `textContent`. Testy w `parser.spec.js`, decyzje w `docs/decyzje.md`.
 
 ### A.2 Pomiar wydajności od początku ⏸ STOP (dawne P.1)
 

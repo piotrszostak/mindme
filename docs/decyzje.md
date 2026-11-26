@@ -8,6 +8,10 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Podjęte
 
+- **2026-11-26 – Styl i układ z pliku: tylko poprawne wartości** (ROADMAP.md, zadanie A.1). Wartość, której nie da się ustawić w panelu „Wygląd” (liczba spoza zakresu suwaka albo zapisana jako tekst, nazwa spoza listy, paleta spoza wbudowanych, `colors` inne niż 6 kolorów `#rgb` / `#rrggbb`), zostaje domyślna; nieznany układ = „w prawo”. Pasek stanu wymienia pominięte pola, np. „pominięto niepoprawne ustawienia z pliku: radius, layout”, a następny zapis już ich nie zawiera. Powód: wartości trafiały do HTML-a mapy i panelu, więc spreparowany plik mógł uruchomić skrypt; nieznany układ wywracał wczytywanie, a z autozapisu blokował start aplikacji.
+  - Założenia agenta: zepsuty zapis stylu (nie-JSON) też daje komunikat (pole „style”; dotąd pomijany po cichu); wielkość liter w kolorach dowolna; liczby sprawdzane tylko z zakresem suwaka, bez jego kroku; w komunikacie nazwy pól takie jak w pliku; komunikat ginie, gdy plik ma też linie spoza mapy (pasek pokazuje wtedy ich licznik).
+  - Odrzucone (założenia agenta): zamiana liczby zapisanej jako tekst na liczbę; zastąpienie tylko jednego złego koloru (cała lista wraca do domyślnej).
+
 - **2026-11-26 – Plan przebudowany pod kątem kruchości kodu** (prośba użytkownika: „najtrudniejsze i najryzykowniejsze pomysły na koniec, a przed nimi naprawa i dostosowanie obecnego kodu”). Kolejność: A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P.
   - **Nowy etap A – naprawy i porządki:** sprawdzanie stylu i układu z pliku (dziś wartości z `<!--style-->` trafiają do `innerHTML` bez sprawdzania – możliwe wstrzyknięcie HTML z pliku), pomiar wydajności od początku (dawne P.1), usunięcie ukrytych aliasów klawiszy, edycja palet bez `mm.pal` (karta decyzji), Tauri usunięte do czasu użycia, pytania o `Containerfile` i `HANDOVER.md`.
   - **Etap T przed resztą etapu 2** – adres https odblokowuje codzienne używanie na telefonie.

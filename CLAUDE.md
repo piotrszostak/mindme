@@ -27,7 +27,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 | ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                            |
 | emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                        |
 | keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                      |
-| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, motyw / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`                                                  |
+| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, motyw / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`, `cleanStyle` – sprawdza styl z pliku            |
 | actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd` |
 | dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                          |
 

@@ -242,3 +242,75 @@ test('widok tekstowy: edycja markdownu przebudowuje mapę', async ({ page }) => 
   const texts = await page.$$eval('#g .n text', ts => ts.map(t => t.textContent).sort());
   expect(texts).toEqual(['Nowa', 'x', 'y', 'z']);
 });
+
+// Bezpieczeństwo (A.1): styl i układ z pliku trafiają do SVG mapy i do panelu, więc wczytujemy tylko poprawne wartości.
+const ATAK = '"/><image href="x" src="x" onerror="window.__xss=(window.__xss||0)+1"/>';
+const styled = style => `# Mapa\n<!--style:${JSON.stringify(style)}-->\n\n- a\n  - b\n- c\n`;
+
+test('styl z pliku: HTML w wartościach nie dodaje elementów ani nie uruchamia skryptu', async ({ page }) => {
+  /* elementy mapy i panelu (z próbkami kolorów) oraz atrybuty zdarzeń (on…) */
+  const shape = () =>
+    page.evaluate(() => {
+      const els = [...document.querySelectorAll('#g *, #side *')];
+      return {
+        tags: els.map(e => e.tagName).join(' '),
+        on: els.flatMap(e => [...e.attributes].map(a => a.name)).filter(n => n.startsWith('on')),
+      };
+    });
+  await page.evaluate(m => load(m), styled({ fill: 'tint' }));
+  const clean = await shape();
+  await page.evaluate(
+    m => load(m),
+    styled({
+      fill: 'tint',
+      colors: [ATAK, '#2f9e44', '#2f6fed', '#c2185b', '#f08c00', '#0b7285'],
+      radius: '8" onmouseover="window.__xss=1',
+      edge: '2' + ATAK,
+    })
+  );
+  expect.soft(await shape()).toEqual(clean);
+  await page.waitForTimeout(300); /* czas na zdarzenie „error” obrazka, gdyby jednak powstał */
+  expect(await page.evaluate(() => window.__xss)).toBeUndefined();
+});
+
+test('styl z pliku: niepoprawne pole dostaje wartość domyślną, a pasek stanu je wymienia', async ({ page }) => {
+  const cases = [
+    // [styl w pliku, styl po zapisie, pola w komunikacie]
+    [
+      '{"font":"mono","weight":"heavy","palette":"Tęcza","edge":0.5,"radius":-1,"fs":"16","gapTree":240,"colors":["#fff","#000"]}',
+      '{"font":"mono","edge":0.5,"gapTree":240}',
+      'weight, palette, radius, fs, colors',
+    ],
+    [
+      '{"palette":"constructor","font":"toString","colors":["#FFF","#000","#123456","#abc","#ABCDEF","#0b7285"]}',
+      '{"colors":["#FFF","#000","#123456","#abc","#ABCDEF","#0b7285"]}',
+      'font, palette',
+    ],
+    ['{zepsuty', '', 'style'],
+    ['[1,2]', '', 'style'],
+    ['{"edgeStyle":"elbow","fs":16}', '{"edgeStyle":"elbow","fs":16}', ''],
+  ];
+  for (const [inp, out, bad] of cases) {
+    await page.evaluate(() => info(''));
+    await page.evaluate(m => load(m), `# T\n<!--style:${inp}-->\n\n- a\n`);
+    expect(await page.evaluate(() => serialize(root))).toBe(`# T\n${out ? `<!--style:${out}-->\n` : ''}\n- a\n`);
+    await expect(page.locator('#info')).toHaveText(bad ? 'pominięto niepoprawne ustawienia z pliku: ' + bad : '');
+  }
+});
+
+test('układ z pliku: nieznana nazwa = układ domyślny, a pasek stanu ją wymienia', async ({ page }) => {
+  for (const d of ['spirala', 'constructor']) {
+    await page.evaluate(() => info(''));
+    await page.evaluate(m => load(m), `# T\n<!--layout:${d}-->\n\n- a\n`);
+    expect(await page.evaluate(() => [dir, serialize(root)])).toEqual(['right', '# T\n\n- a\n']);
+    await expect(page.locator('#bl')).toHaveAttribute('data-tip', 'Układ mapy: w prawo');
+    await expect(page.locator('#info')).toHaveText('pominięto niepoprawne ustawienia z pliku: layout');
+  }
+});
+
+test('układ z pliku: nieznana nazwa w autozapisie (mm.md) nie blokuje startu', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('mm.md', '# T\n<!--layout:spirala-->\n\n- a\n'));
+  await open(page);
+  await expect(page.locator('#g')).toContainText('a');
+  expect(await page.evaluate(() => dir)).toBe('right');
+});

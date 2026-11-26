@@ -69,6 +69,34 @@ const PAL0 = {
   Neon: ['#ff006e', '#fb5607', '#e0a800', '#3a86ff', '#8338ec', '#06b88a'],
   Monochromatyczna: Array(6).fill('#2f6fed'),
 };
+/* styl z pliku trafia do SVG mapy i do panelu, więc przyjmujemy tylko wartości, które da się ustawić w panelu */
+const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+/** czy wartość pola stylu z pliku jest poprawna @param {StyleKey} k @param {unknown} v */
+function okStyle(k, v) {
+  if (k === 'colors')
+    return Array.isArray(v) && v.length === DEF.colors.length && v.every(c => typeof c === 'string' && HEX.test(c));
+  if (k === 'palette') return typeof v === 'string' && has(PAL0, v);
+  const it = SIDE.flatMap(s => s[1]).find(i => i.k === k);
+  if (!it) return false; /* nowe pole w DEF: dopisz tu jego regułę */
+  if (it.opts) return it.opts.some(([x]) => x === v);
+  return typeof v === 'number' && it.min !== undefined && it.max !== undefined && v >= it.min && v <= it.max;
+}
+/** styl z pliku (`<!--style:…-->`) → tylko poprawne pola; nie-obiekt (np. zepsuty JSON) to pole „style”
+ * @param {unknown} o @returns {[Partial<MapStyle>, string[]]} [poprawne pola, nazwy niepoprawnych] */
+function cleanStyle(o) {
+  /** @type {Record<string, unknown>} */
+  const ok = {};
+  /** @type {string[]} */
+  const bad = [];
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return [ok, ['style']];
+  for (const k of /** @type {StyleKey[]} */ (Object.keys(DEF)))
+    if (has(o, k)) {
+      const v = /** @type {Record<string, unknown>} */ (o)[k];
+      if (okStyle(k, v)) ok[k] = v;
+      else bad.push(k);
+    }
+  return [ok, bad];
+}
 /** @type {Record<string, string[]>} własne poprawki palet (localStorage) */
 let palOv = {};
 try {

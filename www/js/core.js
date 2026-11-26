@@ -62,6 +62,8 @@ const pl = (n, one, few, many) =>
 const isAbort = e => e instanceof DOMException && e.name === 'AbortError';
 /** cel zdarzenia jako element (lub null) @param {EventTarget | null} t @returns {Element | null} */
 const asEl = t => (t instanceof Element ? t : null);
+/** własne pole obiektu (nie z prototypu, jak `constructor`) @param {object} o @param {string} k */
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 /** @param {string} s */
 const esc = s =>
   s.replace(
@@ -121,6 +123,8 @@ function parse(md) {
   const t = forest([]);
   t.skip = 0;
   let st = null;
+  /** @type {string[]} ustawienia z pliku z niepoprawną wartością (zostaje domyślna) */
+  const bad = [];
   dir = 'right';
   ST = JSON.parse(JSON.stringify(DEF));
   stDirty = true;
@@ -150,15 +154,19 @@ function parse(md) {
       continue;
     }
     if ((m = /^<!--layout:(\w+)-->/.exec(l))) {
-      dir = m[1];
+      if (has(LAY, m[1])) dir = m[1];
+      else bad.push('layout');
       continue;
     }
     if ((m = /^<!--style:(.*)-->\s*$/.exec(l))) {
+      /** @type {unknown} */
+      let o = null;
       try {
-        const o = JSON.parse(m[1]);
-        for (const key of /** @type {StyleKey[]} */ (Object.keys(DEF)))
-          if (key in o) /** @type {any} */ (ST)[key] = o[key];
+        o = JSON.parse(m[1]);
       } catch (e) {}
+      const [ok, b] = cleanStyle(o);
+      Object.assign(ST, ok);
+      bad.push(...b);
       continue;
     }
     if ((m = /^(\s*)[-*+]\s+(.*)$/.exec(l))) {
@@ -183,6 +191,7 @@ function parse(md) {
     } else t.skip++; /* linia, której mapa nie pokazuje (akapit, `##`, tabela…) */
   }
   if (!t.children.length) t.children.push(mk('Mapa'));
+  if (bad.length) info('pominięto niepoprawne ustawienia z pliku: ' + [...new Set(bad)].join(', '));
   return t;
 }
 /* próbka dla `:test` z rozszerzeniami formatu (frontmatter, wiele linii w węźle); nowe rozszerzenie = dopisz je tutaj */
