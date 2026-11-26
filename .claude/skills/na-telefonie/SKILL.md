@@ -11,5 +11,5 @@ Testy i przeglądarka na komputerze nie pokażą prawdziwego dotyku, płynności
    - Przez `http://` nie działa `sw.js`, ale otwarta karta trzyma kod z chwili otwarcia → przed krokami poproś o odświeżenie strony (zwłaszcza po nowych commitach), inaczej sprawdzasz starą wersję.
    - Odczyt schowka systemowego (np. „Wklej” na dotyku) działa tylko na bezpiecznym adresie: w Chrome na telefonie `chrome://flags/#unsafely-treat-insecure-origin-as-secure` → adres serwera → Enabled → Relaunch.
    - Wydajność: strona `/_prototyp/perf/` (poza gitem: kopia `index.html` z generatorem dużej mapy, bez autozapisu) wysyła wyniki jako żądania `wynik?…` – czytasz je w dzienniku serwera (`preview_logs`, szukaj „wynik”), użytkownik nic nie przepisuje. Gdy jej nie ma, odtwórz ją.
-4. Daj 3–5 kroków. W każdym: co zrobić palcem, czego się spodziewać i o co pytasz (tak/nie i co widać). Kroki dotyczą ostatniej zmiany albo listy „Do sprawdzenia na prawdziwym urządzeniu” z `HANDOVER.md`.
+4. Daj 3–5 kroków. W każdym: co zrobić palcem, czego się spodziewać i o co pytasz (tak/nie i co widać). Kroki dotyczą ostatniej zmiany albo listy „Do sprawdzenia” w `docs/znane-problemy.md`.
 5. Zapisz wynik: potwierdzone sprawy usuń z tej listy, nowe dopisz. Błąd przekaż do `/naprawa`.

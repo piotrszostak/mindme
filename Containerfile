@@ -1,5 +1,5 @@
+# Obraz projektu: Node, git i przeglądarki do testów. Agenta (Claude Code) dokłada osobny Containerfile.agent (decyzja A.6).
 FROM docker.io/library/node:22-bookworm
-RUN npm i -g @anthropic-ai/claude-code
 RUN apt-get update && apt-get install -y git zip && rm -rf /var/lib/apt/lists/*
 # Playwright: Chromium i Firefox + biblioteki systemowe (--with-deps wymaga roota, więc przed USER node).
 # Wspólna ścieżka, żeby przeglądarki widział użytkownik node. Wersja = @playwright/test w package.json.

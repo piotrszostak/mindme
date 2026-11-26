@@ -48,6 +48,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 - Format pliku i klucze autozapisu (`mm.md`, `mm.theme`, `mm.pal`, `mm.emo`, `mm.cmd`) zmieniasz tylko po karcie decyzji. Plik z wersji 0.3 musi się wczytać bez strat (testy „strażnik formatu” w `parser.spec.js`); nowy format = nowa stała obok, starych nie zmieniasz.
 - Testy: Playwright z `reducedMotion: 'reduce'` (pozycje od razu końcowe; testy animacji ustawiają `no-preference`). Logikę testujesz przez `page.evaluate` jak w `tests/parser.spec.js`; obszary w `tests/README.md`, pomocniki w `tests/helpers.js`.
 - Commity na `main`.
+- Otwarte błędy i rzeczy do sprawdzenia → `docs/znane-problemy.md` (w gicie); `HANDOVER.md` (lokalny) tylko na bieżącą pracę.
 - Zmiany widoczne na ekranie oglądasz w panelu podglądu (serwer `mapa`), także w rozmiarze telefonu. Dotyk, przeciąganie i płynność: `/na-telefonie`.
 - Prototypy (`/prototyp`): `www/_prototyp/<temat>/`, w podglądzie `/_prototyp/<temat>/`.
 - Capacitor jest w wersji 6, a jego dokumentacja domyślnie pokazuje 8 – czytaj tę dla wersji 6.
@@ -65,4 +66,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 - Ukryty panel podglądu animuje wolno, zrzut łapie stan pośredni → nakładanie węzłów sprawdzaj liczbowo (pozycje docelowe), nie tylko na zrzucie.
 - Sprawdzanie w podglądzie (`load()`, zmiany na mapie) nadpisuje autozapis użytkownika (`mm.md`) → najpierw kopia `localStorage.getItem('mm.md')`, na koniec przywrócenie i przeładowanie strony.
 - Edycja skryptem (sed, python) omija automatyczny Prettier → przed commitem `npx prettier --write` na zmienionych plikach, inaczej bramka zatrzyma commit.
+- Serwer podglądu z poprzedniej sesji może dalej działać na :3000: `preview_start` z `name` się wtedy nie uruchomi – użyj `preview_start` z `url`; dziennik (`preview_logs`) ma tylko serwer uruchomiony w tej sesji.
+- Podgląd bez `reducedMotion`: tuż po `load()` węzły jeszcze jadą – symulowany dotyk trafia w zły węzeł; odczekaj ok. 1 s.
+- `ROADMAP.md` i `docs/*.md` nie przechodzą przez Prettiera (bramka sprawdza kod) – nie formatuj całych plików, diff zrobi się nieczytelny.
 - Kontener bez roota: biblioteki z `.pw-libs/` dokładane tylko w kontenerze, poza nim psują `/bin/sh` (zob. `tests/README.md`); Firefox ma własne NSS.

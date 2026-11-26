@@ -1,9 +1,9 @@
 # Plan rozwoju mindme – instrukcje dla agenta
 
-Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem) i `docs/decyzje.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
+Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem), `docs/decyzje.md` i `docs/znane-problemy.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
 Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1 oraz zadania 2.1, 2.2, A.1–A.3 i A.5 (A.4 odłożone).
+Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Zrobione: etapy 0 i 1, zadania 2.1 i 2.2 oraz etap A poza odłożonym A.4.
 
 **Kolejność etapów:** A → T → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P. Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
 
@@ -50,7 +50,7 @@ mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero 
    - nic nie zapętla się bez końca;
    - wszystkie respektują `prefers-reduced-motion` (`RM` w `render.js`).
 7. **Czytelność przed efektem.** Kolor przypisujemy do gałęzi, nie do pojedynczego węzła. Subtelne animacje nie mają przełącznika (wyłącza je tylko `RM`). Efekty, które zmieniają wygląd mapy w spoczynku (np. zwężające się gałęzie), wchodzą tylko w skład motywu (5.7). Wskazówki stanu (ścieżka do korzenia, licznik ukrytych, poświata zaznaczenia z 5.3–5.5) nie są efektami ozdobnymi: działają zawsze, bez przełącznika.
-8. **Po każdej zmianie** uruchom `npm run check` i testy danego obszaru. **Przed commitem** uruchom `npm run verify`. Na koniec każdego etapu zaktualizuj `HANDOVER.md`.
+8. **Po każdej zmianie** uruchom `npm run check` i testy danego obszaru. **Przed commitem** uruchom `npm run verify`. Na koniec każdego etapu zaktualizuj `HANDOVER.md` (bieżąca praca) i `docs/znane-problemy.md` (otwarte błędy i rzeczy do sprawdzenia).
 9. Interfejs jest po polsku. Użytkownik nie jest frontendowcem, więc w podsumowaniach tłumacz krótko.
 10. **Aplikacja dla jednej osoby.** Nie dodawaj funkcji pracy grupowej (głosowanie, liczniki warsztatowe, współpraca na żywo) bez wyraźnej zgody.
 11. **Błąd: najpierw test, który pada.** Przy naprawie najpierw napisz test odtwarzający błąd (musi nie przejść), potem poprawka. Gdy nie wiesz, jak odtworzyć błąd, zapytaj użytkownika o kroki.
@@ -90,11 +90,9 @@ Wybór użytkownika: wszystkie zostają. Ctrl+Y jest teraz widocznym drugim skr�
 
 Usunięte: `@tauri-apps/cli`, skrypt `tauri`, sekcja „Linux (AppImage przez Tauri)” w README, wzmianki w `CLAUDE.md` i `.gitignore`. Capacitor zostaje (etap T). Wpis „Aplikacja na Linuksa (Tauri)” jest w etapie 9.
 
-### A.6 Pytania porządkowe ⏸ STOP
+### A.6 Pytania porządkowe ✅ zrobione
 
-- `Containerfile` instaluje Claude Code, czyli narzędzie pracy, a nie część projektu. Zapytaj: przenieść do osobnego pliku (np. `Containerfile.agent`) czy zostawić.
-- `HANDOVER.md` jest poza gitem, więc wiedza przekazywana między sesjami ginie razem z dyskiem. Zapytaj, czy trwałą część (stan prac, znane problemy) przenosić do `docs/` albo `CLAUDE.md`.
-- Wynik zapisz w `docs/decyzje.md`.
+Claude Code w osobnym `Containerfile.agent` (obraz projektu bez agenta). Znane problemy i rzeczy do sprawdzenia w `docs/znane-problemy.md` (w gicie), `HANDOVER.md` tylko na bieżącą pracę. Decyzje w `docs/decyzje.md`.
 
 ---
 

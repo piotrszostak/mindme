@@ -148,6 +148,13 @@ podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap bash
 
 Opcja `-p 3000:3000` musi być podana przy `run`, bo sam `Containerfile` deklaruje tylko `EXPOSE 3000`.
 
+Obraz z agentem (Claude Code) to osobny plik, budowany na obrazie `mindmap`:
+
+```bash
+podman build -t mindmap-agent -f Containerfile.agent .
+podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap-agent bash
+```
+
 Wskazówki dla agentów AI (mapa kodu, zasady, znane pułapki) są w [`CLAUDE.md`](CLAUDE.md).
 
 ## Licencja
