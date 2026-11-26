@@ -3,7 +3,8 @@
 const { test, expect } = require('@playwright/test');
 const { open, bigMap } = require('./helpers');
 
-test.skip(!process.env.PERF, 'tylko w `npm run perf`');
+/* w CI (GitHub) pomijany: progi ustalono dla komputera użytkownika, na innej maszynie test byłby chwiejny */
+test.skip(!process.env.PERF || !!process.env.CI, 'tylko w `npm run perf`, nie w CI');
 test.use({ reducedMotion: 'no-preference' }); /* jak u użytkownika: z animacją */
 
 /** progi z zapasem (dziś ok. 3× lepiej) */

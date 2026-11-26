@@ -1,4 +1,5 @@
 # Typy, formatowanie i testy (Chromium + Firefox) przy każdym pushu i pull requeście.
+# Pomiar wydajności (`npm run perf`) sam się tu pomija – progi są dla komputera użytkownika (zmienna CI).
 name: CI
 on:
   push:

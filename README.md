@@ -123,13 +123,14 @@ tests/*.spec.js              testy Playwright, jeden plik = jeden obszar (opis w
 docs/                        zrzut ekranu i przykładowa mapa
 ```
 
-| Polecenie        | Co robi                                                                   |
-| ---------------- | ------------------------------------------------------------------------- |
-| `npm run serve`  | podgląd na http://localhost:3000                                          |
-| `npm run check`  | sprawdzanie typów TypeScriptem (JSDoc, tryb `strict`)                     |
-| `npm test`       | testy Playwright: Chromium, a skróty klawiszowe także w Firefoksie        |
-| `npm run format` | formatowanie (Prettier)                                                   |
-| `npm run verify` | typy + formatowanie + wszystkie testy (uruchamiane przed commitem i w CI) |
+| Polecenie        | Co robi                                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------------------- |
+| `npm run serve`  | podgląd na http://localhost:3000                                                                    |
+| `npm run check`  | sprawdzanie typów TypeScriptem (JSDoc, tryb `strict`)                                               |
+| `npm test`       | testy Playwright: Chromium, a skróty klawiszowe także w Firefoksie                                  |
+| `npm run format` | formatowanie (Prettier)                                                                             |
+| `npm run verify` | typy + formatowanie + wszystkie testy + pomiar wydajności (przed commitem i w CI; w CI bez pomiaru) |
+| `npm run perf`   | sam pomiar wydajności na dużej mapie (progi w `docs/decyzje.md`)                                    |
 
 Pierwsze uruchomienie testów wymaga przeglądarek: `npx playwright install --with-deps chromium firefox`.
 
