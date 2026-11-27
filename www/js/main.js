@@ -34,7 +34,7 @@ try {
   if (th) document.documentElement.dataset.theme = th;
 } catch (e) {}
 try {
-  const s = localStorage.getItem('mm.md');
+  const s = (lsLast = localStorage.getItem('mm.md'));
   if (s) {
     root = parse(s);
     sel = first().id;

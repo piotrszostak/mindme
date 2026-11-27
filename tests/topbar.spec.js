@@ -183,3 +183,44 @@ test.describe('pasek stanu', () => {
     expect(await page.$eval('#st', e => e.offsetHeight)).toBe(h0);
   });
 });
+
+/* Widok Markdown: tekst, którego mapa nie pokaże, nie może zniknąć po cichu. */
+test.describe('widok Markdown: linie, których mapa nie pokaże', () => {
+  const ask = page => page.locator('#ask');
+  test.beforeEach(async ({ page }) => {
+    await page.evaluate(() => load('# T\n\n- a\n- b\n'));
+  });
+
+  test('zamknięcie bez zmian w tekście nie zmienia mapy, zaznaczenia ani historii', async ({ page }) => {
+    await page.evaluate(() => go(first().children[1].id));
+    const before = await page.evaluate(() => ({ sel, u: undoS.length }));
+    await page.click('#bt');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#txt')).toBeHidden();
+    expect(await page.evaluate(() => ({ sel, u: undoS.length }))).toEqual(before);
+  });
+
+  test('akapit w tekście: pytanie przed zamknięciem; Wróć do tekstu (domyślny) / Zamknij mimo to', async ({ page }) => {
+    await page.click('#bt');
+    const md = '# T\n\nAkapit.\n\n- a\n';
+    await page.fill('#txt', md);
+    await page.keyboard.press('Escape');
+    await expect(ask(page)).toContainText('Linie, których mapa nie pokaże (1), znikną.');
+    await expect(ask(page).locator('button')).toHaveText(['Wróć do tekstu', 'Zamknij mimo to']);
+    await page.keyboard.press('Enter');
+    await expect(ask(page)).toBeHidden();
+    await expect(page.locator('#txt')).toBeVisible();
+    expect(await page.inputValue('#txt')).toBe(md);
+    await page.keyboard.press('Escape');
+    await ask(page).getByRole('button', { name: 'Zamknij mimo to' }).click();
+    await expect(page.locator('#txt')).toBeHidden();
+    expect(await page.evaluate(() => vis().map(n => n.text))).toEqual(['T', 'a']);
+  });
+
+  test('zapis w widoku tekstowym z akapitem też pyta', async ({ page }) => {
+    await page.click('#bt');
+    await page.fill('#txt', '# T\n\nAkapit.\n\n- a\n');
+    await page.keyboard.press('Control+s');
+    await expect(ask(page).locator('button')).toHaveText(['Wróć do tekstu', 'Zapisz mimo to']);
+  });
+});

@@ -171,3 +171,139 @@ test('plik zmieniony na dysku: przeładowanie z nowymi liniami spoza mapy znowu 
   expect((await writes(page)).org).toHaveLength(1);
   await expect(page.locator('#info')).toHaveText('Pominięto 1 linię spoza mapy – plik na dysku bez zmian');
 });
+
+/* Plik zmieniony na dysku (np. przez Syncthing), a mapa ma niezapisane zmiany: zapis nie może go nadpisać po cichu. */
+const DISK_Q = 'Plik zmieniono na dysku (np. Syncthing albo inny program), a mapa ma niezapisane zmiany.';
+/** zmiana tekstu pierwszego węzła, jak edycja (autozapis rusza po 0,5 s) */
+const editFirst = (page, t) =>
+  page.evaluate(x => {
+    snap();
+    first().children[0].text = x;
+    changed();
+  }, t);
+const mapTexts = page => page.evaluate(() => vis().map(n => n.text));
+/** otwarty plik „# Plan / a”, potem zmiana na dysku (dopisane „z”) i zmiana na mapie („a” → „b”) */
+const conflict = async page => {
+  await stubFiles(page, '# Plan\n\n- a\n');
+  await openAndAutosave(page);
+  await page.evaluate(() => window.__disk('# Plan\n\n- a\n- z\n'));
+  await editFirst(page, 'b');
+  await expect(ask(page)).toContainText(DISK_Q);
+};
+
+test.describe('plik zmieniony na dysku przy niezapisanych zmianach', () => {
+  test('autozapis pyta zamiast nadpisywać: Zapisz jako nowy plik (domyślny) / Wczytaj z dysku / Nadpisz plik', async ({
+    page,
+  }) => {
+    await conflict(page);
+    await expect(ask(page).locator('button')).toHaveText(['Zapisz jako nowy plik', 'Wczytaj z dysku', 'Nadpisz plik']);
+    expect((await writes(page)).org).toHaveLength(1);
+  });
+
+  test('Wczytaj z dysku: mapa z pliku, a Ctrl+Z przywraca własne zmiany', async ({ page }) => {
+    await conflict(page);
+    await ask(page).getByRole('button', { name: 'Wczytaj z dysku' }).click();
+    expect(await mapTexts(page)).toEqual(['Plan', 'a', 'z']);
+    expect((await writes(page)).org.every(w => !w.includes('- b'))).toBe(true);
+    await page.keyboard.press('Control+z');
+    expect(await mapTexts(page)).toEqual(['Plan', 'b']);
+  });
+
+  test('Nadpisz plik: plik dostaje mapę i dalej zapisuje się sam', async ({ page }) => {
+    await conflict(page);
+    await ask(page).getByRole('button', { name: 'Nadpisz plik' }).click();
+    await expect(page.locator('#save')).toHaveText('✓ zapisano w pliku');
+    expect((await writes(page)).org.at(-1)).toBe('# Plan\n\n- b\n');
+    await editFirst(page, 'c');
+    await expect(page.locator('#save')).toHaveText('✓ zapisano w pliku');
+    expect((await writes(page)).org.at(-1)).toBe('# Plan\n\n- c\n');
+  });
+
+  test('Zapisz jako nowy plik: oba pliki zostają', async ({ page }) => {
+    await conflict(page);
+    await ask(page).locator('button').first().click();
+    await expect(page.locator('#save')).toHaveText('✓ zapisano w pliku');
+    expect((await writes(page)).nowy).toEqual(['# Plan\n\n- b\n']);
+    expect((await writes(page)).org).toHaveLength(1);
+  });
+
+  test('Esc: plik bez zmian, kolejne zmiany bez pytania tylko w przeglądarce, Ctrl+S pyta znowu', async ({ page }) => {
+    await conflict(page);
+    await page.keyboard.press('Escape');
+    await expect(ask(page)).toBeHidden();
+    await editFirst(page, 'c');
+    await expect(page.locator('#save')).toHaveText('⚠ plik zmieniony na dysku – Ctrl+S');
+    await expect(ask(page)).toBeHidden();
+    expect((await writes(page)).org).toHaveLength(1);
+    expect(await page.evaluate(() => localStorage.getItem('mm.md'))).toBe('# Plan\n\n- c\n');
+    await page.keyboard.press('Control+s');
+    await expect(ask(page)).toContainText(DISK_Q);
+  });
+
+  test('przeładowanie co 2 s przy niezapisanych zmianach też pyta (bez okienka przeglądarki)', async ({ page }) => {
+    await stubFiles(page, '# Plan\n\n- a\n');
+    await openAndAutosave(page);
+    await page.evaluate(() => {
+      window.__disk('# Plan\n\n- a\n- z\n');
+      dirty = true;
+      window.confirm = () => {
+        throw new Error('confirm');
+      };
+      reloadIfChanged();
+    });
+    await expect(ask(page)).toContainText(DISK_Q);
+  });
+});
+
+/* Dwie karty (albo karta i aplikacja zainstalowana z przeglądarki) mają wspólny autozapis `mm.md`. */
+const OTHER = '# Z innej karty\n\n- x\n';
+test.describe('autozapis zmieniony w innej karcie', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.evaluate(() => load('# Plan\n\n- a\n'));
+    await expect(page.locator('#save')).toHaveText('✓ zapisano lokalnie');
+  });
+
+  test('karta bez niezapisanych zmian wczytuje mapę z innej karty sama', async ({ page }) => {
+    await page.evaluate(v => {
+      localStorage.setItem('mm.md', v);
+      window.dispatchEvent(new StorageEvent('storage', { key: 'mm.md', newValue: v }));
+    }, OTHER);
+    expect(await mapTexts(page)).toEqual(['Z innej karty', 'x']);
+    await expect(ask(page)).toBeHidden();
+  });
+
+  test('karta ze zmianami nie nadpisuje innej: pytanie; „Wczytaj tamtą wersję” i Ctrl+Z wraca do swojej', async ({
+    page,
+  }) => {
+    await editFirst(page, 'moja');
+    await page.evaluate(v => {
+      localStorage.setItem('mm.md', v);
+      window.dispatchEvent(new StorageEvent('storage', { key: 'mm.md', newValue: v }));
+    }, OTHER);
+    await expect(ask(page)).toContainText('Mapę zmieniono w innej karcie albo oknie aplikacji.');
+    await expect(ask(page).locator('button')).toHaveText(['Wczytaj tamtą wersję', 'Zostaw moją']);
+    expect(await page.evaluate(() => localStorage.getItem('mm.md'))).toBe(OTHER);
+    await ask(page).locator('button').first().click();
+    expect(await mapTexts(page)).toEqual(['Z innej karty', 'x']);
+    await page.keyboard.press('Control+z');
+    expect(await mapTexts(page)).toEqual(['Plan', 'moja']);
+  });
+
+  test('„Zostaw moją”: autozapis dostaje mapę tej karty', async ({ page }) => {
+    await editFirst(page, 'moja');
+    await page.evaluate(v => localStorage.setItem('mm.md', v), OTHER);
+    await ask(page).getByRole('button', { name: 'Zostaw moją' }).click();
+    await expect(page.locator('#save')).toHaveText('✓ zapisano lokalnie');
+    expect(await page.evaluate(() => localStorage.getItem('mm.md'))).toBe('# Plan\n\n- moja\n');
+  });
+});
+
+test('pamięć przeglądarki pełna: ostrzeżenie zamiast „zapisano lokalnie”', async ({ page }) => {
+  await page.evaluate(() => {
+    Storage.prototype.setItem = () => {
+      throw new DOMException('', 'QuotaExceededError');
+    };
+  });
+  await editFirst(page, 'b');
+  await expect(page.locator('#save')).toHaveText('⚠ nie zapisano w przeglądarce – zapisz plik (Ctrl+S)');
+});

@@ -256,6 +256,9 @@ function moveSib(d) {
     i = a.indexOf(f.n),
     j = i + d;
   if (j < 0 || j >= a.length) return;
+  /* na obie strony: gałąź główna zostaje po swojej stronie (strona wynika z kolejności, więc zamiana z sąsiadem
+     z drugiej strony przeniosłaby ją na drugą stronę mapy) */
+  if (dir === 'both' && f.p !== root && find(f.p.id)?.p === root && a[j].s !== f.n.s) return;
   snap();
   [a[i], a[j]] = [a[j], a[i]];
   changed();
@@ -343,6 +346,22 @@ function toChild(n, pred = () => true) {
   }
   const c = (n.collapsed ? [] : n.children).find(pred);
   if (c) go(c.id);
+}
+/**
+ * Alt+strzałki i H J K L: przesunięcie zgodne z tym, co widać – w stronę strzałki. Wzdłuż rodzeństwa
+ * (w pionie, a w układzie „w dół” w poziomie) – zamiana z sąsiadem; w stronę dzieci – wsuń, w stronę rodzica – wysuń.
+ * @param {string} key ArrowUp | ArrowDown | ArrowLeft | ArrowRight
+ */
+function shift(key) {
+  const f = S();
+  if (!f) return;
+  const v = key === 'ArrowUp' || key === 'ArrowDown',
+    fwd = key === 'ArrowDown' || key === 'ArrowRight';
+  if (dir === 'down') return v ? (fwd ? indent() : outdent()) : moveSib(fwd ? 1 : -1);
+  if (v) return moveSib(fwd ? 1 : -1);
+  /* strona dzieci: korzeń mapy – według układu, inne węzły – strona ich gałęzi (`s` z `lay()`) */
+  const side = f.p === root ? (dir === 'left' ? -1 : 1) : f.n.s;
+  return (fwd ? 1 : -1) === side ? indent() : outdent();
 }
 /* strzałki zgodne z tym, co widać na ekranie (zależnie od układu i strony) */
 /** strzałki zgodne z tym, co widać (układ i strona) @param {string} key */

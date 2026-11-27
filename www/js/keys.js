@@ -57,11 +57,9 @@ function normal(ev) {
   }
   if (ev.altKey) {
     /** @type {Record<string, () => void>} */
-    const alt = { ArrowLeft: outdent, ArrowRight: indent, ArrowDown: () => moveSib(1), ArrowUp: () => moveSib(-1) };
-    const m = alt[c];
-    if (m) {
+    if (c.startsWith('Arrow')) {
       ev.preventDefault();
-      m();
+      shift(c); /* zgodnie z układem, jak strzałki */
     }
     return;
   }
@@ -111,34 +109,20 @@ function normal(ev) {
   }
   cnt = 0;
   switch (c) {
-    case 'j':
-      sibIdx(1, n);
-      break;
-    case 'k':
-      sibIdx(-1, n);
-      break;
     case 'h':
-      if (!f) {
-        go(first().id);
-        break;
-      }
-      for (let i = 0; i < n; i++) {
-        const q = S();
-        if (q && q.p && q.p !== root) sel = q.p.id;
-      }
-      render();
+    case 'j':
+    case 'k':
+    case 'l': {
+      /* te same kierunki co strzałki, zgodnie z układem (h ←, j ↓, k ↑, l →); z licznikiem – tyle razy */
+      const key = /** @type {Record<string, string>} */ ({
+        h: 'ArrowLeft',
+        j: 'ArrowDown',
+        k: 'ArrowUp',
+        l: 'ArrowRight',
+      })[c];
+      for (let i = 0; i < n; i++) arrow(key);
       break;
-    case 'l':
-      if (!f) {
-        go(first().id);
-        break;
-      }
-      for (let i = 0; i < n; i++) {
-        const q = S();
-        if (q) toChild(q.n);
-      }
-      render();
-      break;
+    }
     case 'ArrowUp':
     case 'ArrowDown':
     case 'ArrowLeft':
@@ -199,18 +183,20 @@ function normal(ev) {
     case 'P':
       paste(false);
       break;
-    case 'J':
-      for (let i = 0; i < n; i++) moveSib(1);
-      break;
-    case 'K':
-      for (let i = 0; i < n; i++) moveSib(-1);
-      break;
-    case 'L':
-      indent();
-      break;
     case 'H':
-      outdent();
+    case 'J':
+    case 'K':
+    case 'L': {
+      /* przesuń, wsuń, wysuń – jak Alt+strzałki, zgodnie z układem; z licznikiem – tyle razy */
+      const key = /** @type {Record<string, string>} */ ({
+        H: 'ArrowLeft',
+        J: 'ArrowDown',
+        K: 'ArrowUp',
+        L: 'ArrowRight',
+      })[c];
+      for (let i = 0; i < n; i++) shift(key);
       break;
+    }
     case 'u':
       for (let i = 0; i < n; i++) undo();
       break;

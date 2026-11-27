@@ -190,3 +190,19 @@ test.describe('wiele linii w węźle', () => {
     expect(await md(page)).toBe('# R\n\n- a\n  b\n');
   });
 });
+
+// Ctrl+S w trakcie edycji węzła i w widoku Markdown zapisuje mapę (a nie otwiera „Zapisz stronę” przeglądarki).
+test('Ctrl+S w edycji węzła i w widoku Markdown wywołuje zapis mapy', async ({ page }) => {
+  await loadMap(page, MD);
+  await page.evaluate(() => {
+    window.__saves = 0;
+    save = async () => void window.__saves++;
+  });
+  const b = await box(page, 'Dwa');
+  await page.mouse.dblclick(b.cx, b.cy);
+  await expect(page.locator('#ed')).toBeVisible();
+  await page.keyboard.press('Control+s');
+  await page.click('#bt');
+  await page.keyboard.press('Control+s');
+  expect(await page.evaluate(() => window.__saves)).toBe(2);
+});

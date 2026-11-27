@@ -314,3 +314,22 @@ test('układ z pliku: nieznana nazwa w autozapisie (mm.md) nie blokuje startu', 
   await expect(page.locator('#g')).toContainText('a');
   expect(await page.evaluate(() => dir)).toBe('right');
 });
+
+// Edytory, które usuwają spacje na końcu linii, robią z „# ” i „- ” (pusty tytuł, pusty węzeł) samo „#” i „-”.
+test('pusty tytuł i pusty węzeł bez spacji na końcu linii nadal są mapą i węzłem', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const t = parse('#\n\n- a\n-\n  - b\n*\n');
+    return { skip: t.skip, roots: t.children.map(n => n.text), kids: t.children[0].children.map(n => n.text) };
+  });
+  expect(r).toEqual({ skip: 0, roots: [''], kids: ['a', '', ''] });
+  expect(await page.evaluate(() => parse('---\n- a\n').skip)).toBe(1); /* `---` (linia pozioma) nadal nie jest węzłem */
+});
+
+// Układ i styl zapisują się tylko pod pierwszym tytułem; taki znacznik pod inną mapą zmieniał po cichu cały plik.
+test('<!--layout--> i <!--style--> pod drugą mapą: pominięte i policzone, układ bez zmian', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const t = parse('# A\n\n- a\n\n# B\n<!--layout:down-->\n<!--style:{"fs":20}-->\n\n- b\n');
+    return { skip: t.skip, dir, fs: ST.fs };
+  });
+  expect(r).toEqual({ skip: 2, dir: 'right', fs: 14 });
+});

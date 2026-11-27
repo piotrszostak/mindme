@@ -38,3 +38,26 @@ test('aplikacja działa z podkatalogu (jak na GitHub Pages): nic nie sięga poza
   for (const u of [man.start_url, ...man.icons.map(i => i.src)]) expect(u, 'ścieżka w manifeście').not.toMatch(/^\//);
   expect(fs.readFileSync(path.join(www, 'sw.js'), 'utf8'), 'ścieżka od korzenia w sw.js').not.toMatch(/'\/[^']/);
 });
+
+// Słaba sieć w telefonie: Service Worker nie czeka na nią w nieskończoność, jeśli ma plik w cache.
+test('sw.js: bez odpowiedzi sieci po 3 s podaje plik z cache', async () => {
+  const vm = require('vm');
+  /** @type {Record<string, Function>} */
+  const on = {};
+  const cached = { from: 'cache' };
+  const ctx = {
+    self: { addEventListener: (n, f) => (on[n] = f), skipWaiting: () => {}, clients: { claim: () => {} } },
+    location: { origin: 'http://x' },
+    URL,
+    setTimeout,
+    fetch: () => new Promise(() => {}),
+    caches: { match: async () => cached, open: async () => ({ put: async () => {}, addAll: async () => {} }) },
+  };
+  vm.runInNewContext(fs.readFileSync(path.join(www, 'sw.js'), 'utf8'), ctx);
+  let res;
+  on.fetch({ request: { method: 'GET', url: 'http://x/index.html' }, respondWith: p => (res = p) });
+  const t0 = Date.now();
+  expect(await res).toBe(cached);
+  expect(Date.now() - t0).toBeGreaterThan(2500);
+  expect(Date.now() - t0).toBeLessThan(4500);
+});

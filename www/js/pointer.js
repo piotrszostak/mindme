@@ -7,7 +7,6 @@ let moved = 0;
 let hold;
 let lastTap = { t: 0, id: 0 },
   pd = 0,
-  lastMod = 0,
   lastPT = 'mouse';
 document.addEventListener(
   'pointerdown',
@@ -168,20 +167,6 @@ sv.addEventListener(
 sv.addEventListener('touchend', () => {
   pd = 0;
 });
-/** otwarty plik zmieniony na dysku (np. w innym programie) → wczytaj go ponownie; sprawdzane co 2 s */
-async function reloadIfChanged() {
-  if (!fh || editing) return;
-  try {
-    const f = await fh.getFile();
-    if (f.lastModified <= lastMod) return;
-    const t = await f.text();
-    lastMod = f.lastModified;
-    if (t === serialize(root)) return;
-    if (dirty && !confirm('Plik zmieniony na dysku. Wczytać (utrata lokalnych zmian)?')) return;
-    if (!loadFile(t)) info('przeładowano zmiany z pliku');
-  } catch (e) {}
-}
-setInterval(reloadIfChanged, 2000);
 /** pobierz plik @param {Blob} b @param {string} n nazwa */
 function dl(b, n) {
   const a = document.createElement('a');

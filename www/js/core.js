@@ -145,12 +145,18 @@ function parse(md) {
       last = null; /* pusta linia kończy tekst punktu */
       continue;
     }
-    if ((m = /^#\s+(.*)$/.exec(l))) {
+    /* `#` i `-` bez tekstu: pusty tytuł i pusty węzeł po edytorze, który usunął spację na końcu linii */
+    if ((m = /^#(?:\s+(.*))?$/.exec(l))) {
       last = null;
-      const r = mk(m[1].replace(C_RE, ''));
-      r.collapsed = C_RE.test(m[1]);
+      const x = m[1] || '',
+        r = mk(x.replace(C_RE, ''));
+      r.collapsed = C_RE.test(x);
       t.children.push(r);
       st = [r];
+      continue;
+    }
+    if (t.children.length > 1 && /^<!--(layout|style):/.test(l)) {
+      t.skip++; /* układ i styl zapisują się tylko pod pierwszym tytułem – pod inną mapą zmieniałyby cały plik */
       continue;
     }
     if ((m = /^<!--layout:(\w+)-->/.exec(l))) {
@@ -169,14 +175,14 @@ function parse(md) {
       bad.push(...b);
       continue;
     }
-    if ((m = /^(\s*)[-*+]\s+(.*)$/.exec(l))) {
+    if ((m = /^(\s*)[-*+](?:\s+(.*))?$/.exec(l))) {
       if (!st) {
         const r = mk('Mapa');
         t.children.push(r);
         st = [r];
       }
       let d = Math.min(Math.floor(m[1].length / 2), st.length - 1),
-        x = m[2];
+        x = m[2] || '';
       const n = mk(x.replace(C_RE, ''));
       n.collapsed = C_RE.test(x);
       st[d].children.push(n);

@@ -153,6 +153,11 @@ ed.addEventListener('keydown', ev => {
     ev.preventDefault();
     return closeEmoji();
   } /* Esc najpierw zamyka okienko emoji */
+  if ((ev.ctrlKey || ev.metaKey) && ev.code === 'KeyS') {
+    ev.preventDefault(); /* zapis mapy (zatwierdza edycję), nie okno „Zapisz stronę” przeglądarki */
+    save();
+    return;
+  }
   if ((ev.ctrlKey || ev.metaKey) && ev.key === 'Enter') {
     /* Ctrl+Enter: nowa linia w tekście węzła (tytuł mapy ma jedną linię) */
     ev.preventDefault();
