@@ -12,6 +12,8 @@ HANDOVER.md
 claude-starter/
 # prototypy na próbę (skill /prototyp)
 www/_prototyp/
+# zrzuty i dzienniki z symulacji person (skill /user-roleplay)
+.roleplay/
 # sekrety: hasła, tokeny, klucze podpisu aplikacji
 .env
 .env.*
