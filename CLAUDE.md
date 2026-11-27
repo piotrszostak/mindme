@@ -28,7 +28,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 | ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                               |
 | emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                           |
 | keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                         |
-| files.js / help.js / side.js  | pliki i autozapis, widok Markdown, tryb jasny / ciemny / `HELP` (treść pomocy) / panel „Wygląd mapy”, palety `PAL0`, `cleanStyle` – sprawdza styl z pliku |
+| files.js / help.js / side.js  | pliki i autozapis (`autosave`, `toStorage`, `diskAsk`, `reloadIfChanged`), widok Markdown, tryb jasny / ciemny / `HELP` / panel „Wygląd mapy”, `PAL0`, `cleanStyle` |
 | actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd`    |
 | dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                             |
 
@@ -37,7 +37,8 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 `root` – niewidoczny kontener `{id:0, top:true}`, jego dzieci to korzenie map · `sel` – id zaznaczonego (0 = brak) ·
 `tx,ty,k` – przesunięcie i zoom · `dir` – układ · `n.x,n.y,n.w,n.h,n.lines,n.s` – wynik układu (y = środek) ·
 `pos` – pozycje wyświetlane (animacja) · `dnd` – trwające przeciąganie (`ph` = miejsce, id −1) ·
-`editing`/`edId` – edycja · `yank` – skopiowana gałąź · `ST` – styl mapy (zapisywany w pliku).
+`editing`/`edId` – edycja · `yank` – skopiowana gałąź · `ST` – styl mapy (zapisywany w pliku) ·
+`fh` – otwarty plik · `fhSkip` – jego linie spoza mapy · `fhConflict` – plik zmieniony na dysku, zapis czeka na decyzję · `lastMod` – czas pliku przy ostatnim odczycie / zapisie · `lsLast` – ostatni autozapis tej karty · `dirty` – zmiany, których nie ma w pliku.
 
 Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie dopisz tam, zanim trafi do interfejsu albo planu; nie twórz drugiej nazwy dla tego samego.
 
@@ -56,6 +57,8 @@ Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie
 
 ## Pułapki (już raz nas ugryzły)
 
+- Nadpisanie pliku albo autozapisu bez sprawdzenia, czy ktoś go nie zmienił (Syncthing, druga karta) – gubi dane. Zapis do pliku najpierw `diskChange` (czas i treść), autozapis bez pliku – `toStorage` (porównanie z `lsLast`); widok Markdown – `textLossOk`. Nowe miejsca zapisu idą tą samą drogą (zasada 0.19 w ROADMAP).
+- Ctrl+S w polu z `stopPropagation` (`#ed`, `#txt`) nie dociera do `normal()` – przeglądarka otworzy „Zapisz stronę”; takie pole obsługuje Ctrl+S samo.
 - Ukryty element z fokusem (`#ed`, `#cmd`, panel) połyka klawisze w Chromium → przy chowaniu `blur()`.
 - `render()` przebudowuje DOM → przeglądarka nie wyśle `click`/`dblclick`; dwuklik wykrywamy sami (`pointer.js`).
 - W trybie mapy każdy zwykły znak musi mieć `preventDefault()`, inaczej Firefox otwiera szybkie wyszukiwanie.

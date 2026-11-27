@@ -19,7 +19,7 @@ npx serve www -l 3000
 
 Otwórz http://localhost:3000. Przykładową mapę wczytasz z [`docs/przyklad.md`](docs/przyklad.md) (menu `…` → _Otwórz plik…_).
 
-Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zapisuje ją do pliku. W Chrome i Edge zapis trafia bezpośrednio do otwartego pliku, w pozostałych przeglądarkach plik jest pobierany.
+Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zapisuje ją do pliku. W Chrome i Edge zapis trafia bezpośrednio do otwartego pliku, w pozostałych przeglądarkach plik jest pobierany. Gdy otwarty plik zmieni się na dysku (np. przez Syncthing), mapa bez niezapisanych zmian wczytuje go sama, a z nimi – pyta: zapisać jako nowy plik, wczytać z dysku czy nadpisać. Tak samo przy mapie zmienionej w innej karcie.
 
 ## Obsługa
 
@@ -51,7 +51,7 @@ Każda czynność ma skrót zwykły i skrót vim:
 | kopiuj / wytnij / usuń (bez kopiowania)    | Ctrl+C / Ctrl+X / Del lub Backspace  | `yy` / `dd` / `x`                                     |
 | wklej jako dziecko / brata                 | Ctrl+V / Ctrl+Shift+V                | `p` / `P`                                             |
 | zwiń / rozwiń                              | Shift+Spacja                         | `za` (wszystko: `zM` / `zR`, do poziomu N: `z1`…`z9`) |
-| przesuń, wsuń, wysuń                       | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
+| przesuń, wsuń, wysuń (zgodnie z układem)   | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
 | cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z, Ctrl+Y        | `u` / Ctrl+R                                          |
 | szukaj, następne, poprzednie               | Ctrl+F, Ctrl+G, Ctrl+Shift+G         | `/`, `n`, `N`                                         |
 | dopasuj całą mapę / pokaż zaznaczony węzeł | Shift+1 / Shift+2 (z przybliżeniem)  | `=` / `zz`                                            |
@@ -91,7 +91,7 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 - Węzły to lista `-`, `*` albo `+`. Każde wcięcie o 2 spacje (lub tabulator) oznacza poziom niżej.
 - Węzeł może mieć kilka linii tekstu: kolejne linie są wcięte tuż pod punktem (bez pustej linii). Linia, która zaczynałaby się od znaku o innym znaczeniu (`-`, `#`, `>`, numer…), dostaje w pliku `\` na początku.
 - `<!--c-->` na końcu linii oznacza zwinięty węzeł.
-- `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd. W pliku są tylko ustawienia różne od domyślnych. Wartości, których nie da się ustawić w aplikacji (np. spoza zakresu suwaka, nieznany układ), są pomijane – pasek stanu podaje ich nazwy.
+- `<!--layout:…-->` i `<!--style:{…}-->` pod pierwszym tytułem zapisują układ i wygląd (pod inną mapą są pomijane jak inne linie). W pliku są tylko ustawienia różne od domyślnych. Wartości, których nie da się ustawić w aplikacji (np. spoza zakresu suwaka, nieznany układ), są pomijane – pasek stanu podaje ich nazwy.
 - Frontmatter, czyli blok `---` … `---` od pierwszej linii pliku (np. `tags:` z Obsidiana), zostaje w pliku bez zmian. Mapa go nie pokazuje, ale widać go i można poprawić w widoku tekstowym (`:text`).
 - Inne linie (akapity, nagłówki `##`, tabele) nie trafiają na mapę, a zapis by je usunął. Dlatego plik z takimi liniami nie zapisuje się sam: Ctrl+S pyta, czy zapisać mapę jako nowy plik, czy nadpisać ten.
 

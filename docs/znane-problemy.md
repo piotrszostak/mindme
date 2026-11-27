@@ -8,6 +8,7 @@ Otwarte sprawy, które nie są zadaniem w planie (`ROADMAP.md`) ani decyzją (`d
 
 ## Do sprawdzenia
 
+- **Ochrona danych z A.7 w prawdziwych warunkach** (2026-11-27, testy przechodzą, w przeglądarce niesprawdzone): w Chrome otwarty plik w folderze Syncthinga zmieniony na drugim urządzeniu przy niezapisanych zmianach → pytanie; mapa otwarta w dwóch kartach (albo w karcie i w zainstalowanej aplikacji) → druga karta wczytuje zmiany sama. Service Worker przy bardzo słabym zasięgu: start z cache po ok. 3 s.
 - **Na telefonie:** wklejanie kilku linii przez „Wklej jako dziecko” dało spację, choć test zachowuje linie. Użytkownik uznał, że działa. Jeśli wróci: najpierw odświeżenie karty (podejrzenie: stary kod w karcie otwartej przed `3166f4b`).
 - **W Obsidianie:** plik z węzłem wielolinijkowym (linie wcięte pod punktem) – czy Obsidian pokazuje go jako jeden punkt listy.
 

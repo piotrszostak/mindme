@@ -72,6 +72,8 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | Pojęcie           | Znaczenie                                                                                | W kodzie |
 | ----------------- | ---------------------------------------------------------------------------------------- | -------- |
 | autozapis         | zapis po każdej zmianie w pamięci przeglądarki; w Chrome i Edge także do otwartego pliku | `mm.md`  |
+| karta (przeglądarki) | karta albo okno aplikacji z tą samą mapą; zapis z innej karty nie znika po cichu („Mapę zmieniono w innej karcie”); nie mylić z kartą decyzji | `toStorage`, `lsLast` |
+| plik zmieniony na dysku | otwarty plik zmieniony przez inny program (np. Syncthing); przy niezapisanych zmianach – pytanie, a zapis do pliku czeka | `diskAsk`, `fhConflict` |
 | zapis             | zapis do pliku (Ctrl+S, `:w`)                                                            |          |
 | schowek aplikacji | gałąź skopiowana w aplikacji (`p` / `P`)                                                 | `yank`   |
 | schowek systemowy | tekst z innych aplikacji (Ctrl+V)                                                        |          |

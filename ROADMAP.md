@@ -1,112 +1,60 @@
 # Plan rozwoju mindme – instrukcje dla agenta
 
-Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem), `docs/decyzje.md` i `docs/znane-problemy.md`. Realizuj zadania **po kolei, etapami**. Jedno zadanie to jeden commit.
-Jeśli zadanie wymaga decyzji, której tu nie ma, zapytaj użytkownika. Nie zgaduj.
+Przed pracą przeczytaj `CLAUDE.md`, `HANDOVER.md` (lokalny, poza gitem), `docs/decyzje.md` i `docs/znane-problemy.md`. Zadania rób **po kolei**; jedno zadanie = jeden commit. Decyzji, której tu nie ma, nie zgaduj – zapytaj użytkownika.
 
-Plan przebudowany 2026-11-25 (przegląd inspiracji: Vicinae, KFind, Obsidian i wtyczki, Miro, Workflow Builder, Xmind, MindNode; podział na **podstawę** i **rozszerzenia**), a potem 2026-11-26 – po przeglądzie kruchości kodu: mniejszy zakres, bez mechanizmu wtyczek, najtrudniejsze funkcje na końcu, a przed nimi przygotowanie kodu (etap R). Uzupełniony 2026-11-26 wieczorem o pomysły z SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical (zob. `docs/decyzje.md`). Zrobione: etapy 0 i 1, zadania 2.1–2.3 i T.1 oraz etap A poza odłożonym A.4. APK (T.2–T.4) przeniesione 2026-11-26 na koniec planu.
+**Najpierw PWA.** Cały plan aż do części „Po PWA” dotyczy aplikacji w przeglądarce (https://piotrszostak.github.io/mindme/, instalowanej z przeglądarki na komputerze i telefonie). Inne platformy (APK na Androida, aplikacja na Linuksa) – dopiero potem, z nowym wyborem narzędzi (decyzja 2026-11-27).
 
-**Kolejność etapów:** A → T.1 → 2 → 3 → 4 → 5 → 6 → 8 → R → X → P → T.2–T.4 (APK). Etapy dodane później mają litery zamiast numerów, a przeniesione zadania zachowują dawne numery (np. 7.2 w etapie X), żeby numery w `docs/decyzje.md` dalej się zgadzały. Etap 9 – tylko na wyraźną prośbę użytkownika.
+**Kolejność:** 2 → 3 → R.2 → 4 → 5 → 6 → 8 → R → X → P → Po PWA. Etap 9 – tylko na wyraźną prośbę. Numery zadań się nie zmieniają (odsyła do nich `docs/decyzje.md`); etapy dodane później mają litery. Zrobione zadania są tu jednym zdaniem – szczegóły w `docs/decyzje.md` i w historii gita.
 
-**Dlaczego taka kolejność:** najpierw naprawy i rzeczy tanie, które dają najwięcej (bezpieczeństwo pliku, telefon, treść węzła). Funkcje, które naraz dotykają przeciągania, nawigacji, układu i formatu pliku (zaznaczanie wielu węzłów, układ radialny, relacje, minimapa), są na końcu (etap X). Przed nimi etap R dostosowuje kod tak, żeby każda z nich była osobnym plikiem i małą zmianą w głównych plikach, a nie łataniem w dziesięciu miejscach.
+**Dlaczego tak:** najpierw rzeczy tanie, które dają najwięcej (szukanie, panel, treść węzła). Funkcje, które naraz dotykają przeciągania, nawigacji, układu i formatu pliku, są na końcu (etap X), a przed nimi etap R porządkuje kod, żeby każda z nich była osobnym plikiem, a nie łatkami w dziesięciu miejscach.
 
-**Znaczniki:**
-
-- **🗳 karta decyzji** – zadanie zmienia format pliku albo dodaje klucz w pamięci przeglądarki. Najpierw przedstaw opcje, zapisz wybór w `docs/decyzje.md`, dopiero potem koduj.
-- **⏸ STOP** – zadanie kończy się pokazaniem wyniku albo pytaniem. Czekaj na zgodę użytkownika.
+**Znaczniki:** 🗳 karta decyzji – zmienia format pliku albo dodaje klucz w pamięci przeglądarki: najpierw opcje, wybór zapisany w `docs/decyzje.md`, dopiero potem kod. ⏸ STOP – zadanie kończy się pokazaniem wyniku albo pytaniem; czekaj na zgodę.
 
 ## Zasada nadrzędna: prostota
 
-mindme ma być przede wszystkim **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w funkcje.
+mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w funkcje.
 
-- **Nowa widoczna opcja** (przycisk, przełącznik, pozycja menu) musi coś zastąpić albo trafić do rozszerzeń (etap 8).
-- **Jedna oczywista droga** do każdej czynności. Skrót zwykły i skrót vim to ta sama droga, nie dwie.
-- **Najpierw ulepszaj to, co jest**, a dopiero potem dodawaj nowe.
-- **Ustawienia domyślne są najprostsze** i dają dzisiejszy wygląd. Zmiana wyglądu istniejących map wymaga pokazania użytkownikowi „przed i po” oraz jego zgody.
-- **Podstawa** jest zawsze włączona i nie ma przełączników „włącz / wyłącz funkcję”. **Rozszerzenia** są domyślnie wyłączone; wyłączone nie pojawiają się w menu, palecie ani pomocy, a ich zapis w pliku zostaje bez zmian (widać go jako zwykły tekst).
-- Jeśli zadanie da się zrobić prościej, niż tu opisano, zaproponuj to przed kodowaniem.
+- Nowa widoczna opcja (przycisk, przełącznik, pozycja menu) musi coś zastąpić albo trafić do rozszerzeń (etap 8).
+- Jedna oczywista droga do każdej czynności (skrót zwykły i vim to ta sama droga). Najpierw ulepszaj to, co jest.
+- Ustawienia domyślne dają dzisiejszy wygląd. Zmiana wyglądu istniejących map – tylko po pokazaniu „przed i po” i zgodzie.
+- **Podstawa** jest zawsze włączona. **Rozszerzenia** są domyślnie wyłączone; wyłączone nie pojawiają się w menu, palecie ani pomocy, a ich zapis w pliku zostaje bez zmian.
+- Jeśli da się prościej, niż tu opisano – zaproponuj to przed kodowaniem.
 
-## 0. Zasady obowiązujące w każdym zadaniu
+## 0. Zasady w każdym zadaniu
 
-1. **Bez frameworka, bez budowania, bez nowych zależności w `www/`.** Algorytmy (układy, dopasowanie fuzzy) pisz sam, w zwykłych skryptach.
-2. **Plik `.md` pozostaje głównym źródłem danych.**
-   - Nowe dane zapisuj jako standardowy Markdown albo komentarz `<!--…-->`.
-   - Plik bez nowych funkcji musi się zapisywać **bajt w bajt tak samo jak dziś**.
-   - Stare pliki muszą się otwierać bez zmian.
-   - Każde rozszerzenie formatu wymaga: karty decyzji, testu round-trip w `tests/parser.spec.js`, rozszerzenia `selfTest()` (`:test`) oraz opisu w README („Format pliku”) i w `HELP` („Format pliku”).
-3. **Model:** przed zmianą `snap()`, po zmianie `changed()`. Nowe pola węzła dopisz do `MapNode` w `types/globals.d.ts`. Nowe pola stylu dopisz do `DEF` (zapisują się tylko różnice od domyślnych).
-4. **Nowy plik w `www/`:** dopisz go do `index.html` (we właściwej kolejności), do listy w `www/sw.js` i do mapy plików w `CLAUDE.md`.
-5. **Skróty:** każda czynność ma jeden skrót zwykły i jeden vim. Nazwę i skróty wpisz w tabeli `ACT` (`actions.js`), z której biorą pomoc, menu i paleta komend. Naciśnięcie obsłuż w `normal()` (`keys.js`). Zaktualizuj `keys.spec.js` i tabelę w README.
-   - **Bez nowych ukrytych aliasów.** Zostają tylko dawne F1, F2, F3 i Shift+F10 (decyzja A.3: bez nich przeglądarka otwiera swoją pomoc, szukanie i menu); Ctrl+Y jest widocznym drugim skrótem „Ponów”.
-   - Sprawdzaj `ev.code` tam, gdzie `ev.key` zależy od układu klawiatury (np. `Digit1`). Przy Caps Lock normalizuj literę według Shift.
-   - **Kombinacje zakazane** (nie przypisuj im niczego):
-     - `Ctrl+Alt+litera`: na Windowsie z polskim układem to AltGr (ą ć ę ł ń ó ś ź ż);
-     - `Alt+litera`: menu Firefoksa, a na macOS znaki specjalne;
-     - `Ctrl+W`, `Ctrl+T`, `Ctrl+N`, `Ctrl+Tab`, `Ctrl+Shift+N`, `Ctrl+Shift+T`: przeglądarka ich nie oddaje;
-     - `Ctrl+Spacja`: zmiana źródła wprowadzania na macOS;
-     - `Ctrl+strzałki`: przełączanie pulpitów na macOS;
-     - `Alt+1…8`: przełączanie kart w Chrome na Linuksie.
-   - Skrót, którego przeglądarka może nie oddać (np. `Ctrl+H` – historia), najpierw sprawdź w Chromium i Firefoksie.
-6. **Animacje:**
-   - trwają 150–300 ms i sygnalizują wyłącznie zmianę;
-   - wszystko, co wynika z jednej czynności (rozwinięcie, przesunięcie węzłów, lot kamery), dzieje się równocześnie i kończy w tym samym czasie; następna czynność w trakcie animacji przejmuje ruch od bieżącego miejsca, bez kolejki;
-   - nic nie zapętla się bez końca;
-   - wszystkie respektują `prefers-reduced-motion` (`RM` w `render.js`).
-7. **Czytelność przed efektem.** Kolor przypisujemy do gałęzi, nie do pojedynczego węzła. Subtelne animacje nie mają przełącznika (wyłącza je tylko `RM`). Efekty, które zmieniają wygląd mapy w spoczynku (np. zwężające się gałęzie), wchodzą tylko w skład motywu (5.7). Wskazówki stanu (ścieżka do korzenia, licznik ukrytych, poświata zaznaczenia z 5.3–5.5) nie są efektami ozdobnymi: działają zawsze, bez przełącznika.
-8. **Po każdej zmianie** uruchom `npm run check` i testy danego obszaru. **Przed commitem** uruchom `npm run verify`. Na koniec każdego etapu zaktualizuj `HANDOVER.md` (bieżąca praca) i `docs/znane-problemy.md` (otwarte błędy i rzeczy do sprawdzenia).
-9. Interfejs jest po polsku. Użytkownik nie jest frontendowcem, więc w podsumowaniach tłumacz krótko.
-10. **Aplikacja dla jednej osoby.** Nie dodawaj funkcji pracy grupowej (głosowanie, liczniki warsztatowe, współpraca na żywo) bez wyraźnej zgody.
-11. **Błąd: najpierw test, który pada.** Przy naprawie najpierw napisz test odtwarzający błąd (musi nie przejść), potem poprawka. Gdy nie wiesz, jak odtworzyć błąd, zapytaj użytkownika o kroki.
-12. **Bez mechanizmu wtyczek** (decyzja 2026-11-26). Rozszerzenie (etap 8) to wpis w tabeli rozszerzeń (8.0) i sprawdzenie jego flagi tam, gdzie jest używane. Funkcja z własnym zapisem w pliku i własnym rysowaniem (np. notatki, nowy układ, relacje) trafia do osobnego pliku (punkt 4) – to zwykły porządek w kodzie. Nie buduj punktów zaczepienia na zapas.
-13. **Filtry szukania zaawansowanego** wymienione przy zadaniach (np. `has:note`) powstają dopiero w 8.2. Pole w panelu właściwości – tylko jeśli panel powstanie (3.5).
-14. **Testy w obu przeglądarkach:** testy skrótów, szukania i schowka działają też w Firefoksie. Nowy plik z takimi testami dopisz do `testMatch` projektu `firefox` w `playwright.config.js`.
-15. Zmiany dotyku, przeciągania i płynności sprawdź też na telefonie (`/na-telefonie`).
-16. **Nowe znaczniki `<!--…-->` w pliku** tylko wtedy, gdy funkcji nie da się zapisać zwykłym Markdownem, i dopiero po R.5 (wspólny odczyt i zapis znaczników na końcu linii). Każdy znacznik to coś, co inny edytor może popsuć albo zgubić.
-17. **Wydajność pilnowana od początku.** Pomiar z A.2 jest stałym testem. Zadanie, po którym próg przestaje być spełniony, nie jest skończone.
+1. **Bez frameworka, bez budowania, bez nowych zależności w `www/`.** Algorytmy pisz sam.
+2. **Plik `.md` jest głównym źródłem danych.** Nowe dane – standardowy Markdown albo `<!--…-->`. Plik bez nowych funkcji zapisuje się **bajt w bajt jak dziś**, stare pliki otwierają się bez zmian. Rozszerzenie formatu: karta decyzji, round-trip w `tests/parser.spec.js`, `selfTest()` (`:test`), opis w README i `HELP` („Format pliku”).
+3. **Model:** `snap()` przed zmianą, `changed()` po. Nowe pola węzła – do `MapNode` (`types/globals.d.ts`), nowe pola stylu – do `DEF`.
+4. **Nowy plik w `www/`** – do `index.html` (właściwa kolejność), `www/sw.js` i mapy plików w `CLAUDE.md`.
+5. **Skróty:** jedna czynność = jeden skrót zwykły + jeden vim, wpis w `ACT` (`actions.js`), obsługa w `normal()` (`keys.js`), testy w `keys.spec.js`, tabela w README. Bez nowych ukrytych aliasów (zostają F1, F2, F3, Shift+F10; Ctrl+Y jest widoczny). Sprawdzaj `ev.code`, gdy `ev.key` zależy od układu klawiatury; przy Caps Lock normalizuj literę według Shift. **Zakazane:** `Ctrl+Alt+litera` (AltGr – polskie znaki), `Alt+litera`, `Ctrl+W/T/N/Tab`, `Ctrl+Shift+N/T`, `Ctrl+Spacja`, `Ctrl+strzałki`, `Alt+1…8`. Skrót, którego przeglądarka może nie oddać (np. `Ctrl+H`), sprawdź najpierw w Chromium i Firefoksie.
+6. **Animacje:** 150–300 ms, tylko jako sygnał zmiany; wszystko z jednej czynności rusza i kończy się razem, następna czynność przejmuje ruch bez kolejki; nic się nie zapętla; wszystkie respektują `prefers-reduced-motion` (`RM` w `render.js`).
+7. **Czytelność przed efektem.** Kolor należy do gałęzi, nie do węzła. Subtelne animacje i wskazówki stanu (5.3–5.5) działają zawsze, bez przełącznika; efekty zmieniające wygląd mapy w spoczynku – tylko w motywie (5.7).
+8. Po każdej zmianie `npm run check` i testy obszaru; przed commitem `npm run verify`. Na koniec etapu: `HANDOVER.md` i `docs/znane-problemy.md`.
+9. Interfejs po polsku. Użytkownik nie jest frontendowcem – w podsumowaniach tłumacz krótko.
+10. **Aplikacja dla jednej osoby** – bez funkcji pracy grupowej bez wyraźnej zgody.
+11. **Błąd: najpierw test, który pada**, potem poprawka. Nie wiesz, jak odtworzyć – zapytaj o kroki.
+12. **Bez mechanizmu wtyczek.** Rozszerzenie to wpis w tabeli (8.0) i sprawdzenie flagi; funkcja z własnym zapisem i rysowaniem – osobny plik. Bez punktów zaczepienia na zapas.
+13. Filtry szukania (np. `has:note`) powstają dopiero w 8.2; pola w panelu właściwości – tylko jeśli panel powstanie (3.5).
+14. Testy skrótów, szukania i schowka – także w Firefoksie (`testMatch` projektu `firefox` w `playwright.config.js`).
+15. Dotyk, przeciąganie i płynność sprawdzaj też na telefonie (`/na-telefonie`).
+16. **Nowe znaczniki `<!--…-->`** tylko wtedy, gdy nie da się zwykłym Markdownem, i dopiero po R.5.
+17. **Wydajność:** pomiar z A.2 jest stałym testem; zadanie, po którym próg nie przechodzi, nie jest skończone.
+18. **Tekst, który już jest w mapach.** Karta decyzji każdego rozszerzenia formatu mówi, co z węzłami, które już dziś wyglądają jak nowy zapis (np. „[ ] x”, `#słowo`, tekst kończący się `^abc`), i jak zapisać taki tekst dosłownie (np. `\` na początku, jak w dalszych liniach węzła). Test: stary plik z takim tekstem zapisuje się bez zmian.
+19. **Dane nie znikają po cichu.** Każde miejsce, które nadpisuje plik, autozapis albo tekst widoku Markdown, najpierw sprawdza, czy nie straci cudzej albo nowszej treści (wzór: `diskAsk`, `toStorage`, `textLossOk` w `files.js`).
 
 ---
 
-## Etap A – Naprawy i porządki (przed wszystkim)
+## Zrobione
 
-Cel: zamknąć znane luki i usunąć to, co dokłada kodu i testów bez wartości, zanim przybędzie funkcji.
+- **Etapy 0, 1 i A:** sprawdzanie stylu i układu z pliku (A.1), pomiar wydajności z progami (A.2; cel: płynnie do 500 węzłów, także na telefonie), aliasy klawiszy (A.3), usunięcie Tauri (A.5), porządki (A.6).
+- **A.7 Ochrona danych (2026-11-27):** autozapis nie nadpisuje pliku zmienionego na dysku (np. przez Syncthing) ani mapy z innej karty – pyta; ostrzeżenie przy pełnej pamięci przeglądarki; widok Markdown nie gubi po cichu linii, których mapa nie pokaże; Ctrl+S w edycji i w widoku Markdown; hjkl idą tam, gdzie strzałki, a Alt+strzałki i H J K L przesuwają w stronę strzałki – w każdym układzie; nazwa „mindme” wszędzie; `#` i `-` bez spacji; `<!--layout/style-->` pod drugą mapą liczone jako pominięte; Service Worker nie czeka na wolną sieć dłużej niż 3 s; Capacitor usunięty do czasu portu (decyzje 2026-11-27).
+- **T.1:** adres https na GitHub Pages, publikacja po zielonych testach.
+- **2.1–2.3:** szukanie Ctrl+F i „/”, wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie.
 
-### A.1 Sprawdzanie stylu i układu z pliku (bezpieczeństwo) ✅ zrobione
+## Odłożone
 
-`cleanStyle` (`side.js`) przepuszcza z `<!--style:{…}-->` tylko wartości, które da się ustawić w panelu; reszta zostaje domyślna, a nieznany układ to „w prawo”. Pasek stanu wymienia pominięte pola. Wcześniej spreparowany plik uruchamiał skrypt (obrazek z `onerror` w SVG mapy i w próbkach palet), a nieznany układ wywracał wczytywanie i – zapisany w autozapisie – blokował start aplikacji. Pozostałe `innerHTML` przejrzane: tekst z pliku i od użytkownika idzie przez `esc()` albo `textContent`. Testy w `parser.spec.js`, decyzje w `docs/decyzje.md`.
-
-### A.2 Pomiar wydajności od początku ✅ zrobione
-
-Generator `bigMap(n)` (`tests/helpers.js`) i `tests/perf.spec.js` z progami (mapa 500 węzłów w każdym układzie); `npm run verify` uruchamia pomiar osobno (`npm run perf`). **Cel: płynnie do 500 węzłów, także na telefonie; 1000 nie jest celem.** Progi, wyniki z komputera i telefonu – `docs/decyzje.md` (2026-11-26). Od tej chwili obowiązuje zasada 0.17.
-
-### A.3 Ukryte aliasy klawiszy ✅ zrobione
-
-Wybór użytkownika: wszystkie zostają. Ctrl+Y jest teraz widocznym drugim skrótem „Ponów” (pomoc, README), a F1, F2, F3 i Shift+F10 zostają ukryte – bez nich przeglądarka otwierałaby swoją pomoc, szukanie i menu. Szczegóły w `docs/decyzje.md`.
-
-### A.4 Edycja palet bez pamięci przeglądarki 🗳 ⏭ odłożone
-
-- **Odłożone 2026-11-26** na prośbę użytkownika („pomijamy to zadanie na razie”), bez decyzji. Karta była gotowa: (a) edycja zostaje, ale zmienia tylko kolory tej mapy – polecana; (b) edycję usuwamy. Wróć do niej, gdy użytkownik o to poprosi, najpóźniej przy projekcie panelu (3.2).
-- Dziś „Edytuj paletę” w panelu zmienia gotową paletę na tym urządzeniu (klucz `mm.pal`), więc ta sama paleta wygląda różnie na komputerze i na telefonie. Kolory bieżącej mapy i tak są w pliku (`colors` w `<!--style-->`).
-- **Karta decyzji:** (a) usunąć edycję palet i klucz `mm.pal` – zostają gotowe palety, a kolory mapy w pliku; (b) zostawić edycję, ale zmieniać tylko kolory bieżącej mapy (zapis w pliku), bez `mm.pal`. W obu: co zrobić z poprawkami już zapisanymi w `mm.pal` (np. jednorazowo przenieść do otwartej mapy albo pominąć).
-- Pliki z `colors` wczytują się i zapisują bez zmian. Zaktualizuj `style.spec.js` i listę kluczy w `CLAUDE.md`.
-
-### A.5 Tauri dopiero wtedy, gdy będzie potrzebny ✅ zrobione
-
-Usunięte: `@tauri-apps/cli`, skrypt `tauri`, sekcja „Linux (AppImage przez Tauri)” w README, wzmianki w `CLAUDE.md` i `.gitignore`. Capacitor zostaje (etap T). Wpis „Aplikacja na Linuksa (Tauri)” jest w etapie 9.
-
-### A.6 Pytania porządkowe ✅ zrobione
-
-Claude Code w osobnym `Containerfile.agent` (obraz projektu bez agenta). Znane problemy i rzeczy do sprawdzenia w `docs/znane-problemy.md` (w gicie), `HANDOVER.md` tylko na bieżącą pracę. Decyzje w `docs/decyzje.md`.
-
----
-
-## Etap T – Telefon i wydanie
-
-Dziś telefon łączy się z podglądem przez `http://` z adresem w sieci domowej. Przeglądarka uznaje taki adres za niebezpieczny: nie daje dostępu do schowka (stąd okienko „wklej tutaj”), nie uruchamia `sw.js` (bez trybu offline i instalacji na ekranie głównym), a mapy żyją tylko w jej pamięci. Ten etap daje aplikację na telefon na stałe.
-
-### T.1 Adres https ✅ zrobione
-
-Działa https://piotrszostak.github.io/mindme/ – publikacja automatyczna po zielonych testach na `main` (`ci.yml`, zadanie `pages`; w repozytorium Settings → Pages → Source „GitHub Actions”), test podkatalogu w `pwa.spec.js`, skill `/na-telefonie` i pułapka schowka zaktualizowane. Na telefonie (26.11, użytkownik): instalacja z Firefoksa, „Wklej” po przytrzymaniu – jako dziecko i jako nowa mapa – bez okienka „wklej tutaj”; przed wklejeniem trzeba jeszcze kliknąć przycisk „Wklej” Androida. Praca bez sieci i autozapis po zamknięciu aplikacji działają. Decyzje w `docs/decyzje.md`.
-
-T.2–T.4 (APK, pliki na Androidzie, „Udostępnij”) – na końcu planu, po etapie P.
+- **A.4 Edycja palet bez pamięci przeglądarki 🗳** – odłożone na prośbę użytkownika, wróć najpóźniej przy 3.2. Dziś „Edytuj paletę” zmienia paletę na tym urządzeniu (`mm.pal`), więc wygląda różnie na komputerze i telefonie. Karta gotowa: (a) edycja zmienia tylko kolory tej mapy (zapis w pliku) – polecana; (b) usunąć edycję. W obu: co z poprawkami już zapisanymi w `mm.pal`.
+- **A.8 Safari (WebKit) ⏸** – najpierw zapytaj, czy użytkownik używa iPhone’a albo Safari. Jeśli tak: projekt `webkit` w `playwright.config.js` (najpierw skróty, szukanie, schowek, dotyk), `npx playwright install webkit` w CI, poprawki różnic. Jeśli nie – zapisz w `docs/decyzje.md`, że Safari nie jest celem.
 
 ---
 
@@ -114,507 +62,235 @@ T.2–T.4 (APK, pliki na Androidzie, „Udostępnij”) – na końcu planu, po 
 
 ## Etap 2 – Szukanie, schowek i paleta komend
 
-### 2.1 Szukanie Ctrl+F i „/” ✅ zrobione
+### 2.4 Pasek przewijania
 
-Testy obu trybów w `search.spec.js` (Chromium i Firefox). Naprawione: drugi Ctrl+F w otwartym polu otwierał szukanie przeglądarki, a kliknięcie mapy przy otwartym polu zostawiało martwe klawisze.
-
-### 2.2 Wklejanie ze schowka systemowego ✅ zrobione
-
-`p` / `P` zawsze wklejają z wewnętrznego schowka. Ctrl+V / Ctrl+Shift+V wklejają tekst z innych aplikacji: lista z wcięciami daje hierarchię, kolejne zwykłe linie – jeden węzeł z kilkoma liniami, HTML z nagłówkami i listami – strukturę. Na dotyku „Wklej” w menu czyta schowek systemowy, a bez dostępu (http, Firefox na Androidzie) otwiera okienko „wklej tutaj”. Testy w `clipboard.spec.js`, decyzje w `docs/decyzje.md`.
-
-### 2.3 Wyszukiwanie przybliżone (fuzzy) w palecie ✅ zrobione
-
-Litery każdego wpisanego słowa po kolei, także ze środka słowa („zwwsz” → „Zwiń wszystko”); najlepsze dopasowanie na górze, przy równej ocenie ostatnio użyte. Dopasowane litery w kolorze akcentu; wybrana pozycja na niebieskim tle z pogrubionymi literami. Testy w `palette.spec.js`, decyzje w `docs/decyzje.md`.
-
-### 2.4 Wygląd paska przewijania
-
-- Cienki pasek w kolorach motywu (jasnego i ciemnego): `scrollbar-width: thin` i `scrollbar-color` (Firefox) oraz `::-webkit-scrollbar` (Chromium, Android WebView).
-- Jedna wspólna reguła w `app.css` dla wszystkich przewijanych miejsc: paleta, panel „Wygląd mapy”, widok Markdown, pomoc, okienko emoji.
-- Sprawdź w podglądzie w trybie jasnym i ciemnym oraz w rozmiarze telefonu. Przed commitem pokaż użytkownikowi zrzut ekranu.
+Cienki pasek w kolorach trybu jasnego i ciemnego: `scrollbar-width: thin` i `scrollbar-color` (Firefox) oraz `::-webkit-scrollbar` (Chromium). Jedna reguła w `app.css` dla wszystkich przewijanych miejsc (paleta, panel „Wygląd mapy”, widok Markdown, pomoc, emoji). Przed commitem zrzut ekranu dla użytkownika (jasny, ciemny, telefon).
 
 ### 2.5 Lista wszystkich trafień
 
-Jedna droga do szukania węzłów: Ctrl+F i „/” skaczą po trafieniach, a gdy chcesz zobaczyć wszystkie naraz, otwiera się lista w palecie. Paleta nie dostaje osobnego, drugiego szukania węzłów.
-
-- W polu szukania **Alt+Enter** (sprawdź według punktu 0.5) albo przycisk „wszystkie” otwiera paletę w trybie „Trafienia (N)”: każde trafienie z tekstem i ścieżką od korzenia, napisaną drobnym, wyszarzonym tekstem.
-- Enter albo klik przechodzi do węzła (`go`, z rozwinięciem zwiniętych przodków). Esc zamyka listę. Tab i strzałki działają jak w palecie.
-- Węzeł z kilkoma liniami zajmuje na liście jedną linię – jak ją pokazać (np. linie złączone „ · ”), ustal z użytkownikiem.
-- Tego samego trybu listy użyje `:lint` (4.8).
-- Szukanie bez polskich znaków i wielkości liter, jak w palecie („zolw” znajduje „Żółw”). Dotyczy całego szukania: Ctrl+F, „/”, n / N i listy trafień, żeby liczba trafień wszędzie była ta sama. To założenie zmienia dzisiejsze zachowanie, więc potwierdź je z użytkownikiem.
-- Testy w `search.spec.js` i `palette.spec.js`.
+- Ctrl+F i „/” skaczą po trafieniach; **Alt+Enter** w polu szukania (sprawdź według 0.5) albo przycisk „wszystkie” otwiera paletę w trybie „Trafienia (N)”: tekst i drobna, wyszarzona ścieżka od korzenia. Enter / klik → `go` (z rozwinięciem przodków), Esc zamyka. Paleta nie dostaje drugiego szukania węzłów.
+- Jak pokazać węzeł z kilkoma liniami (np. złączone „ · ”) – ustal z użytkownikiem.
+- Szukanie bez polskich znaków i wielkości liter („zolw” → „Żółw”) – w Ctrl+F, „/”, n / N i liście, żeby liczba trafień była wszędzie ta sama. Zmienia dzisiejsze zachowanie – potwierdź.
+- Z tego trybu listy korzysta też `:lint` (4.8) i „Przenieś do…” (2.7). Testy: `search.spec.js`, `palette.spec.js`.
 
 ### 2.6 Podpowiedzi klawiszy (which-key)
 
-- Po naciśnięciu w trybie mapy prefiksu vim (`z`, `g`, `y`, `d`, także po liczniku) i odczekaniu ok. 400 ms pojawia się dymek z możliwymi kontynuacjami i ich nazwami, np. `za` zwiń / rozwiń, `zM`, `zR`, `z1…z9`, `zz`.
-- Źródło treści: tabela `ACT` (pola `v`), bez kopiowania.
-- Kolejny klawisz albo Esc zamyka dymek. Szybko wpisana cała sekwencja nie pokazuje go wcale, więc dymek nie przeszkadza i **nie ma przełącznika**. Animacja zgodnie z punktem 0.6.
-- Testy w `keys.spec.js`, także w Firefoksie.
+Po prefiksie vim (`z`, `g`, `y`, `d`, także po liczniku) i ok. 400 ms – dymek z kontynuacjami i nazwami z `ACT` (pola `v`). Kolejny klawisz albo Esc zamyka; szybko wpisana sekwencja nie pokazuje go wcale, więc **bez przełącznika**. Testy w `keys.spec.js`, także w Firefoksie.
 
 ### 2.7 „Przenieś do…” (wzór: refile w Org-mode)
 
-- **Decyzja 2026-11-26.** Na zaznaczonej gałęzi „Przenieś do…” w palecie komend: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista jak w 2.5), Enter przenosi gałąź pod wybrany węzeł. Np. na „Strona www” wpisujesz „bad” i gałąź trafia pod „🔍 Badania” – bez przeciągania przez całą mapę.
-- **Bez nowej pozycji w menu podręcznym** (zasada prostoty); na telefonie przez „…” → „Wszystkie polecenia…”. Komenda „:” i skróty według zasady 0.5 – ustal przy zadaniu.
-- Lista nie pokazuje samej gałęzi ani jej potomków. Założenie agenta: przeniesiona gałąź zostaje ostatnim dzieckiem celu, zaznaczenie zostaje na niej, a mapa pokazuje ją w nowym miejscu.
-- Zmiana modelu (`snap` / `changed`) – jeden krok cofania.
-- Testy w `palette.spec.js`, także w Firefoksie.
+W palecie komend na zaznaczonej gałęzi: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista z 2.5), Enter przenosi gałąź jako ostatnie dziecko celu; zaznaczenie zostaje na niej. Lista pomija samą gałąź i jej potomków. Bez pozycji w menu podręcznym (na telefonie: „…” → „Wszystkie polecenia…”); komenda „:” i skróty – ustal według 0.5. Jeden krok cofania. Testy w `palette.spec.js`, także w Firefoksie.
 
-**Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` są aktualne.
-
----
+**Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` aktualne.
 
 ## Etap 3 – Panel boczny i menu
 
-### 3.2 Projekt panelu bocznego i menu ⏸ STOP
+### 3.2 Projekt panelu i menu ⏸ STOP
 
-Panel „Wygląd mapy”, menu podręczne, menu „…” i menu układu trzeba przebudować, zanim dojdą nowe funkcje. **Cel: na wierzchu ma być mniej niż dziś** (wzór: Excalidraw – prawie nic na wierzchu). W tym zadaniu robisz tylko wywiad i makiety, **bez zmian w kodzie aplikacji**.
+Tylko wywiad i makiety, **bez zmian w kodzie aplikacji**. Cel: **na wierzchu mniej niż dziś** (wzór: Excalidraw).
 
-1. **Spis.** Co jest dziś w panelu i menu, a co dojdzie:
-   - motywy mapy (5.7) w miejsce wielu przełączników wyglądu;
-   - lista układów (dzisiejsze 4, później radialny z etapu X);
-   - które dzisiejsze suwaki i przełączniki panelu „Wygląd mapy” zostają pod „Więcej”, a które znikają z panelu, gdy dojdą motywy (5.7); pola usunięte z panelu nadal wczytują się i zapisują w pliku bez zmian;
-   - przyciski „+” przy zaznaczonym węźle (3.4, ustalone); pasek narzędzi przy węźle na komputerze – tylko jeśli wywiad pokaże potrzebę;
-   - przełącznik trzech widoków: Mapa, .md, Drzewko (3.6) – dziś jeden przycisk Mapa ↔ .md; jednym z wariantów wyglądu drzewka są kolumny jak w Gingko Writer (rodzic, węzeł i dzieci obok siebie);
-   - minimapa, relacje, klamra podsumowania i kartka (etap X) – tylko miejsce w projekcie (np. „Podsumuj”, „Nowa kartka”), bez kodu;
-   - lista „Rozszerzenia” (8.0) z krótkim opisem każdego;
-   - pytanie otwarte: czy potrzebny jest panel właściwości węzła, czy wystarczy edycja na mapie i menu.
-2. **Wywiad** (`/wypytaj`), np.:
-   - co dziś przeszkadza i czego używasz najrzadziej;
-   - co jest ważniejsze: komputer czy telefon;
-   - czy panel ma być z boku, czy na telefonie wysuwany od dołu;
-   - czy ma być zawsze widoczny, czy na żądanie;
-   - podział na „Mapa”, „Węzeł” i „Ustawienia aplikacji”;
-   - ikony czy podpisy.
-3. **Makiety** (`/prototyp`, `www/_prototyp/panel/`): 2–3 warianty, każdy w rozmiarze komputera i telefonu, w trybie jasnym i ciemnym, ze zmiennymi kolorów z `app.css`. Każda makieta wypisuje, **co znika z wierzchu** w porównaniu z dziś. Pokaż je w panelu podglądu i na telefonie (`/na-telefonie`).
-4. **Czekaj na wybór użytkownika.** Zapisz decyzję w `docs/decyzje.md`: wariant, powody, odrzucone opcje.
+1. **Spis** tego, co jest w panelu „Wygląd mapy”, menu podręcznym, „…” i menu układu, oraz co dojdzie: motywy (5.7) w miejsce przełączników (co zostaje pod „Więcej”, co znika z panelu – pola nadal czytają się i zapisują w pliku); lista układów; przyciski „+” (3.4); przełącznik widoków Mapa / .md / Drzewko (3.6, jeden z wariantów – kolumny jak w Gingko Writer); miejsca dla minimapy, relacji, „Podsumuj”, „Nowa kartka” (etap X) – bez kodu; lista „Rozszerzenia” (8.0); pytanie: czy potrzebny panel właściwości węzła.
+2. **Wywiad** (`/wypytaj`): co przeszkadza, czego używasz najrzadziej; komputer czy telefon; panel z boku czy od dołu; zawsze czy na żądanie; podział „Mapa / Węzeł / Ustawienia aplikacji”; ikony czy podpisy.
+3. **Makiety** (`/prototyp`, `www/_prototyp/panel/`): 2–3 warianty, komputer i telefon, jasny i ciemny, zmienne kolorów z `app.css`; każda wypisuje, **co znika z wierzchu**. Pokaż w podglądzie i na telefonie.
+4. **Czekaj na wybór**; zapisz w `docs/decyzje.md` wariant, powody i odrzucone opcje.
 
-### 3.3 Nowy panel boczny i menu
+### 3.3 Nowy panel i menu
 
-- Według zatwierdzonej makiety. Najpierw przenieś to, co już istnieje („Wygląd mapy”, menu), bez zmiany działania; dopiero potem dodaj nowe miejsca. Listę „Rozszerzenia” dodaje zadanie 8.0.
-- Menu budowane z `ACT` (grupy czynności), bez kopiowania treści.
-- Zaktualizuj `style.spec.js`, `menu.spec.js`, `topbar.spec.js` i `touch.spec.js`. Prototyp usuń po wdrożeniu, jeśli użytkownik się zgodzi.
+Według makiety. Najpierw przenieś to, co jest, bez zmiany działania; potem nowe miejsca. Menu budowane z `ACT`. Testy: `style.spec.js`, `menu.spec.js`, `topbar.spec.js`, `touch.spec.js`. Prototyp usuń po wdrożeniu (za zgodą).
 
-### 3.4 Przyciski „+” przy zaznaczonym węźle (i pasek przy węźle, jeśli jest w projekcie)
+### 3.4 Przyciski „+” przy zaznaczonym węźle
 
-- **Decyzja 2026-11-26** (wzór: SimpleMind, prototyp `www/_prototyp/plus/`, wariant 1): na komputerze i na dotyku, **tylko przy zaznaczonym węźle** (nie po najechaniu myszą). Dwa przyciski:
-  - „+” dziecko – po stronie dzieci (zależnie od układu), na środku wysokości węzła; korzeń w układzie „na obie strony” ma go z obu stron;
-  - „+” brat poniżej – w dolnym rogu od strony rodzica (na środku dolnej krawędzi zasłaniał na telefonie tekst węzła).
-- Na dotyku przyciski większe (ok. 28 px średnicy).
-- Klik dodaje węzeł (`snap` / `changed`) i od razu otwiera edycję tekstu, jak Tab i Enter; na telefonie wysuwa się klawiatura.
-- Założenia agenta: korzeń nie ma „+” brata; w układzie „w dół” przyciski obracają się z kierunkiem układu (dziecko pod węzłem, brat po prawej); w trakcie edycji i przeciągania przyciski są schowane.
-- Pasek narzędzi nad zaznaczonym węzłem na komputerze – tylko jeśli przewiduje go zatwierdzony projekt; zestaw akcji z wywiadu.
-- Nie trafiają do eksportu SVG/PNG.
-- Testy w `touch.spec.js` i `menu.spec.js`.
+Decyzja 2026-11-26 (wzór: SimpleMind, wariant 1): tylko przy zaznaczonym węźle, na komputerze i dotyku. „+” dziecko – po stronie dzieci, na środku wysokości (korzeń w „na obie strony” – z obu stron); „+” brat poniżej – w dolnym rogu od strony rodzica; na dotyku ok. 28 px. Klik dodaje węzeł i od razu otwiera edycję. Założenia: korzeń bez „+” brata; w „w dół” przyciski obrócone; schowane w trakcie edycji i przeciągania; poza eksportem SVG/PNG. Pasek narzędzi przy węźle – tylko jeśli przewiduje go 3.2. Testy: `touch.spec.js`, `menu.spec.js`.
 
 ### 3.5 Panel właściwości węzła – tylko jeśli jest w projekcie
 
-- Jeśli zatwierdzony projekt (3.2) przewiduje panel właściwości: jeden opis pól (nazwa, rodzaj: tekst / wybór / data / przełącznik / lista tagów, odczyt i zapis do węzła) buduje panel (wzór: panele ze schematu w Workflow Builderze). Każda funkcja dopisuje swoje pola do tego opisu.
-- Każda zmiana w panelu to `snap()` i `changed()`, więc da się ją cofnąć.
-- Jeśli projekt panelu nie przewiduje, pomiń to zadanie i zapisz to w `docs/decyzje.md`.
+Jeden opis pól (nazwa, rodzaj, odczyt i zapis do węzła) buduje panel; każda zmiana to `snap()` / `changed()`. Jeśli projekt go nie przewiduje – pomiń i zapisz w `docs/decyzje.md`.
 
 ### 3.6 Widok drzewa
 
-- **Decyzja 2026-11-26** (wzór: panel konspektu w SimpleMind): trzeci widok obok „Mapa” i „.md”, **na cały ekran zamiast mapy** – na komputerze i na telefonie. Odrzucone: panel obok mapy.
-- Przełącznik trzech widoków w miejscu z projektu 3.2.
-- Co da się robić w drzewku (zwijanie, szukanie, przejście do węzła na mapie, ewentualna edycja) – ustal w wywiadzie i makietach 3.2; bez drugiej drogi do tego, co już jest (zasada prostoty). Jeden z wariantów makiety: kolumny jak w Gingko Writer (decyzja 2026-11-26).
-- Testy przełączania widoków w `view.spec.js`.
+Trzeci widok obok „Mapa” i „.md”, **na cały ekran** (decyzja 2026-11-26; odrzucone: panel obok mapy). Co da się w nim robić – z wywiadu 3.2, bez drugiej drogi do tego, co już jest. Testy w `view.spec.js`.
 
----
+## R.2 Testy utrwalające dzisiejsze zachowanie (przed etapem 4)
+
+Przeniesione z etapu R (2026-11-27): etapy 4 i 5 zmieniają `parse`, `fit` i `nodeHTML`, więc testy przydają się wcześniej. Tylko testy, bez zmian w `www/`: przeciąganie w każdym układzie i przy wielu korzeniach, nawigacja strzałkami i `hjkl` na granicach map, zapis wszystkich znaczników, cofanie po każdej operacji z `ops.js`. Zakres pokaż użytkownikowi przed pisaniem.
 
 ## Etap 4 – Treść węzła
 
-Uwaga do parsera: `parse()` w `core.js` rozpoznaje tytuł mapy, elementy listy, wcięte linie tuż pod punktem (dalsze linie tekstu węzła), znaczniki `<!--layout…-->` / `<!--style…-->` i frontmatter; **inne linie pomija i liczy** (licznik pominiętych linii – dawne zadanie 0.2, zob. `docs/decyzje.md`). Każde rozszerzenie musi to uwzględnić i nie może pomylić swojego zapisu z dalszą linią tekstu węzła.
-Tekst węzła w modelu pozostaje surowym Markdownem: edycja w węźle pokazuje źródło, a widok mapy pokazuje wersję wyrenderowaną.
-Przy pomiarze i zawijaniu (`tw`, `wrap`, `fit` w `layout.js`) mierz **tekst wyświetlany**, np. bez `](url)`. Każdy wyróżniony fragment rysuj osobnym `<tspan>`, tak jak emoji.
+`parse()` (`core.js`) rozpoznaje tytuł, elementy listy, wcięte linie pod punktem (dalsze linie węzła), `<!--layout…-->` / `<!--style…-->` pod pierwszym tytułem i frontmatter; **inne linie pomija i liczy**. Rozszerzenie nie może pomylić swojego zapisu z dalszą linią węzła. Tekst w modelu zostaje surowym Markdownem; edycja pokazuje źródło, mapa – wersję wyrenderowaną. `tw`, `wrap`, `fit` mierzą **tekst wyświetlany** (np. bez `](url)`); każdy wyróżniony fragment to osobny `<tspan>`, jak emoji. Przy każdym zadaniu – zasada 0.18.
 
 ### 4.1 Notatki do węzła 🗳
 
-- **Format** (decyzja 2026-11-25): cytat `>` pod węzłem, w kolumnie treści elementu listy (głębokość·2 + 2 spacje). Kolejne linie `>` należą do tej samej notatki. Wcięta linia bez `>` to dalszy ciąg tekstu węzła (wiele linii w węźle), nie notatka.
-  ```markdown
-  - Węzeł
-    druga linia węzła
-    > Pierwsza linia notatki
-    > druga linia notatki
-    - Dziecko
-  ```
-- Model: `n.note?: string`.
-- Mapa: ikona 📝 przy węźle. Edycja notatki zgodnie z projektem z 3.2 (panel właściwości albo okienko pod węzłem). Komenda: `:note`. Filtr dla 8.2: `has:note`.
-- Notatka trafia do eksportu Markdown i do widoku konspektu (4.6). Do eksportu SVG/PNG trafia tylko ikona.
+Format (decyzja 2026-11-25): cytat `>` pod węzłem, w kolumnie treści (głębokość·2 + 2 spacje); kolejne linie `>` to ta sama notatka; wcięta linia bez `>` to dalszy ciąg tekstu węzła.
+
+```markdown
+- Węzeł
+  druga linia węzła
+  > Pierwsza linia notatki
+  > druga linia notatki
+  - Dziecko
+```
+
+Model `n.note?: string`. Na mapie ikona 📝; edycja według projektu 3.2; komenda `:note`. Notatka w eksporcie Markdown i w drzewku (3.6); w SVG/PNG tylko ikona.
 
 ### 4.2 Linki i obrazki 🗳
 
-- `[tekst](url)` wyświetla się jako „tekst” w kolorze gałęzi, z podkreśleniem.
-  - Zwykły klik **zaznacza** węzeł, jak dotąd.
-  - Ctrl/Cmd+klik albo mała ikona ↗ otwiera link w nowej karcie (`noopener`).
-  - Na dotyku link otwiera się z menu podręcznego.
-- `![opis](url)` wyświetla się jako miniatura nad tekstem, o szerokości najwyżej `ST.maxw`. Rozmiar wliczaj do `fit()`, a do czasu wczytania obrazka trzymaj miejsce.
-- Eksport PNG: obrazki z innej domeny „brudzą” canvas. Jeśli eksport się nie uda, pokaż `info()` z wyjaśnieniem; nie może się wywrócić po cichu.
-- Filtr dla 8.2: `has:link`.
+- `[tekst](url)` – „tekst” w kolorze gałęzi, podkreślony. Klik zaznacza jak dotąd; Ctrl/Cmd+klik albo ikona ↗ otwiera w nowej karcie (`noopener`); na dotyku – z menu.
+- `![opis](url)` – miniatura nad tekstem, szerokość najwyżej `ST.maxw`, wliczona do `fit()`; do wczytania obrazka miejsce zarezerwowane.
+- Eksport PNG z obrazkiem z innej domeny może się nie udać – wtedy `info()` z wyjaśnieniem, nigdy cicha awaria.
 
 ### 4.3 Zadania 🗳
 
-- Każdy węzeł można zamienić w pole wyboru i z powrotem (potwierdzone 2026-11-26, wzór: SimpleMind).
-- **Format:** `- [ ] tekst` / `- [x] tekst`. Model: `n.task?: 0 | 1` (brak pola = to nie jest zadanie).
-- Mapa: pole wyboru przed tekstem. Przełączanie: klik w pole albo vim **`t`**. Skrót zwykły ustal z użytkownikiem: Ctrl+Enter to dziś „nowa linia” w edycji węzła, więc w trybie mapy nie powinien znaczyć czegoś innego. Wykonane zadanie ma tekst przygaszony i przekreślony.
-- Postęp: rodzic, który ma dzieci będące zadaniami, pokazuje mały znacznik „3/5”.
-- Przełączenie stanu jest zmianą modelu (`snap` / `changed`), więc da się je cofnąć.
-- Filtry dla 8.2: `is:task`, `is:done`. Terminy to rozszerzenie 8.3.
+Format `- [ ] tekst` / `- [x] tekst`, model `n.task?: 0 | 1`. Pole wyboru przed tekstem; przełączanie klikiem albo vim `t` (skrót zwykły ustal – Ctrl+Enter to „nowa linia” w edycji). Wykonane – przygaszone i przekreślone. Rodzic z zadaniami w dzieciach pokazuje „3/5”. Przełączenie da się cofnąć. Terminy – rozszerzenie 8.3.
 
 ### 4.4 Tagi i filtrowanie
 
-- Tag to `#słowo` poprzedzone początkiem tekstu lub spacją. Wzorzec: `(^|\s)#[\p{L}\d_-]+` z flagą `u`. Nie traktuj jako tagów `#` wewnątrz adresu URL.
-- Tag wyświetla się jako „pigułka” w kolorze gałęzi.
-- Filtrowanie włącza klik w tag albo `:tag nazwa`. Węzły bez tagu są przyciemnione (krycie ok. 0,25), a układ się nie zmienia. `:tag` bez argumentu albo Esc wyłącza filtr.
-- **Dziedziczenie** (decyzja 2026-11-26, wzór: Org-mode): tag działa na całą gałąź – filtr pokazuje pełnym kolorem węzeł z tagiem i wszystkich jego potomków, przygasa reszta. Zapis w pliku bez zmian.
-- Filtr dla 8.2: `#tag`. Tryb `#` w palecie i grupowanie według tagu – odrzucone 2026-11-26.
+Tag: `(^|\s)#[\p{L}\d_-]+` (flaga `u`), nie wewnątrz URL; wyświetlany jako pigułka w kolorze gałęzi. Klik w tag albo `:tag nazwa` włącza filtr: węzeł z tagiem **i jego potomkowie** pełnym kolorem, reszta przygaszona (ok. 0,25), układ bez zmian (decyzja 2026-11-26). `:tag` bez argumentu albo Esc wyłącza.
 
 ### 4.5 Tryb skupienia
 
-- **`f`** i komenda `:focus` włączają i wyłączają tryb. Esc też go wyłącza.
-- Widoczne są tylko: ścieżka od korzenia do zaznaczonego węzła oraz całe poddrzewo zaznaczonego węzła. Reszta jest ukryta i nie zajmuje miejsca – mapa układa się od nowa (stan widoku, **nie zapisuje się do pliku**). Przygaszanie zostaje dla filtra tagów (4.4), więc oba tryby wyglądają różnie.
-- Wejście i wyjście animują istniejące sprężyny i „duchy”. Na pasku górnym zamiast wskaźnika „Skupienie: tekst węzła” stoi **klikalna ścieżka** „Nowy projekt › Marketing › Strona www” (decyzja 2026-11-26, wzór: Logseq): klik w element przenosi skupienie na ten węzeł, Esc wychodzi z trybu jak dotąd. Stała ścieżka nad mapą (Workflowy) zostaje w etapie 9.
+`f` i `:focus` włączają i wyłączają, Esc wyłącza. Widać tylko ścieżkę od korzenia i poddrzewo zaznaczonego węzła; reszta ukryta i nie zajmuje miejsca (stan widoku, nie zapisuje się do pliku). Wejście i wyjście – istniejące sprężyny i „duchy”. Na pasku górnym klikalna ścieżka „Projekt › Marketing › Strona www” (decyzja 2026-11-26): klik przenosi skupienie.
 
-### 4.6 Edytowalny widok konspektu
+### 4.6 Widok Markdown na żywo
 
-- Istniejący widok Markdown (`:text`, `toggleText` w `files.js`) staje się edytowalny.
-- Zmiany w polu tekstowym (z opóźnieniem ok. 300 ms) są parsowane i zastępują model z `snap()`, więc można je cofnąć. Zaznaczenie zostaje na węźle o tej samej ścieżce, jeśli taki istnieje.
-- **Tekst nie może zniknąć po cichu.** „Niepoprawny tekst” to taki, w którym parser pominąłby jakąś linię (licznik pominiętych linii jest większy od zera), np. zwykły akapit albo „-” bez spacji w trakcie pisania. Wtedy model się nie zmienia, a `info()` raz podaje numer pierwszej takiej linii. Mapa dogania tekst, gdy wszystkie linie znów da się pokazać.
-- Zamknięcie widoku, gdy takie linie zostały: okienko „Linie, których mapa nie pokaże (2), znikną.” z przyciskami **Wróć do tekstu** (domyślny) i **Zamknij mimo to**.
-- Testy: akapit wpisany w pole nie zmienia mapy i zostaje w polu; po poprawieniu linii mapa się aktualizuje; zamknięcie widoku z takimi liniami pokazuje okienko, a oba przyciski działają.
+Dziś widok Markdown (`:text`) zmienia mapę dopiero przy zamknięciu, a linie, których mapa nie pokaże, wywołują pytanie (A.7). Zadanie: mapa dogania tekst w trakcie pisania (ok. 300 ms po ostatnim klawiszu, przez `snap()` – da się cofnąć), zaznaczenie zostaje na węźle o tej samej ścieżce. Dopóki są linie, których mapa nie pokaże, model się nie zmienia, a `info()` raz podaje numer pierwszej takiej linii. Testy: akapit nie zmienia mapy; po poprawce mapa się aktualizuje.
 
 ### 4.7 Szablony przy nowej mapie
 
-- „Nowa mapa” (i `:new`) proponuje pustą mapę albo jeden z 2–3 wbudowanych szablonów: SWOT, 5× Dlaczego, retrospektywa („Co poszło dobrze” / „Co poprawić” / „Działania”). Ostateczny zestaw potwierdź z użytkownikiem.
-- Szablony jako stałe w JS albo pliki w `www/` (wtedy `sw.js`). Szablon trafia do bieżącego pliku jako nowa mapa (korzeń).
-- Własne szablony – etap 9.
+„Nowa mapa” i `:new` proponują pustą mapę albo 2–3 wbudowane szablony (SWOT, 5× Dlaczego, retrospektywa – zestaw potwierdź). Szablon trafia do bieżącego pliku jako nowa mapa. Własne szablony – etap 9.
 
-### 4.8 `:lint` – sprawdzanie mapy (wzór: walidacja w Workflow Builderze)
+### 4.8 `:lint` – sprawdzanie mapy
 
-- `:lint` i pozycja w palecie. Lista problemów w trybie listy z 2.5; Enter albo klik przechodzi do węzła. Bez automatycznych poprawek.
-- Reguły podstawy:
-  - pusty węzeł;
-  - ten sam tekst u rodzeństwa;
-  - niepoprawny adres URL (tylko format, bez łączenia z siecią);
-  - gałąź głębsza niż 7 poziomów.
-- Rozszerzenia dopisują własne reguły (np. niewykonane zadanie po terminie w 8.3). Pojedyncze reguły nie mają przełączników.
+Lista problemów w trybie listy z 2.5, bez automatycznych poprawek: pusty węzeł, ten sam tekst u rodzeństwa, niepoprawny URL (tylko format), gałąź głębsza niż 7. Rozszerzenia dopisują reguły; pojedyncze reguły bez przełączników.
 
-**Akceptacja etapu 4:** round-trip każdego rozszerzenia formatu w `parser.spec.js`, testy interakcji w nowych lub istniejących plikach spec (`edit.spec.js`, `view.spec.js`, `menu.spec.js`, `search.spec.js`), aktualne README i `HELP`.
+**Akceptacja etapu 4:** round-trip każdego rozszerzenia w `parser.spec.js`, testy interakcji, aktualne README i `HELP`.
 
----
+## Etap 5 – Wygląd i animacje
 
-## Etap 5 – Wygląd i animacje (`render.js`, `layout.js`, panel z etapu 3, `app.css`)
+5.1–5.6 bez przełączników (wyłącza je tylko `RM`); 5.7 zbiera zmiany wyglądu w motywy.
 
-Zadania 5.1–5.6 to subtelne animacje i wskazówki: **bez przełączników**, wyłącza je tylko `RM`. Zadanie 5.7 zbiera wszystkie zmiany wyglądu mapy w motywy. Cały etap zmienia to, co już jest, więc idzie w głównych plikach.
+1. **Wyrastanie gałęzi:** krawędź `pathLength="1"` i `stroke-dashoffset` 1 → 0 przez ok. 200 ms; węzeł krycie 0 → 1 i skala 0,9 → 1 od ok. 60% czasu krawędzi; zwijanie – istniejące „duchy”. Test w `animation.spec.js` (`no-preference` i `reduce`).
+2. **Lot kamery:** `go()`, skok do trafienia, `zz`, Shift+2 poza ekran – płynna zmiana `tx`, `ty` (i `k`) przez ok. 250 ms; ruch użytkownika przerywa lot.
+3. **Ścieżka do korzenia:** krawędzie do zaznaczonego węzła z klasą `path` (odrobinę grubsze). Bez przyciemniania reszty.
+4. **Licznik ukrytych:** zwinięty węzeł pokazuje „+N”.
+5. **Poświata zaznaczenia:** `drop-shadow` w kolorze gałęzi zamiast ramki; poza eksportem. Pokaż „przed i po”.
+6. **Ruch kreskami** tylko na krawędzi do miejsca upuszczenia przy przeciąganiu.
+7. **Motywy mapy** (decyzja 2026-11-26, opcja C; prototyp `www/_prototyp/motywy/`). Wygląd zależy od **poziomu** (korzeń, poziom 1, głębsze), nigdy od węzła:
+   - **Klasyczny** – dzisiejszy, domyślny;
+   - **Minimalistyczny** – bez ramek i tła; duży pogrubiony korzeń; poziom 1 na grubej linii w kolorze gałęzi, głębsze mniejsze na cienkiej; linia gałęzi przechodzi w podkreślenie;
+   - **Czytelny** – korzeń: ciemna pigułka; poziom 1: pigułka w kolorze gałęzi, tekst według luminancji; głębsze: jasne tło w kolorze gałęzi; większy tekst; kolanka z zaokrągleniem.
 
-1. **Wyrastanie gałęzi.**
-   - Nowy albo rozwijany węzeł: krawędź z `pathLength="1"`, `stroke-dasharray: 1`, `stroke-dashoffset` od 1 do 0 przez ok. 200 ms.
-   - Węzeł pojawia się z kryciem od 0 do 1 i skalą od 0,9 do 1, od ok. 60% czasu krawędzi.
-   - Zwijanie pozostaje na istniejących „duchach”.
-   - Test w `animation.spec.js`: z `no-preference` animacja kończy się w stanie końcowym, a z `reduce` stan końcowy jest od razu.
-2. **Lot kamery.** Gdy `go()`, skok do wyniku wyszukiwania, `zz` lub Shift+2 wskazuje węzeł poza ekranem, `tx`, `ty` (i `k`) zmieniają się płynnie przez ok. 250 ms. Przesunięcie widoku przez użytkownika przerywa lot.
-3. **Ścieżka do korzenia.** Krawędzie od korzenia do zaznaczonego węzła dostają klasę `path` (odrobinę grubsze i pełniejsze). Reszty nie przyciemniamy; przyciemnianie jest tylko przy filtrze tagów (4.4) i w trybie prezentacji (8.7). Tryb skupienia resztę ukrywa (4.5).
-4. **Licznik ukrytych.** Zwinięty węzeł pokazuje znacznik „+N” (liczba ukrytych potomków) przy kółku zwijania.
-5. **Poświata zaznaczenia.** Zamiast grubej ramki miękki `drop-shadow` w kolorze gałęzi. Sprawdź, że eksport SVG/PNG nie zawiera stanu zaznaczenia. To zmiana wyglądu zaznaczenia – pokaż „przed i po”.
-6. **Ruch kreskami tylko przy przeciąganiu.** Animowane przesuwanie kresek (`stroke-dashoffset` w pętli) wyłącznie na krawędzi do aktualnego miejsca upuszczenia. Nigdzie indziej.
-7. **Motywy mapy** (zamiast osobnych przełączników wyglądu).
-   - W panelu „Wygląd mapy” 3 motywy z podglądem (decyzja 2026-11-26, opcja C; wzór w prototypie `www/_prototyp/motywy/`). Wygląd zależy od **poziomu** (korzeń, poziom 1, głębsze), nigdy od pojedynczego węzła:
-     - **Klasyczny** – dzisiejszy wygląd, domyślny;
-     - **Minimalistyczny** – bez ramek i tła; korzeń duży, pogrubiony; poziom 1 – tekst na grubej linii w kolorze gałęzi, głębsze – mniejszy tekst na cienkiej linii; linia gałęzi przechodzi w podkreślenie tekstu;
-     - **Czytelny** (zastępuje „Lekki”) – korzeń: ciemna pigułka; poziom 1: pigułka wypełniona kolorem gałęzi, tekst w kolorze dobranym według luminancji; głębsze: jasne tło w kolorze gałęzi, bez ramki; większy tekst; kolanka z zaokrąglonymi rogami.
-   - Motywy Organiczny i Odręczny – zadanie 7.5 w etapie X.
-   - Motyw to zestaw wartości pól stylu. Plik zapisuje tylko pola różne od `DEF`, jak dziś – **bez nowego klucza „motyw”**. Panel rozpoznaje motyw po wartościach, a po zmianie szczegółów pokazuje „Własny”. Motyw nie zmienia palety kolorów.
-   - Szczegóły pod „Więcej”: dzisiejsze opcje, które zostały po projekcie 3.2, i nowe pola. Nowe pola w `DEF` mają wartości dające dzisiejszy wygląd (lista poniżej powstała dla motywu „Lekki” – dopasuj ją do trzech motywów wyżej, np. kształt węzła według poziomu: ramka / pigułka / podkreślenie / sam tekst):
-     - `edgeStyle: 'round'` – zaokrąglone kolanko w `edgeD` dla obu kierunków; promień łuku `min(ST.radius, połowa krótszego odcinka)`;
-     - `taper: false` – grubość linii maleje z poziomem: `max(1, ST.edge · (1 − 0.25·(głębokość−1)))`; wystarczy `stroke-width` zależne od głębokości;
-     - `levels: false` – korzeń pogrubiony i większy; poziom 1 jako wypełniona „pigułka” w kolorze gałęzi, z kolorem tekstu dobranym kontrastowo według luminancji; głębsze poziomy bez ramki, z podkreśleniem w kolorze gałęzi;
-   - Testy w `style.spec.js`: każdy motyw ustawia swoje pola; plik z motywem „Klasyczny” zapisuje się bajt w bajt jak dziś; round-trip nowych pól.
+   Motyw to zestaw pól stylu: plik zapisuje tylko różnice od `DEF`, **bez klucza „motyw”**; panel rozpoznaje motyw po wartościach („Własny” po zmianie szczegółów); motyw nie zmienia palety. Nowe pola w `DEF` z wartościami dającymi dzisiejszy wygląd (np. `edgeStyle: 'round'`, grubość malejąca z poziomem, kształt węzła według poziomu). Testy w `style.spec.js`: każdy motyw ustawia swoje pola; „Klasyczny” zapisuje się bajt w bajt jak dziś; round-trip nowych pól. Organiczny i Odręczny – 7.5.
+
+## Etap 6 – Poprawki układów (`layout.js`)
+
+Bez elkjs; zmiany wyglądu istniejących map – „przed i po” i pytanie.
+
+1. **Upakowanie wielu map** w siatkę metodą „półek”, w kolejności z pliku, w proporcjach okna.
+2. **Zwarty układ „w dół”:** gdy wszystkie dzieci są liśćmi – pionowo pod rodzicem. Bez nowej pozycji w menu.
+3. _(opcjonalnie, zapytaj)_ **Kompaktowe drzewo** (Reingold–Tilford).
 
 ---
 
-## Etap 6 – Poprawki układów
+# ROZSZERZENIA (etap 8, domyślnie wyłączone)
 
-Poprawki istniejących układów, w `layout.js`. Nowy układ radialny powstaje dopiero w etapie X (6.4), po przygotowaniu kodu układów w R.6. Pozostałe nowe układy (oś czasu, ość ryby, grawitacyjny) – zob. etap 9 i „Odrzucone”.
-
-Bez elkjs; wszystko liczy deterministyczny kod własny. Zmiany wyglądu istniejących map pokaż jako „przed i po” i zapytaj.
-
-1. **Upakowanie wielu map** (dotyczy wszystkich układów). Korzenie rozmieszczone w siatce metodą „półek”, w kolejności z pliku, z proporcjami zbliżonymi do okna, a nie w jednej kolumnie.
-2. **Zwarty układ „w dół”** (zamiast osobnego schematu organizacyjnego). Jeśli wszystkie dzieci węzła są liśćmi, układają się pionowo pod rodzicem, więc mapa nie rozjeżdża się na szerokość. Bez nowej pozycji w menu układów.
-3. _(opcjonalnie, zapytaj przed rozpoczęciem)_ **Kompaktowe drzewo** (zbijanie konturów poddrzew, Reingold–Tilford) jako ulepszenie istniejących układów.
-
----
-
-# ROZSZERZENIA (etap 8)
-
-## Etap 8 – Rozszerzenia (domyślnie wyłączone)
-
-Rozszerzenia są domyślnie wyłączone i mają wpis z krótkim opisem na liście „Rozszerzenia”. **Przed startem etapu zapytaj użytkownika, które rozszerzenia i w jakiej kolejności zrobić.** Numery zadań bez zmian; 8.1, 8.4, 8.5 i 8.6 usunięte 2026-11-26 (zob. „Odrzucone”).
+**Przed startem zapytaj, które i w jakiej kolejności.** 8.1, 8.4, 8.5, 8.6 – odrzucone.
 
 ### 8.0 Lista rozszerzeń 🗳
 
-- Bez mechanizmu wtyczek (zasada 0.12). Tabela `EXT` (id, nazwa, krótki opis) – w `actions.js` albo w nowym pliku (wtedy punkt 0.4). Czynności w `ACT` dostają pole `ext`, więc czynności wyłączonego rozszerzenia znikają z menu, palety i pomocy bez osobnego kodu.
-- Lista „Rozszerzenia” w miejscu z projektu 3.2: nazwa, opis, przełącznik.
-- **Karta decyzji:** gdzie zapamiętać, które rozszerzenia są włączone – pamięć przeglądarki (nowy klucz) czy plik.
-- Wyłączone rozszerzenie nie zmienia zapisu pliku: jego zapis widać jako zwykły tekst węzła.
-- Testy: włączenie i wyłączenie zmienia menu, paletę i pomoc; plik zapisuje się tak samo w obu stanach.
+Tabela `EXT` (id, nazwa, opis); czynności w `ACT` dostają pole `ext`, więc wyłączone rozszerzenie znika z menu, palety i pomocy bez osobnego kodu. Lista z przełącznikami w miejscu z 3.2. **Karta:** gdzie pamiętać włączone (pamięć przeglądarki czy plik). Wyłączone nie zmienia zapisu pliku. Testy: menu, paleta i pomoc w obu stanach; plik bez zmian.
 
 ### 8.2 Szukanie zaawansowane (wzór: KFind)
 
-- Opcje w polu szukania: wielkość liter (Aa) i wyrażenie regularne (.*).
-- Filtry w zapytaniu: `depth:2`, `in:folded` oraz zgłoszone przez inne funkcje (`is:task`, `is:done`, `has:note`, `has:link`, `#tag`, `due:`).
-- Znajdź i zamień: vim `:s/stare/nowe/` (zaznaczony węzeł z poddrzewem) i `:%s/stare/nowe/g` (cały plik). Skrót zwykły ustal według punktu 0.5. Zamiana to jeden krok cofania; `info('zamieniono N')`.
-- Testy w `search.spec.js`.
+Wielkość liter (Aa) i wyrażenie regularne (.*); filtry `depth:2`, `in:folded`, `is:task`, `is:done`, `has:note`, `has:link`, `#tag`, `due:`; znajdź i zamień `:s/stare/nowe/` (poddrzewo) i `:%s/stare/nowe/g` (plik) – jeden krok cofania, `info('zamieniono N')`. Testy w `search.spec.js`.
 
 ### 8.3 Terminy zadań 🗳
 
-- Termin w formacie wtyczki Obsidian Tasks: `- [ ] tekst 📅 2026-12-01`. Na mapie data jako mała „pigułka” po tekście; niewykonane zadanie po terminie jest wyróżnione. Wybór daty w menu (albo w panelu właściwości, jeśli istnieje).
-- Czy przy odhaczaniu dopisywać datę wykonania `✅ 2026-11-25` (jak Obsidian Tasks) – zapytaj.
-- Filtr `due:` (składnię porównań ustal przy karcie decyzji) i reguła `:lint` „niewykonane zadanie po terminie”.
-- Wyłączone rozszerzenie: `📅 2026-12-01` widać jako zwykły tekst węzła.
+Format Obsidian Tasks: `- [ ] tekst 📅 2026-12-01`; data jako pigułka, po terminie wyróżniona; wybór daty w menu. Zapytaj o `✅ data` przy odhaczaniu. Filtr `due:` i reguła `:lint`. Wyłączone – data widoczna jako zwykły tekst.
 
-### 8.7 Tryb prezentacji (wzór: Pitch Mode w Xmind)
+### 8.7 Tryb prezentacji (wzór: Xmind)
 
-- `:present` i pozycja w palecie. Slajd to węzeł w kolejności z pliku, do wybranej głębokości (domyślnie 2). Kamera leci do węzła (5.2), reszta jest przygaszona jak przy filtrze tagów (4.4). Układ się nie zmienia, więc mapa nie skacze między slajdami.
-- Dalej: → / Spacja / PageDown; wstecz: ← / PageUp; koniec: Esc; na telefonie przesunięcie palcem. Pełny ekran (Fullscreen API), jeśli jest dostępny.
-- Stan widoku, nie zapisuje się do pliku. Z `RM` przejścia są natychmiastowe.
+`:present`: slajd = węzeł w kolejności z pliku do wybranej głębokości (domyślnie 2); lot kamery (5.2), reszta przygaszona; układ bez zmian. → / Spacja / PageDown, ← / PageUp, Esc; na telefonie przesunięcie palcem; pełny ekran, jeśli dostępny. Stan widoku, nie zapisuje się.
 
 ---
 
-# NA KONIEC
+# NA KONIEC (nadal PWA)
 
 ## Etap R – Przygotowanie kodu przed trudnymi funkcjami
 
-Funkcje z etapu X dotykają naraz modelu zaznaczenia, przeciągania, nawigacji, układu i formatu pliku. Dziś kod zależny od tych rzeczy jest rozproszony po wielu plikach i opiera się na wspólnych zmiennych globalnych, więc każda taka funkcja oznaczałaby łatki w dziesięciu miejscach. Ten etap to porządek **przed** nimi.
+Działanie i wygląd bez zmian: istniejące testy przechodzą bez zmian (wolno dopisywać), plik bajt w bajt, pomiar z A.2 przed i po; jedna zmiana = jeden commit.
 
-Zasady etapu:
+- **R.1 Przegląd i plan ⏸** – miejsca, których dotknie etap X: `sel` (`ops.js`, `keys.js`, `menu.js`, `dnd.js`), kod zależny od `dir` (`lay`, `layD`, `edgeD`, `arrow`, upuszczanie w `dnd.js`, `LAY`), znaczniki w `serialize()`, przebudowa DOM w `render()`. Pokaż R.3–R.8 z oceną kosztu i potrzeby; niepotrzebne pomiń (zapis w `docs/decyzje.md`).
+- **R.3 Stan w nazwanych obiektach** – zmienne globalne (`sel`, `tx`, `ty`, `k`, `dir`, `editing`, `dnd`…) w kilku obiektach (np. `view`, `doc`, `ui`); nazwy pokaż przed zmianą; jeden obiekt na commit; dalej zwykłe skrypty.
+- **R.4 Zaznaczenie jako lista** (przygotowanie 7.1) – operacje z `ops.js` i przeciąganie przyjmują listę węzłów (na razie zawsze jeden). Zasady: węzeł i jego potomek naraz → tylko przodek; kolejność według pliku; jedna operacja = jeden krok cofania.
+- **R.5 Znaczniki na końcu linii i identyfikator węzła 🗳** (przygotowanie 7.2, 7.3, 7.6) – jedna funkcja odczytu (dowolna kolejność) i zapisu (stała kolejność) znaczników; trwały identyfikator węzła, w pliku tylko tam, gdzie potrzebny. **Karta:** zapis identyfikatora (`^abc123` jak w Obsidianie albo `<!--id:abc123-->`; zasada 0.18) i relacji z kierunkiem strzałek. Testy: identyfikator przeżywa przeniesienie, cofanie, ponowienie, wycięcie i wklejenie; kopia dostaje nowy.
+- **R.6 Układ jako jeden opis** (przygotowanie 6.4, 7.3, 7.5) – np. `LAYOUTS.right = { lay, edge, nav, drop, name, icon }`; najpierw 4 istniejące układy bez zmian działania.
+- **R.7 Warstwy rysowania** (przygotowanie 7.2–7.6) – pod krawędziami, krawędzie, węzły, nad węzłami; każda warstwa mówi, czy trafia do eksportu.
+- **R.8 Rysowanie bez przebudowy całej mapy** – tylko jeśli pomiar pokaże potrzebę; aktualizacja według `data-id`; nie ruszaj własnego wykrywania dwukliku (`CLAUDE.md`).
 
-- **Działanie i wygląd bez zmian.** Każde zadanie to przebudowa kodu: istniejące testy przechodzą bez zmian (wolno tylko dopisywać nowe), a plik zapisuje się bajt w bajt.
-- Małe kroki: jedna zmiana = jeden commit, `npm run verify` po każdym.
-- Pomiar z A.2 przed i po każdym zadaniu.
+## Etap X – Trudne funkcje (od najmniej ryzykownej)
 
-### R.1 Przegląd i plan ⏸ STOP
+Każde zadanie zaczyna się od sprawdzenia, czy przygotowanie z R jest gotowe; zamiast obejścia – wróć do R.
 
-- Przejrzyj miejsca, których dotkną zadania z etapu X: użycia `sel` (`ops.js`, `keys.js`, `menu.js`, `dnd.js`), kod zależny od `dir` (`lay`, `layD`, `edgeD`, `arrow`, miejsce upuszczenia w `dnd.js`, `LAY`), zapis znaczników w `serialize()`, przebudowa DOM w `render()`.
-- Pokaż użytkownikowi listę zadań R.2–R.8 z oceną: co zmienia, ile kosztuje, czy jest potrzebne przy obecnym stanie kodu. Zadania niepotrzebne pomiń i zapisz to w `docs/decyzje.md`.
+- **7.4 Minimapa** (R.7) – podgląd pliku z prostokątem widoku, klik i przeciąganie przesuwa widok; pojawia się sama, gdy mapa się nie mieści; nie na telefonie, nie w pliku, nie w eksporcie.
+- **7.1 Zaznaczanie wielu węzłów** (R.4) – Shift+klik, vim `v` + ruch, lasso Shift+przeciąganie tła; gest na dotyku ustal. Operacje: usuń, kopiuj / wytnij, przeciągnij, zwiń / rozwiń, wsuń / wysuń, przełącz zadanie. `sel` zostaje głównym węzłem, lista (np. `msel`) – do słowniczka w `CLAUDE.md`. Testy: `multiselect.spec.js`, `dnd.spec.js`.
+- **7.5 Motywy Organiczny i Odręczny** (R.6, R.7) – Organiczny: koła malejące od korzenia, grube gałęzie zwężające się, krzywe od środka do środka. Odręczny: drżące podwójne linie (stałe dla węzła, także w eksporcie), kreskowanie, owal / prostokąt / kreska według poziomu. **Karta (czcionka):** darmowa czcionka odręczna (np. Excalifont, OFL) – rozmiar, licencja, plik w `www/` i `sw.js`.
+- **6.4 Układ radialny** (R.6) – osobny plik i wpis; `:layout radial`, `<!--layout:radial-->`; korzeń w środku, poziomy na okręgach, kąt poddrzewa proporcjonalny do liczby liści (Eades), promień rośnie do braku nakładania; tekst poziomo; nawigacja → na zewnątrz, ← do środka, ↑ / ↓ po kącie; przeciąganie i wiele korzeni. Testy: `layout.spec.js`, `navigation.spec.js`.
+- **7.2 Relacje** (R.5, R.7) – zakrzywiona przerywana linia ze strzałką i etykietą, neutralny kolor, Bézier bez omijania przeszkód, **bez uchwytów**; domyślnie w jedną stronę, w menu „W obie strony” i „Odwróć kierunek”. „Połącz z…” w menu i palecie, potem wybór celu (`info('wybierz węzeł docelowy, Esc anuluje')`). Zawsze widoczne; w skupieniu tylko między widocznymi. Przeniesienie nie zrywa, usunięcie celu usuwa (cofnięcie przywraca). W eksporcie.
+- **7.3 Klamra podsumowania 🗳** (7.1, R.5–R.7) – klamra przy kilku sąsiednich braciach z krótkim tekstem, bez dzieci; „Podsumuj” z zaznaczenia; zajmuje miejsce w układzie; co przy przeniesieniu lub usunięciu brata – ustal. **Karta:** zapis w pliku. W eksporcie.
+- **7.6 Kartka 🗳** (R.5, R.7) – swobodna ramka z tekstem (legenda, tl;dr), dowolnie wiele, miejsce liczone od korzenia jej mapy; pasek edycji wstawia znaczniki Markdown. „Nowa kartka” w menu mapy i palecie. **Karta:** zapis czytelny w innym edytorze, niemylący się z węzłami ani z pominiętymi liniami. W eksporcie.
 
-### R.2 Testy utrwalające dzisiejsze zachowanie
+## Etap P – Poprawki wydajności
 
-- Zanim ruszysz kod, dopisz testy tam, gdzie R.1 wskazał brak pokrycia: np. przeciąganie w każdym układzie i przy wielu korzeniach, nawigacja strzałkami i `hjkl` na granicach map, zapis wszystkich znaczników, cofanie po każdej operacji.
-- Tylko testy, bez zmian w `www/`.
-
-### R.3 Stan w nazwanych obiektach
-
-- Dziś stan to wiele zmiennych globalnych o krótkich nazwach (`sel`, `tx`, `ty`, `k`, `dir`, `editing`, `dnd`…), zmienianych z wielu plików. Zgrupuj je w kilka obiektów o czytelnych nazwach, np. `view` (przesunięcie i zoom), `doc` (mapy, układ, styl, frontmatter), `ui` (zaznaczenie, edycja, przeciąganie). Zakres i nazwy pokaż użytkownikowi przed zmianą.
-- Jeden obiekt na commit. Typy w `types/globals.d.ts`, słowniczek w `CLAUDE.md`.
-- Pliki zostają zwykłymi skryptami – bez modułów ES i bez budowania (zasada 0.1).
-
-### R.4 Zaznaczenie jako lista (przygotowanie 7.1)
-
-- Operacje z `ops.js` (usuń, kopiuj, wytnij, duplikuj, zwiń / rozwiń, wsuń, wysuń, przełącz zadanie) i przeciąganie przyjmują listę węzłów, a nie tylko `sel`. Na razie lista ma zawsze jeden element – działanie bez zmian.
-- Ustal i pokryj testami (przez `page.evaluate`) zasady dla wielu węzłów, np. węzeł i jego potomek zaznaczone naraz → operacja dotyczy tylko przodka; kolejność w schowku i po wklejeniu – według kolejności w pliku. Jedna operacja na wielu węzłach = jeden krok cofania.
-
-### R.5 Znaczniki na końcu linii i identyfikator węzła 🗳 (przygotowanie 7.2, 7.3 i 7.6)
-
-- Jedna funkcja odczytu i jedna zapisu znaczników `<!--…-->` na końcu linii węzła: odczyt w dowolnej kolejności, zapis zawsze w tej samej. Dziś jest tylko `<!--c-->`, więc pliki zapisują się bajt w bajt.
-- Trwały identyfikator węzła w modelu, niezależny od `n.id` z sesji. W pliku tylko u węzłów, które go potrzebują.
-- **Karta decyzji (dawniej w 7.2):** zapis identyfikatora (np. `^abc123` na końcu linii, jak bloki w Obsidianie, albo `<!--id:abc123-->`) i relacji (np. `<!--rel:abc123 "etykieta"-->` na węźle źródłowym, z kierunkiem strzałek: w jedną stronę albo w obie).
-- Testy: identyfikator przeżywa przeniesienie, cofanie i ponowienie; kopia i duplikat dostają nowy; wycięcie i wklejenie zachowuje go; round-trip w `parser.spec.js`.
-
-### R.6 Układ jako jeden opis (przygotowanie 6.4, 7.3 i 7.5)
-
-- Dziś to, co zależy od układu, jest rozproszone: `lay()` / `layD`, `edgeD`, nawigacja (`arrow`), miejsce upuszczenia w `dnd.js`, `LAY`. Zbierz to w jeden opis na układ, np. `LAYOUTS.right = { lay, edge, nav, drop, name, icon }`, tak żeby nowy układ był jednym plikiem i jednym wpisem.
-- Najpierw przenieś 4 istniejące układy, bez zmian działania (testy z R.2).
-
-### R.7 Warstwy rysowania (przygotowanie 7.2, 7.3, 7.4 i 7.6)
-
-- `render()` rysuje warstwy w stałej kolejności: pod krawędziami, krawędzie, węzły, nad węzłami. Nowa warstwa (relacje, klamry, kartki, minimapa) dopisuje się bez zmian w `nodeHTML`.
-- Każda warstwa mówi, czy trafia do eksportu SVG/PNG (relacje, klamry i kartki – tak, minimapa – nie).
-
-### R.8 Rysowanie bez przebudowy całej mapy – tylko jeśli pomiar pokaże potrzebę
-
-- Dziś `render()` przy każdej zmianie przebudowuje cały SVG przez `innerHTML`. Jeśli pomiar (A.2, R.1) pokaże, że to za wolno dla etapu X: aktualizuj istniejące elementy według `data-id`.
-- Uwaga na pułapkę z `CLAUDE.md`: dwuklik wykrywamy sami, bo przebudowa DOM gubi `click` / `dblclick`. Nie zmieniaj tego przy okazji.
-- Pomiar przed i po w opisie commitu.
+Tylko to, co przekracza progi z A.2, od najwolniejszego miejsca; osobny commit z pomiarem „przed i po”; działanie i wygląd bez zmian. Cel: 500 węzłów płynnie, także na telefonie (1000 nie jest celem).
 
 ---
 
-## Etap X – Trudne funkcje
+# PO PWA – inne platformy
 
-Każde zadanie zaczyna się od sprawdzenia, czy przygotowanie z etapu R jest gotowe. Jeśli funkcja wymaga zmian w wielu głównych plikach naraz, wróć do etapu R i dostosuj kod, zamiast dopisywać obejście. Kolejność: od najmniej do najbardziej ryzykownej. Numery zadań bez zmian.
+Zaczynamy dopiero, gdy użytkownik uzna PWA za gotową. **Pierwsza karta decyzji:** narzędzie i jego najnowsza wersja (np. Capacitor), wymagania Google Play co do wersji Androida (API), rozmiar narzędzi. Ustalone wcześniej: `appId` `io.github.piotrszostak.mindme`, nazwa pod ikoną „mindme” (decyzja 2026-11-26). Capacitor 6 usunięto z projektu 2026-11-27 (przy nim `npm audit` zgłaszał 5 ostrzeżeń, a szablon budował pod API 34, którego Google Play już nie przyjmuje). Czytaj dokumentację dla wybranej wersji.
 
-### 7.4 Minimapa (wymaga R.7)
-
-- Mały podgląd całego pliku (miejsce z projektu 3.2) z prostokątem widoku; klik i przeciąganie przesuwa widok.
-- **Pokazuje się sama**, gdy mapa nie mieści się na ekranie, i znika, gdy się mieści (jak pasek przewijania). Bez przełącznika i bez pozycji w menu. Na wąskim ekranie (telefon) nie pokazuje się wcale. Nie zapisuje się do pliku i nie trafia do eksportu.
-- Testy: pojawia się po przybliżeniu, znika po „Dopasuj całą mapę”, nie ma jej w rozmiarze telefonu ani w eksporcie SVG/PNG.
-
-### 7.1 Zaznaczanie wielu węzłów (wymaga R.4)
-
-- Shift+klik dodaje lub usuwa węzeł z zaznaczenia. Vim: `v` zaczyna zaznaczanie, ruch je rozszerza, Esc kończy. Lasso: Shift+przeciąganie tła myszą. Gest na dotyku ustal z użytkownikiem: przytrzymanie węzła i tła otwiera dziś menu (na tle przy tym odznacza).
-- Operacje na wielu węzłach: usuń, kopiuj / wytnij (w schowku lista gałęzi), przeciągnij, zwiń / rozwiń, wsuń / wysuń, przełącz zadanie.
-- Model zaznaczenia i zasady dla wielu węzłów są gotowe z R.4: `sel` zostaje głównym (ostatnio zaznaczonym) węzłem, a lista zaznaczonych (np. `msel`) trafia do słowniczka w `CLAUDE.md`.
-- Testy w nowym `multiselect.spec.js` oraz w `dnd.spec.js`.
-
-### 7.5 Motywy Organiczny i Odręczny (wymaga R.6 i R.7)
-
-Decyzja 2026-11-26 (opcja C: po trzech motywach z 5.7); wzór w prototypie `www/_prototyp/motywy/`. Wygląd według poziomów, jak w 5.7.
-
-- **Organiczny** (wzór: SimpleMind): okrągłe węzły, tym większe, im bliżej korzenia, tekst w środku koła; korzeń – pełne koło w kolorze akcentu, poziom 1 – koło z tłem w kolorze gałęzi, głębsze – małe jasne koło; grube gałęzie zwężające się od korzenia (krzywa od środka do środka). Zmienia liczenie rozmiaru węzła (`fit`) i rysowanie krawędzi.
-- **Odręczny** (wzór: Excalidraw): drżące, podwójne linie, kreskowane wypełnienie, czcionka odręczna; korzeń – owal, poziom 1 – prostokąt, głębsze – tekst z kreską pod spodem. Drżenie stałe dla węzła (ziarno z identyfikatora albo tekstu), także w eksporcie.
-- **Karta decyzji (czcionka):** na Linuksie i części telefonów nie ma czcionki odręcznej (dziś opcja „Odręczna” pokazuje wtedy zwykłą czcionkę) – dołączenie darmowej czcionki (np. Excalifont z Excalidraw, licencja OFL): rozmiar, licencja, plik w `www/` i w `sw.js`.
-- Testy w `style.spec.js`: oba motywy ustawiają swoje pola; round-trip nowych pól; eksport SVG zawiera kształty motywu.
-
-### 6.4 `radial` – układ radialny (wymaga R.6)
-
-Osobny plik i wpis w opisie układów z R.6. Wymaga:
-
-- wpisu z ikoną i polską nazwą;
-- obsługi `:layout radial` i `<!--layout:radial-->`;
-- poprawnych krawędzi;
-- nawigacji strzałkami i `hjkl` zgodnej z kierunkiem układu;
-- działającego przeciągania;
-- obsługi wielu korzeni;
-- testów w `layout.spec.js` i `navigation.spec.js`.
-
-- Korzeń w środku, kolejne poziomy na współśrodkowych okręgach.
-- Wycinek kąta dla poddrzewa jest proporcjonalny do liczby jego liści (algorytm Eadesa).
-- Promień poziomu zwiększaj, aż prostokąty sąsiadów przestaną na siebie nachodzić.
-- Tekst zawsze poziomo. Węzeł z lewej połowy okręgu zaczepia krawędź po swojej prawej stronie.
-- Nawigacja: → na zewnątrz (dziecko), ← do środka (rodzic), ↑ / ↓ po kącie wśród rodzeństwa.
-
-### 7.2 Relacje między gałęziami (wymaga R.5 i R.7)
-
-- Format: identyfikator węzła i relacja według karty decyzji z R.5.
-- Rysowanie: zakrzywiona, przerywana linia ze strzałką i etykietą, w neutralnym kolorze. Na start krzywa Béziera między krawędziami węzłów, bez omijania przeszkód.
-- **Strzałki** (decyzja 2026-11-26, wzór: Mind Elixir): domyślnie w jedną stronę; w menu relacji „W obie strony” i „Odwróć kierunek”. **Bez uchwytów do wyginania** – krzywa liczy się sama.
-- Tworzenie: „Połącz z…” w menu podręcznym i w palecie. Potem klik albo wybór węzła klawiszami i Enter wskazuje cel; `info('wybierz węzeł docelowy, Esc anuluje')`. Etykietę edytuje się dwuklikiem, relację usuwa z menu.
-- Relacje są zawsze widoczne, bez przełącznika. W trybie skupienia widać tylko relacje między widocznymi węzłami.
-- Przeniesienie węzła nie zrywa relacji (identyfikator jedzie z węzłem). Usunięcie celu usuwa relację, a cofnięcie ją przywraca.
-- Działa we wszystkich układach. Eksport SVG/PNG zawiera relacje.
-
-### 7.3 Klamra podsumowania 🗳 (wymaga 7.1, R.5, R.6 i R.7)
-
-Wraca z etapu 9 (decyzja 2026-11-26, wzór: Mind Elixir). Obrys gałęzi („granice”) zostaje w etapie 9.
-
-- Klamra obok kilku sąsiednich braci, przy niej krótki tekst podsumowania – **bez własnych dzieci**.
-- Tworzenie: zaznacz kilku braci (7.1) i wybierz „Podsumuj” w menu albo w palecie. Tekst zmienia dwuklik, klamrę usuwa menu.
-- Klamra i tekst zajmują miejsce w układzie i nie nachodzą na sąsiednie gałęzie (opis układu z R.6). Działa we wszystkich układach.
-- Co się dzieje z klamrą, gdy objęty brat zostanie przeniesiony albo usunięty – ustal przy zadaniu; cofnięcie przywraca stan sprzed zmiany.
-- **Karta decyzji:** zapis w pliku (np. znacznik na końcu linii pierwszego objętego brata, zgodnie z R.5).
-- Trafia do eksportu SVG/PNG. Testy: round-trip w `parser.spec.js`, tworzenie, edycja, usuwanie i cofanie.
-
-### 7.6 Kartka 🗳 (wymaga R.5 i R.7)
-
-Decyzja 2026-11-26 (wzór: notatki w Whimsical). Nazwa „kartka”, żeby nie myliła się z notatką do węzła (4.1).
-
-- Swobodna ramka z tekstem, niepołączona z węzłami: legenda, tl;dr, strona tytułowa, objaśnienie. Kartek może być dowolnie wiele.
-- Stoi tam, gdzie ją przeciągniesz; jej miejsce liczy się **od korzenia jej mapy**, więc przesuwa się razem z mapą (np. gdy mapa urośnie albo zmieni się układ).
-- W trakcie edycji nad kartką pasek: pogrubienie, kursywa, nagłówek, lista, lista zadań, link. Treść zapisuje się jako zwykły Markdown – pasek tylko wstawia znaczniki.
-- „Nowa kartka” w menu mapy i w palecie; skróty według zasady 0.5 – ustal przy zadaniu.
-- Trafia do eksportu SVG/PNG.
-- **Karta decyzji:** zapis w pliku – czytelny w innym edytorze, nie myli się z treścią węzłów ani z licznikiem pominiętych linii.
-- Testy: round-trip w `parser.spec.js`, przesunięcie razem z mapą, edycja i cofanie.
+- **T.2 Pierwszy APK 🗳** – biblioteka i `npx cap add android`; co z `android/` trafia do gita – według dokumentacji, klucze podpisu tylko w plikach z `.gitignore`. Narzędzia to 2–4 GB – zapytaj przed instalacją (A – sama linia poleceń i Java 17, polecana; B – Android Studio; C – APK w CI, inny klucz przy każdym budowaniu). W WebView sprawdź `/na-telefonie`: wklejanie, przytrzymanie, przeciąganie, klawiaturę ekranową.
+- **T.3 Pliki na Androidzie** – systemowe okienka „Otwórz” i „Zapisz”, aplikacja pamięta plik i sama do niego zapisuje (wzór: Markor; bez przeglądarki plików). Biblioteka – karta (opcje, rozmiar, licencja, data wydania); bez budowania – wtyczka przez `Capacitor.Plugins`. Ochrona przed nadpisaniem jak w A.7.
+- **T.4 „Udostępnij” do mindme** – udostępniony tekst to nowa mapa na końcu otwartego pliku, zaznaczona, ze strukturą jak przy wklejaniu (2.2); da się cofnąć. W PWA `share_target` w manifeście (Firefox na Androidzie go nie obsługuje – sprawdź inne przeglądarki), w APK wtyczka – karta biblioteki.
+- **Aplikacja na Linuksa (Tauri)** – usunięta w A.5; wraca razem z `src-tauri/`, jeśli użytkownik poprosi.
 
 ---
 
-## Etap P – Wydajność (na koniec)
+## Etap 9 – Później (tylko na prośbę użytkownika)
 
-Pomiar i progi powstały w A.2 i obowiązują przez cały czas (zasada 0.17). Tu zostają poprawki, gdy wszystkie funkcje już są. Cel: płynnie do 500 węzłów, także na telefonie; większe mapy nie są celem (decyzja 2026-11-26).
-
-### P.2 Poprawki
-
-- Tylko to, co przekracza progi z A.2, zaczynając od miejsca, które pomiar wskazał jako najwolniejsze.
-- Każda poprawka to osobny commit z pomiarem „przed i po” w opisie. Działanie i wygląd bez zmian – wszystkie testy przechodzą.
-
----
-
-## Etap T, ciąg dalszy – APK (na koniec)
-
-Przeniesione 2026-11-26 z początku planu (decyzja użytkownika, `docs/decyzje.md`). Aplikacja zainstalowana z przeglądarki (T.1) działa na telefonie; na komputerze nie ma jeszcze Javy, Android SDK ani `adb`.
-
-### T.2 Identyfikator aplikacji i pierwszy APK 🗳
-
-- `appId` i nazwa pod ikoną – wybrane 2026-11-26 (`io.github.piotrszostak.mindme`, „mindme”; `docs/decyzje.md`).
-- `npx cap add android` i APK w wersji testowej, zgodnie z dokumentacją Capacitora **6**. Co z folderu `android/` trafia do gita – według tej dokumentacji. Klucze podpisu tylko w plikach z `.gitignore`.
-- Android SDK to duże pobranie – zapytaj przed instalacją i opisz, co i gdzie trafi. Karta z 26.11 bez odpowiedzi: A – sama linia poleceń (Java 17 instaluje użytkownik, ok. 2–2,5 GB) – polecana, B – Android Studio (ok. 3–4 GB), C – APK w CI (inny klucz podpisu przy każdym budowaniu).
-- W aplikacji (WebView) sprawdź `/na-telefonie`: wklejanie (okienko „wklej tutaj”; czy znika dodatkowy przycisk „Wklej” Androida), przytrzymanie, przeciąganie, klawiaturę ekranową przy edycji.
-
-### T.3 Otwieranie i zapis plików na Androidzie
-
-- Przeniesione z etapu 9. W APK „Otwórz” i „Zapisz” działają na plikach telefonu; w przeglądarce bez zmian.
-- **Bez przeglądarki plików** (decyzja 2026-11-26, wzór: Markor): systemowe okienka „Otwórz” i „Zapisz” (zwykle otwierają ostatni folder, np. folder Syncthinga); aplikacja pamięta otwarty plik i sama do niego zapisuje. Lista plików z folderu – odrzucona (zob. „Folder jako vault”).
-- Nowa biblioteka (np. `@capacitor/filesystem` w wersji dla Capacitora 6) albo systemowe okno wyboru pliku – karta z opcjami, rozmiarem, licencją i datą wydania. Zgodnie z 0.1 bez budowania: wtyczka Capacitora przez globalny `Capacitor.Plugins`.
-- Testy: logika zapisu na podstawionym obiekcie w `page.evaluate`; całość `/na-telefonie`.
-
-### T.4 „Udostępnij” do mindme (wzór: Markor)
-
-- Tekst udostępniony z innej aplikacji (notatka, fragment strony) staje się **nową mapą na końcu otwartego pliku** i jest zaznaczony (decyzja 2026-11-26). Struktura jak przy wklejaniu bez zaznaczenia (2.2): lista z wcięciami to gałąź, kolejne linie to jeden węzeł, HTML z listami i nagłówkami daje strukturę.
-- Zmiana modelu (`snap` / `changed`) – cofnięcie usuwa dodaną mapę.
-- Aplikacja zainstalowana z przeglądarki: `share_target` w `manifest.webmanifest` (wymaga https z T.1; sprawdź, które przeglądarki na Androidzie to obsługują). APK: odbieranie udostępnień przez wtyczkę – karta biblioteki (opcje, rozmiar, licencja, data wydania, wersja dla Capacitora 6).
-- Testy: zamiana udostępnionego tekstu na mapę przez `page.evaluate`; całość `/na-telefonie`.
-
----
-
-## Etap 9 – Później (nie zaczynaj bez zgody użytkownika)
-
-- **Import notatki Markdown** (np. z Obsidiana): „Importuj notatkę…” tworzy nową mapę z kopii notatki – nagłówki i listy stają się węzłami, a akapity, tabele i kod notatkami tekstowymi (wymaga 4.1). Oryginał zostaje nietknięty; bez zapisu z powrotem do formatu notatki.
-- **Eksport mapy jako dokument** (wzór: Gingko Writer, dopisane 2026-11-26): nagłówki i akapity zamiast listy, notatki do węzłów jako akapity – odwrotność importu notatki.
-- Z dawnego etapu 5: szybkie wpisywanie pomysłów; eksport PDF / OPML / FreeMind / Xmind oraz import z nich; AI; historia wersji; współpraca na żywo (zob. punkt 0.10).
-- Układ dla jednej gałęzi (`<!--layout:nazwa-->` na końcu linii węzła).
-- Odłożone 2026-11-25:
-  - eksport do bloku Mermaid `mindmap` i do jednego pliku HTML ze zwijaniem (jak Markmap);
-  - z Workflowy: ścieżka nad mapą, ukrywanie wykonanych zadań, węzły lustrzane;
-  - z Freeplane: style warunkowe, pola `klucz:: wartość`.
-- **Aplikacja na Linuksa (Tauri)** – usunięta z projektu w A.5; wraca razem z `src-tauri/`.
-- **Własne szablony** z wybranego folderu (obok wbudowanych z 4.7).
-- Odłożone 2026-11-26 (duży koszt w kodzie przy małej wartości dla jednej osoby; najpierw etap R):
-  - układy **oś czasu** i **ość ryby** – każdy nowy układ to nawigacja, przeciąganie, krawędzie i wiele korzeni od nowa;
-  - **granice** (obrys gałęzi) – nowe znaczniki w pliku i miejsce w `lay()`. Klamra podsumowania i motyw odręczny wróciły 2026-11-26 do etapu X (7.3, 7.5).
-- **Logseq, Org-mode, Gingko Writer** – omówione 2026-11-26: „Przenieś do…” (2.7), dziedziczenie tagów (4.4), kolumny w makietach drzewka (3.2, 3.6), eksport jako dokument (wyżej).
+- Import notatki Markdown (np. z Obsidiana) jako nowa mapa – nagłówki i listy to węzły, akapity, tabele i kod to notatki (wymaga 4.1); oryginał nietknięty.
+- Eksport mapy jako dokument (nagłówki i akapity; wzór: Gingko Writer).
+- Szybkie wpisywanie pomysłów; eksport i import PDF / OPML / FreeMind / Xmind; AI; historia wersji; współpraca na żywo (zob. 0.10).
+- Układ dla jednej gałęzi (`<!--layout:nazwa-->` na końcu linii węzła); układy oś czasu i ość ryby; granice (obrys gałęzi).
+- Eksport do Mermaid `mindmap` i do jednego pliku HTML ze zwijaniem (jak Markmap).
+- Z Workflowy: stała ścieżka nad mapą, ukrywanie wykonanych zadań, węzły lustrzane. Z Freeplane i Logseq: style warunkowe, pola `klucz:: wartość`.
+- Własne szablony z wybranego folderu.
 
 ## Odrzucone (nie proponuj ponownie)
 
-- **Burza mózgów z licznikiem czasu i głosowaniem**: aplikacja jest dla jednej osoby.
-- **Pełna zgodność z notatkami Obsidiana z przełącznikiem**: komplikuje model i każdą funkcję; zastąpiona przez ochronę przed utratą danych (dawne zadanie 0.2: frontmatter zostaje, pominięte linie są liczone) i import z etapu 9.
-- **Kalkulator w palecie**: nie pasuje do mapy myśli.
-- **Ranking palety według częstości i świeżości**: „5 ostatnio użytych” jest przewidywalne.
-- **Zoom kontekstowy** (węzły znikające przy oddalaniu): zaskakuje; do zwijania poziomów jest `z1…z9`.
-- **Układ „konspekt drzewiasty”**: dubluje edytowalny widok konspektu (4.6).
-- **Osobne szukanie węzłów w palecie**: zastąpione listą trafień (2.5) – jedna droga szukania.
-- **Osobne przełączniki wyglądu**: zastąpione motywami (5.7).
-- Odrzucone 2026-11-26 (przegląd kruchości kodu):
-  - **Mechanizm wtyczek** (dawny etap W): przy zwykłych skryptach ze wspólnym zakresem rejestr punktów zaczepienia rozprasza każdą funkcję po wielu plikach. Rozszerzeniom wystarczy lista z flagami (8.0).
-  - **Układ grawitacyjny** z przypinaniem `<!--pin:x,y-->`: symulacja, osobna logika przeciągania i jedyna pozycja zapisana w pliku – najwięcej przypadków brzegowych przy najmniejszej przewidywalności.
-  - **Tło z kropek**: ozdoba bez wartości informacyjnej.
-  - **Paleta dla zaawansowanych** (prefiksy `@` i `#`, akcje pod strzałką w prawo, własne komendy): druga droga do tego, co już jest (zasada prostoty).
-  - **Grupowanie według tagu**: rzadka operacja; filtr tagów (4.4) wystarcza.
-  - **Folder jako vault, `[[wikilinki]]` i linki zwrotne**: to osobna aplikacja (indeks plików, przełączanie plików, podpowiedzi) – do tego jest Obsidian.
-  - **Ukryte aliasy klawiszy** na przyszłość (zasada 0.5, A.3).
-- Odrzucone 2026-11-26 (przegląd SimpleMind, Markora, Excalidraw, Mind Elixir i Whimsical):
-  - **Wygląd pojedynczego węzła** (własny kształt lub kolor jednego węzła): wygląd zależy tylko od poziomu w motywie; kolor należy do gałęzi (zasada 0.7).
-  - **Zdjęcie w tle mapy**: utrudnia czytanie (jak tło z kropek).
-  - **Uchwyty do wyginania relacji**: krzywa liczy się sama.
-  - **„+” po najechaniu myszą**: przyciski tylko przy zaznaczonym węźle.
-  - **Przeglądarka plików na Androidzie** (lista plików z folderu jak w Markorze): wystarczą systemowe okienka; zob. „Folder jako vault”.
-  - **Drzewko obok mapy**: drzewko to osobny widok na cały ekran (3.6).
+- Burza mózgów z licznikiem i głosowaniem (aplikacja dla jednej osoby).
+- Pełna zgodność z notatkami Obsidiana z przełącznikiem (zastąpiona ochroną: frontmatter zostaje, pominięte linie są liczone; import w etapie 9).
+- Kalkulator w palecie; ranking palety według częstości (zostaje „5 ostatnio użytych”); paleta dla zaawansowanych (prefiksy `@`, `#`, własne komendy); osobne szukanie węzłów w palecie (jest 2.5).
+- Zoom kontekstowy (węzły znikające przy oddalaniu); układ „konspekt drzewiasty” (dubluje 4.6); układ grawitacyjny z `<!--pin-->`.
+- Osobne przełączniki wyglądu (są motywy 5.7); wygląd pojedynczego węzła; tło z kropek; zdjęcie w tle mapy; uchwyty do wyginania relacji; „+” po najechaniu myszą.
+- Mechanizm wtyczek (wystarczy lista z flagami 8.0); grupowanie według tagu; folder jako vault, `[[wikilinki]]` i linki zwrotne (do tego jest Obsidian); ukryte aliasy klawiszy na przyszłość.
+- Przeglądarka plików na Androidzie (wystarczą systemowe okienka); drzewko obok mapy (drzewko to osobny widok 3.6).
 
----
+## Rozszerzenia formatu pliku
 
-## Podsumowanie rozszerzeń formatu pliku
+Każde wymaga karty decyzji (🗳) i zasady 0.18. Kolejność znaczników na końcu linii ustala R.5 (dziś tylko `<!--c-->`); parser przyjmuje je w dowolnej kolejności, zapis zawsze w tej samej.
 
-Każde wymaga karty decyzji przed startem (🗳). Lista zmniejszona 2026-11-26: każdy nowy znacznik to coś, co inny edytor może popsuć (zasada 0.16).
-
-| Zapis                                                                                  | Znaczenie                                          | Zadanie       |
-| -------------------------------------------------------------------------------------- | -------------------------------------------------- | ------------- |
-| frontmatter `---` … `---` na początku pliku                                            | zachowany bez zmian, niewidoczny na mapie          | ✅ 2026-11-25 |
-| wcięta linia tuż pod `- węzeł`                                                         | dalszy ciąg tekstu węzła (wiele linii, Ctrl+Enter) | ✅ 2026-11-25 |
-| cytat `>` pod `- węzeł`                                                                | notatka                                            | 4.1           |
-| `[tekst](url)`, `![opis](url)`                                                         | link, obrazek                                      | 4.2           |
-| `- [ ] …` / `- [x] …`                                                                  | zadanie                                            | 4.3           |
-| `#tag` w tekście                                                                       | tag                                                | 4.4           |
-| nowe pola w `<!--style:{…}-->` (np. `edgeStyle:"round"`, kształt węzła według poziomu) | motywy mapy                                        | 5.7, 7.5      |
-| `<!--layout:radial-->`                                                                 | układ radialny                                     | 6.4 (etap X)  |
-| identyfikator węzła i relacja z kierunkiem strzałek (do ustalenia)                     | relacje                                            | R.5, 7.2      |
-| klamra przy kilku braciach (do ustalenia)                                              | podsumowanie                                       | 7.3           |
-| kartka z miejscem liczonym od korzenia (do ustalenia)                                  | kartka                                             | 7.6           |
-| `📅 RRRR-MM-DD` (może też `✅ RRRR-MM-DD`)                                             | termin zadania (rozszerzenie)                      | 8.3           |
-
-Kolejność znaczników na końcu linii węzła ustala R.5; dziś jest tylko `<!--c-->`. Parser musi przyjmować je w dowolnej kolejności, a zapis zawsze w tej samej.
+| Zapis                                                             | Znaczenie                                     | Zadanie       |
+| ----------------------------------------------------------------- | --------------------------------------------- | ------------- |
+| frontmatter `---` … `---` na początku pliku                       | zachowany bez zmian, niewidoczny na mapie     | ✅ 2026-11-25 |
+| wcięta linia tuż pod `- węzeł`                                    | dalszy ciąg tekstu węzła (Ctrl+Enter)         | ✅ 2026-11-25 |
+| cytat `>` pod `- węzeł`                                           | notatka                                       | 4.1           |
+| `[tekst](url)`, `![opis](url)`                                    | link, obrazek                                 | 4.2           |
+| `- [ ] …` / `- [x] …`                                             | zadanie                                       | 4.3           |
+| `#tag` w tekście                                                  | tag                                           | 4.4           |
+| nowe pola w `<!--style:{…}-->`                                    | motywy mapy                                   | 5.7, 7.5      |
+| `<!--layout:radial-->`                                            | układ radialny                                | 6.4           |
+| identyfikator węzła i relacja (do ustalenia)                      | relacje                                       | R.5, 7.2      |
+| klamra przy kilku braciach (do ustalenia)                         | podsumowanie                                  | 7.3           |
+| kartka z miejscem liczonym od korzenia (do ustalenia)             | kartka                                        | 7.6           |
+| `📅 RRRR-MM-DD` (może też `✅ RRRR-MM-DD`)                        | termin zadania (rozszerzenie)                 | 8.3           |
