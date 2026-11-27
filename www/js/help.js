@@ -38,7 +38,10 @@ const HELP = {
     ['klik obok', 'zatwierdź'],
     ['pusty tekst', 'nowy węzeł znika, istniejący wraca do poprzedniego'],
   ],
-  'Klawiatura (zwykły | vim)': ACT.filter(a => a.help !== false && (a.k || a.v)).map(helpRow),
+  'Klawiatura (zwykły | vim)': [
+    ...ACT.filter(a => a.help !== false && (a.k || a.v)).map(helpRow),
+    ['z|g|y|d|3', 'po chwili bez kolejnego klawisza dymek podpowiedzi pokazuje dalsze klawisze i czynności'],
+  ],
   Szukanie: [
     [
       'Ctrl+F',

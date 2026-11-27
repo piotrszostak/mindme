@@ -49,7 +49,7 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 - **Etapy 0, 1 i A:** sprawdzanie stylu i układu z pliku (A.1), pomiar wydajności z progami (A.2; cel: płynnie do 500 węzłów, także na telefonie), aliasy klawiszy (A.3), usunięcie Tauri (A.5), porządki (A.6).
 - **A.7 Ochrona danych (2026-11-27):** autozapis nie nadpisuje pliku zmienionego na dysku (np. przez Syncthing) ani mapy z innej karty – pyta; ostrzeżenie przy pełnej pamięci przeglądarki; widok Markdown nie gubi po cichu linii, których mapa nie pokaże; Ctrl+S w edycji i w widoku Markdown; hjkl idą tam, gdzie strzałki, a Alt+strzałki i H J K L przesuwają w stronę strzałki – w każdym układzie; nazwa „mindme” wszędzie; `#` i `-` bez spacji; `<!--layout/style-->` pod drugą mapą liczone jako pominięte; Service Worker nie czeka na wolną sieć dłużej niż 3 s; Capacitor usunięty do czasu portu (decyzje 2026-11-27).
 - **T.1:** adres https na GitHub Pages, publikacja po zielonych testach.
-- **2.1–2.5:** szukanie Ctrl+F i „/” (bez polskich znaków i wielkości liter), wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania, lista wszystkich trafień w palecie (Alt+Enter albo „wszystkie”; tryb listy `openList` także dla 2.7 i 4.8).
+- **2.1–2.6:** szukanie Ctrl+F i „/” (bez polskich znaków i wielkości liter), wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania, lista wszystkich trafień w palecie (Alt+Enter albo „wszystkie”; tryb listy `openList` także dla 2.7 i 4.8), dymek podpowiedzi klawiszy po prefiksie i liczniku.
 
 ## Odłożone
 
@@ -61,10 +61,6 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 # PODSTAWA (etapy 2–6)
 
 ## Etap 2 – Szukanie, schowek i paleta komend
-
-### 2.6 Podpowiedzi klawiszy (which-key)
-
-Po prefiksie vim (`z`, `g`, `y`, `d`, także po liczniku) i ok. 400 ms – dymek z kontynuacjami i nazwami z `ACT` (pola `v`), na dole w lewym rogu, nad paskiem stanu (decyzja 2026-11-27; „:” zostaje paletą u góry). Kolejny klawisz albo Esc zamyka; szybko wpisana sekwencja nie pokazuje go wcale, więc **bez przełącznika**. Testy w `keys.spec.js`, także w Firefoksie.
 
 ### 2.7 „Przenieś do…” (wzór: refile w Org-mode)
 

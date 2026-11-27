@@ -443,3 +443,156 @@ test('w polu edycji skróty mapy nie działają (pisze się tekst)', async ({ pa
   await keys(page, ['Shift+Tab', 'Enter']);
   expect(await md(page)).toContain('- b ggddxyy/?\n- c\n');
 });
+
+test.describe('dymek podpowiedzi klawiszy (2.6)', () => {
+  const WAIT = 450; // dymek po ok. 400 ms bez kolejnego klawisza
+  const wk = page => page.locator('#wk');
+  /** wiersze dymka: [klawisze, nazwa] */
+  const rows = page =>
+    page.evaluate(() => {
+      const n = [...$('wk').querySelectorAll('span')].map(e => e.textContent);
+      return [...$('wk').querySelectorAll('kbd')].map((e, i) => [e.textContent, n[i]]);
+    });
+  const Z = [
+    ['a', 'Zwiń / rozwiń'],
+    ['z', 'Pokaż zaznaczony węzeł'],
+    ['R', 'Rozwiń wszystko'],
+    ['M', 'Zwiń wszystko'],
+    ['1–9', 'Pokaż do poziomu N'],
+  ];
+  const COUNT = [
+    ['h j k l', 'Poruszanie'],
+    ['K', 'Przesuń w górę'],
+    ['J', 'Przesuń w dół'],
+    ['L', 'Wsuń poziom'],
+    ['H', 'Wysuń poziom'],
+    ['u', 'Cofnij'],
+  ];
+
+  test('po z i chwili: kontynuacje z ACT, w lewym dolnym rogu nad paskiem stanu, bez fokusu; klawisz zamyka i działa', async ({
+    page,
+  }) => {
+    await loadMap(page, MD);
+    await select(page, 'a');
+    await keys(page, ['z']);
+    await expect(wk(page)).toBeHidden(); // nie od razu
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    expect(await rows(page)).toEqual(Z);
+    const b = await wk(page).boundingBox(),
+      st = await page.locator('#st').boundingBox(),
+      main = await page.locator('#main').boundingBox();
+    expect(b.y + b.height).toBeLessThanOrEqual(st.y); // nie zasłania paska stanu
+    expect(b.y).toBeGreaterThanOrEqual(main.y); // nad mapą
+    expect(b.x).toBeLessThan(30); // lewy róg
+    expect(await page.evaluate(() => !!document.activeElement?.closest('#wk'))).toBe(false);
+    await keys(page, ['a']);
+    await expect(wk(page)).toBeHidden();
+    expect(await md(page)).toContain('- a <!--c-->');
+  });
+
+  test('g, y, d: po jednej pozycji (gg, yy, dd)', async ({ page }) => {
+    await loadMap(page, MD);
+    await select(page, 'b');
+    const before = await md(page);
+    for (const [k, t] of [
+      ['g', 'Pierwszy / ostatni węzeł'],
+      ['y', 'Kopiuj gałąź'],
+      ['d', 'Wytnij gałąź'],
+    ]) {
+      await keys(page, [k]);
+      await page.waitForTimeout(WAIT);
+      await expect(wk(page), k).toBeVisible();
+      expect(await rows(page), k).toEqual([[k, t]]);
+      await keys(page, ['Escape']);
+      await expect(wk(page), k).toBeHidden();
+    }
+    expect(await md(page)).toBe(before);
+  });
+
+  test('sekwencja wpisana szybko nie pokazuje dymka (za zwija)', async ({ page }) => {
+    await loadMap(page, MD);
+    await select(page, 'a');
+    await keys(page, ['z', 'a']);
+    await page.waitForTimeout(WAIT + 100);
+    await expect(wk(page)).toBeHidden();
+    expect(await md(page)).toContain('- a <!--c-->');
+    await keys(page, ['z', 'Shift+R']); // jak z klawiatury: najpierw sam Shift – prefiks czeka dalej
+    expect(await md(page)).not.toContain('<!--c-->');
+  });
+
+  test('Esc zamyka dymek i nic nie robi (prefiks i licznik)', async ({ page }) => {
+    await loadMap(page, MD);
+    await select(page, 'a');
+    const before = await md(page);
+    for (const k of ['z', '3']) {
+      await keys(page, [k]);
+      await page.waitForTimeout(WAIT);
+      await expect(wk(page), k).toBeVisible();
+      await keys(page, ['Escape']);
+      await expect(wk(page), k).toBeHidden();
+      expect(await md(page), k).toBe(before);
+      expect(await selText(page), k).toBe('a'); // Esc nie odznaczył
+    }
+    await keys(page, ['a']); // prefiks skasowany: „a” dodaje dziecko, nie zwija
+    await expect(page.locator('#ed')).toBeFocused();
+    await keys(page, ['Escape']);
+    await select(page, 'a');
+    await keys(page, ['j']); // licznik skasowany: jeden krok
+    expect(await selText(page)).toBe('b');
+  });
+
+  test('po liczniku: czynności, które go przyjmują; 3z działa jak z; Shift nie kasuje licznika', async ({ page }) => {
+    await loadMap(page, MD);
+    await select(page, 'a');
+    await keys(page, ['1', '2']);
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    expect(await rows(page)).toEqual(COUNT);
+    await keys(page, ['Escape']);
+    await keys(page, ['3']);
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    await keys(page, ['j']);
+    await expect(wk(page)).toBeHidden();
+    expect(await selText(page)).toBe('d');
+    await keys(page, ['3', 'z']);
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    expect(await rows(page)).toEqual(Z);
+    await keys(page, ['Escape']);
+    await select(page, 'a');
+    await keys(page, ['2']);
+    await page.waitForTimeout(WAIT);
+    await keys(page, ['Shift+J']); // Shift naciśnięty przed J nie kasuje licznika
+    await expect(wk(page)).toBeHidden();
+    expect(await md(page)).toContain('- b\n- c\n- a\n');
+  });
+
+  test('dymek i paleta nigdy naraz; z, potem : kasuje prefiks; klik w mapę zamyka', async ({ page }) => {
+    await loadMap(page, MD);
+    await select(page, 'a');
+    await keys(page, ['z']);
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    await keys(page, ['Control+k']);
+    await expect(page.locator('#pal')).toBeVisible();
+    await expect(wk(page)).toBeHidden();
+    await keys(page, ['Escape', 'Escape']); // zamknij paletę; drugi Esc kasuje prefiks (jak dziś zostaje po Ctrl+K)
+    await keys(page, ['z', 'Control+k']); // paleta przed upływem czasu – dymek nie wyskoczy nad nią
+    await page.waitForTimeout(WAIT + 100);
+    await expect(page.locator('#pal')).toBeVisible();
+    await expect(wk(page)).toBeHidden();
+    await keys(page, ['Escape', 'Escape']);
+    await keys(page, ['z', ':']); // jak dziś: kasuje prefiks, paleta się nie otwiera
+    await page.waitForTimeout(WAIT + 100);
+    await expect(page.locator('#pal')).toBeHidden();
+    await expect(wk(page)).toBeHidden();
+    await keys(page, ['z']);
+    await page.waitForTimeout(WAIT);
+    await expect(wk(page)).toBeVisible();
+    const m = await page.locator('#main').boundingBox();
+    await page.mouse.click(m.x + m.width - 20, m.y + 20);
+    await expect(wk(page)).toBeHidden();
+  });
+});

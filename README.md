@@ -60,6 +60,8 @@ Każda czynność ma skrót zwykły i skrót vim:
 | emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
 | wszystkie polecenia (paleta komend)        | Ctrl+K                               | `:`                                                   |
 
+**Dymek podpowiedzi:** gdy po `z`, `g`, `y`, `d` albo liczbie (np. `3`) przez chwilę nie naciśniesz kolejnego klawisza, w lewym dolnym rogu pojawia się lista dalszych klawiszy z nazwami czynności; kolejny klawisz albo Esc go zamyka.
+
 Schowek: kopiowanie i wycinanie zapisują gałąź także w schowku systemowym jako listę Markdown (można ją wkleić do notatki). Ctrl+V / Ctrl+Shift+V wklejają też tekst z innych aplikacji, np. notatkę z Obsidiana albo fragment strony: nagłówki tworzą poziomy, lista z wcięciami staje się gałęzią, a kilka zwykłych linii jedna pod drugą – jednym węzłem z kilkoma liniami (pusta linia zaczyna następny węzeł). „Wklej” w menu (myszą i palcem) działa jak Ctrl+V: bierze schowek systemowy (przeglądarka może zapytać o zgodę, Firefox pokazuje małe „Wklej” do kliknięcia), a gdy jest pusty albo przeglądarka odmówi – gałąź skopiowaną w aplikacji. Na telefonie bez dostępu do schowka (np. Firefox na Androidzie) otwiera okienko: przytrzymaj pole i wybierz „Wklej”. `p` / `P` zawsze wklejają gałąź skopiowaną w aplikacji.
 
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).

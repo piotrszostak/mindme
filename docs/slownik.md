@@ -68,6 +68,8 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | tryb listy (palety)                     | paleta z węzłami albo innymi pozycjami zamiast poleceń, z tytułem nad listą: lista trafień (2.5), „Przenieś do…” (2.7), `:lint` (4.8)                                           | `openList`            |
 | ścieżka (od korzenia)                   | przodkowie węzła od korzenia mapy, „Mapa › Projekt”; na liście trafień drobnym tekstem pod węzłem; w trybie skupienia – klikalna na pasku górnym (4.5)                          | `nodeItems`           |
 | skrót zwykły / skrót vim / ukryty alias | każda czynność ma skrót zwykły i vim; ukryty alias działa, ale nie ma go w pomocy, menu ani README                                                                               | `normal()`            |
+| prefiks, licznik (vim)                  | prefiks – pierwszy klawisz skrótu z dwóch (`z`, `g`, `y`, `d`, np. `z` w `za`); licznik – liczba przed skrótem, np. `3` w `3j` (trzy razy)                                       | `pend`, `cnt`         |
+| dymek podpowiedzi                       | okienko w lewym dolnym rogu, nad paskiem stanu: po prefiksie albo liczniku i chwili bez kolejnego klawisza pokazuje dalsze klawisze i nazwy czynności (2.6, „which-key”)        | `whichkey.js`, `#wk`  |
 
 ## Zapis i schowek
 

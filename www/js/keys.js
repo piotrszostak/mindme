@@ -13,6 +13,8 @@ function normal(ev) {
   /* Caps Lock: o wielkości litery decyduje Shift – inaczej „j” staje się „J” i zamiast poruszać, przesuwa węzły */
   if (c.length === 1 && c.toLowerCase() !== c.toUpperCase() && ev.getModifierState('CapsLock'))
     c = sh ? c.toUpperCase() : c.toLowerCase();
+  /* sam modyfikator to jeszcze nie klawisz: Shift przed R w „zR” albo J w „3J” nie kasuje prefiksu ani licznika */
+  if (c === 'Shift' || c === 'CapsLock' || c === 'AltGraph') return;
   if (ctrl && ev.altKey) {
     if (c.length === 1) ev.preventDefault(); /* AltGr (ą ć ę ł ń ó ś ź ż na Windowsie) – w trybie mapy nic nie robi */
     return;
@@ -87,6 +89,10 @@ function normal(ev) {
     cnt = cnt * 10 + +c;
     info(cnt + '');
     return;
+  }
+  if (c === 'Escape' && cnt && !pend) {
+    cnt = 0; /* Esc po liczniku tylko go kasuje (jak po prefiksie) – nie odznacza */
+    return info('');
   }
   const n = cnt || 1,
     f = S();

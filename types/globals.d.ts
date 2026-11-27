@@ -139,6 +139,8 @@ interface Act {
   k?: string[];
   /** skróty vim */
   v?: string[];
+  /** skrót vim przyjmuje licznik (np. 3j) – pokazuje go dymek podpowiedzi po wpisaniu liczby; obsługa w `normal()` */
+  cnt?: boolean;
   /** komenda „:” (bez dwukropka) i jej inne zapisy */
   c?: string;
   ca?: string[];
@@ -248,6 +250,7 @@ interface Elements {
   askt: HTMLParagraphElement;
   askf: HTMLTextAreaElement;
   askb: HTMLDivElement;
+  wk: HTMLDivElement;
   st: HTMLDivElement;
   mode: HTMLSpanElement;
   cmd: HTMLInputElement;
