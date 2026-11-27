@@ -2,6 +2,8 @@
 
 PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Najpierw PWA; inne platformy (APK, Linux) dopiero po niej (`ROADMAP.md`, „Po PWA”).
 
+Bieżąca praca – notatka z `/przekazanie` (lokalna, poza gitem) wczytuje się sama, gdy plik istnieje; to stan ze startu sesji: @HANDOVER.md
+
 ## Polecenia
 
 - `npm run serve` – podgląd (http://localhost:3000); w aplikacji desktopowej panel podglądu, serwer `mindme` z `.claude/launch.json`
