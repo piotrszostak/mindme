@@ -118,7 +118,7 @@ test.describe('paleta komend', () => {
     expect(at('Układ w dół')).toBeLessThan(at('Otwórz plik…'));
     expect(at('Eksportuj PNG')).toBeLessThan(at('Pomoc i skróty'));
     // bez samego poruszania się i bez samej palety
-    for (const t of ['Poruszanie', 'Pierwszy / ostatni węzeł', 'Następne trafienie', 'Wszystkie polecenia…'])
+    for (const t of ['Poruszanie', 'Pierwszy węzeł', 'Ostatni węzeł', 'Następne trafienie', 'Wszystkie polecenia…'])
       expect(n).not.toContain(t);
     // skróty: zwykły i vim; gdy vim nie ma – komenda „:”
     await expect(row(page, 'dup').locator('kbd')).toHaveText(['Ctrl+D']);

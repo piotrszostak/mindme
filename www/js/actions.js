@@ -30,7 +30,9 @@ const ACT = [
     d: 'zgodnie z układem; vim z licznikiem, np. 3j',
     cnt: true,
   },
-  { id: 'ends', t: 'Pierwszy / ostatni węzeł', k: ['Home', 'End'], v: ['gg', 'G'] },
+  /* osobno, bo dymek po „g” pokazuje tylko gg (decyzja 2026-11-27) */
+  { id: 'first', t: 'Pierwszy węzeł', k: ['Home'], v: ['gg'] },
+  { id: 'last', t: 'Ostatni węzeł', k: ['End'], v: ['G'] },
   { id: 'sibends', t: 'Pierwszy / ostatni brat', v: ['0', '$'] },
   /* węzeł */
   { id: 'edit', ic: 'edit', t: 'Edytuj', k: ['Spacja'], v: ['i', 'e'], f: () => startEdit(sel), off: needSel },

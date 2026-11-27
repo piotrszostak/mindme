@@ -43,7 +43,8 @@ Każda czynność ma skrót zwykły i skrót vim:
 | Czynność                                   | Zwykły                               | vim                                                   |
 | ------------------------------------------ | ------------------------------------ | ----------------------------------------------------- |
 | poruszanie (zgodnie z układem)             | strzałki                             | `h` `j` `k` `l` (z licznikiem, np. `3j`)              |
-| pierwszy / ostatni węzeł                   | Home / End                           | `gg` / `G`                                            |
+| pierwszy węzeł                             | Home                                 | `gg`                                                  |
+| ostatni węzeł                              | End                                  | `G`                                                   |
 | edytuj / od pustego tekstu                 | Spacja                               | `i` lub `e` / `c`                                     |
 | brat poniżej / powyżej                     | Enter / Shift+Enter                  | `o` lub `s` / `O` lub `S`                             |
 | dziecko                                    | Tab                                  | `a`                                                   |

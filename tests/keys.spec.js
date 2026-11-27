@@ -186,6 +186,14 @@ for (const [name, start, std, vim, check, more = []] of PAIRS) {
 
 // Testy szukania (/, Ctrl+F, n / N) są w search.spec.js.
 
+// decyzja 2026-11-27: dymek po „g” nie może mówić „pierwszy / ostatni”, skoro gg to tylko pierwszy węzeł
+test('pierwszy i ostatni węzeł to dwie czynności: Home | gg i End | G (pomoc)', async ({ page }) => {
+  const rows = await page.evaluate(() => HELP['Klawiatura (zwykły | vim)']);
+  expect(rows).toContainEqual(['Home|gg', 'pierwszy węzeł']);
+  expect(rows).toContainEqual(['End|G', 'ostatni węzeł']);
+  expect(rows.map(r => r[1])).not.toContain('pierwszy / ostatni węzeł');
+});
+
 test('edytuj od pustego tekstu: c (vim); pusty tekst przywraca poprzedni', async ({ page }) => {
   await loadMap(page, MD);
   await select(page, 'b');
@@ -513,7 +521,7 @@ test.describe('dymek podpowiedzi klawiszy (2.6)', () => {
     await select(page, 'b');
     const before = await md(page);
     for (const [k, t] of [
-      ['g', 'Pierwszy / ostatni węzeł'],
+      ['g', 'Pierwszy węzeł'],
       ['y', 'Kopiuj gałąź'],
       ['d', 'Wytnij gałąź'],
     ]) {
