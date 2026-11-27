@@ -2,6 +2,7 @@
 
     npm i && npx playwright install chromium firefox
     npm test            # sam uruchomi `npx serve www -l 3000`, jeśli nie działa
+    PW_PORT=3101 npx playwright test …   # inny port: równoległa kopia repozytorium (worktree) albo zajęty :3000
 
 Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich):
 

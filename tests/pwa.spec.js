@@ -16,9 +16,9 @@ test('sw.js ma w cache wszystkie skrypty i style z index.html', () => {
 });
 
 // GitHub Pages podaje aplikację z podkatalogu (https://…github.io/mindme/), więc ścieżki muszą być względne.
-test('aplikacja działa z podkatalogu (jak na GitHub Pages): nic nie sięga poza niego', async ({ page }) => {
+test('aplikacja działa z podkatalogu (jak na GitHub Pages): nic nie sięga poza niego', async ({ page, baseURL }) => {
   const outside = [];
-  await page.route('http://localhost:3000/**', async route => {
+  await page.route(`${baseURL}/**`, async route => {
     const u = new URL(route.request().url());
     if (!u.pathname.startsWith('/mindme/')) {
       outside.push(u.pathname);

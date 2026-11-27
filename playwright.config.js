@@ -23,15 +23,19 @@ if (inContainer && fs.existsSync(libs)) {
     .join(':');
 }
 
+// Port serwera testowego: domyślnie 3000; równoległa kopia repozytorium (worktree) dostaje własny, np. PW_PORT=3101,
+// bo przy reuseExistingServer testy użyłyby cudzego serwera (np. podglądu) z innym kodem.
+const port = Number(process.env.PW_PORT) || 3000;
+
 module.exports = defineConfig({
   testDir: 'tests',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: `http://localhost:${port}`,
     serviceWorkers: 'block', // bez cache SW – zawsze świeży index.html
     reducedMotion: 'reduce', // animacje natychmiastowe; testy animacji włączają ruch same
     viewport: { width: 1280, height: 800 },
   },
-  webServer: { command: 'npx serve www -l 3000', url: 'http://localhost:3000', reuseExistingServer: true },
+  webServer: { command: `npx serve www -l ${port}`, url: `http://localhost:${port}`, reuseExistingServer: true },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
     // Firefox: skróty klawiszowe przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”
