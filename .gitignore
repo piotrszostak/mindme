@@ -4,8 +4,6 @@ test-results/
 playwright-report/
 # biblioteki przeglądarek pobrane lokalnie (kontener bez roota)
 .pw-libs/
-# Capacitor – generowane
-android/
 
 # notatki przekazania sesji (lokalne)
 HANDOVER.md

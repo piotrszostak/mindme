@@ -13,15 +13,10 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6",
     "@playwright/test": "1.65.1",
     "prettier": "^3.10.1",
     "serve": "^14.2.8",
     "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "@capacitor/android": "^6",
-    "@capacitor/core": "^6"
   },
   "license": "MIT"
 }

@@ -1,6 +1,6 @@
 # Mapa myśli – notatki dla agenta
 
-PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Docelowo także Android (Capacitor 6).
+PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Najpierw PWA; inne platformy (APK, Linux) dopiero po niej (`ROADMAP.md`, „Po PWA”).
 
 ## Polecenia
 
@@ -53,7 +53,6 @@ Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie
 - Otwarte błędy i rzeczy do sprawdzenia → `docs/znane-problemy.md` (w gicie); `HANDOVER.md` (lokalny) tylko na bieżącą pracę.
 - Zmiany widoczne na ekranie oglądasz w panelu podglądu (serwer `mapa`), także w rozmiarze telefonu. Dotyk, przeciąganie i płynność: `/na-telefonie`.
 - Prototypy (`/prototyp`): `www/_prototyp/<temat>/`, w podglądzie `/_prototyp/<temat>/`.
-- Capacitor jest w wersji 6, a jego dokumentacja domyślnie pokazuje 8 – czytaj tę dla wersji 6.
 
 ## Pułapki (już raz nas ugryzły)
 
