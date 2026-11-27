@@ -49,7 +49,7 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 - **Etapy 0, 1 i A:** sprawdzanie stylu i układu z pliku (A.1), pomiar wydajności z progami (A.2; cel: płynnie do 500 węzłów, także na telefonie), aliasy klawiszy (A.3), usunięcie Tauri (A.5), porządki (A.6).
 - **A.7 Ochrona danych (2026-11-27):** autozapis nie nadpisuje pliku zmienionego na dysku (np. przez Syncthing) ani mapy z innej karty – pyta; ostrzeżenie przy pełnej pamięci przeglądarki; widok Markdown nie gubi po cichu linii, których mapa nie pokaże; Ctrl+S w edycji i w widoku Markdown; hjkl idą tam, gdzie strzałki, a Alt+strzałki i H J K L przesuwają w stronę strzałki – w każdym układzie; nazwa „mindme” wszędzie; `#` i `-` bez spacji; `<!--layout/style-->` pod drugą mapą liczone jako pominięte; Service Worker nie czeka na wolną sieć dłużej niż 3 s; Capacitor usunięty do czasu portu (decyzje 2026-11-27).
 - **T.1:** adres https na GitHub Pages, publikacja po zielonych testach.
-- **2.1–2.3:** szukanie Ctrl+F i „/”, wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie.
+- **2.1–2.4:** szukanie Ctrl+F i „/”, wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania w kolorach trybu.
 
 ## Odłożone
 
@@ -61,10 +61,6 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 # PODSTAWA (etapy 2–6)
 
 ## Etap 2 – Szukanie, schowek i paleta komend
-
-### 2.4 Pasek przewijania
-
-Cienki pasek w kolorach trybu jasnego i ciemnego: `scrollbar-width: thin` i `scrollbar-color` (Firefox) oraz `::-webkit-scrollbar` (Chromium). Jedna reguła w `app.css` dla wszystkich przewijanych miejsc (paleta, panel „Wygląd mapy”, widok Markdown, pomoc, emoji). Przed commitem zrzut ekranu dla użytkownika (jasny, ciemny, telefon).
 
 ### 2.5 Lista wszystkich trafień
 

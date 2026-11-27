@@ -27,6 +27,24 @@
   --bar: #26282c;
   --acc: #7aa2ff;
 }
+/* pasek przewijania: cienki, w kolorach trybu; `*`, bo scrollbar-width się nie dziedziczy (każde przewijane miejsce) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+/* starsze Chromium i Android WebView bez scrollbar-color; nowe Chromium i Firefox biorą reguły wyżej i te pomijają */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
 html,
 body {
   height: 100%;

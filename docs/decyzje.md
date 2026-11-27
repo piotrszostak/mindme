@@ -8,6 +8,7 @@ Wpis: data, decyzja, powód, odrzucone opcje. Założenia agenta oznaczone jako 
 
 ## Podjęte
 
+- **2026-11-27 – 2.4 Pasek przewijania** (wygląd zaakceptowany przez użytkownika na zrzutach: jasny, ciemny, telefon). Jedna reguła dla wszystkich elementów (`*`, bo `scrollbar-width` się nie dziedziczy): cienki pasek, uchwyt w kolorze linii trybu (`--line`), tło przezroczyste; dla starszego Chromium i Android WebView zapasowe `::-webkit-scrollbar` 8 px. Założenia agenta: bez zmiany koloru po najechaniu; strzałki, które nowe Chromium rysuje przy cienkim pasku, zostają. Na telefonie przeglądarka pokazuje pasek tylko w trakcie przewijania.
 - **2026-11-27 – Etap 2 (2.5–2.7): ustalenia przed pracą** (przejście z użytkownikiem po zadaniach etapu; wybory użytkownika).
   - **Lista trafień (2.5): węzeł z kilkoma liniami w jednym wierszu**, linie złączone „ · ” (np. `Zakupy · mleko i chleb`), szukane litery wyróżnione jak w palecie, za długi tekst kończy się „…”. Odrzucone: tylko linia z trafieniem (nie widać początku węzła).
   - **Szukanie zawsze bez polskich znaków (2.5)** – potwierdzone („zolw” znajduje „Żółw”, „laka” – „łąka”); wszędzie: Ctrl+F, „/”, n / N, lista trafień, jak w palecie. Odrzucone: dokładne szukanie, gdy zapytanie ma polską literę (druga zasada do zapamiętania, paleta działałaby inaczej).
