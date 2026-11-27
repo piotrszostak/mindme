@@ -69,17 +69,17 @@ Cienki pasek w kolorach trybu jasnego i ciemnego: `scrollbar-width: thin` i `scr
 ### 2.5 Lista wszystkich trafień
 
 - Ctrl+F i „/” skaczą po trafieniach; **Alt+Enter** w polu szukania (sprawdź według 0.5) albo przycisk „wszystkie” otwiera paletę w trybie „Trafienia (N)”: tekst i drobna, wyszarzona ścieżka od korzenia. Enter / klik → `go` (z rozwinięciem przodków), Esc zamyka. Paleta nie dostaje drugiego szukania węzłów.
-- Jak pokazać węzeł z kilkoma liniami (np. złączone „ · ”) – ustal z użytkownikiem.
-- Szukanie bez polskich znaków i wielkości liter („zolw” → „Żółw”) – w Ctrl+F, „/”, n / N i liście, żeby liczba trafień była wszędzie ta sama. Zmienia dzisiejsze zachowanie – potwierdź.
+- Węzeł z kilkoma liniami: jeden wiersz, linie złączone „ · ”, szukane litery wyróżnione, za długi kończy się „…” (decyzja 2026-11-27).
+- Szukanie bez polskich znaków i wielkości liter („zolw” → „Żółw”) – w Ctrl+F, „/”, n / N i liście, żeby liczba trafień była wszędzie ta sama (potwierdzone 2026-11-27).
 - Z tego trybu listy korzysta też `:lint` (4.8) i „Przenieś do…” (2.7). Testy: `search.spec.js`, `palette.spec.js`.
 
 ### 2.6 Podpowiedzi klawiszy (which-key)
 
-Po prefiksie vim (`z`, `g`, `y`, `d`, także po liczniku) i ok. 400 ms – dymek z kontynuacjami i nazwami z `ACT` (pola `v`). Kolejny klawisz albo Esc zamyka; szybko wpisana sekwencja nie pokazuje go wcale, więc **bez przełącznika**. Testy w `keys.spec.js`, także w Firefoksie.
+Po prefiksie vim (`z`, `g`, `y`, `d`, także po liczniku) i ok. 400 ms – dymek z kontynuacjami i nazwami z `ACT` (pola `v`), na dole w lewym rogu, nad paskiem stanu (decyzja 2026-11-27; „:” zostaje paletą u góry). Kolejny klawisz albo Esc zamyka; szybko wpisana sekwencja nie pokazuje go wcale, więc **bez przełącznika**. Testy w `keys.spec.js`, także w Firefoksie.
 
 ### 2.7 „Przenieś do…” (wzór: refile w Org-mode)
 
-W palecie komend na zaznaczonej gałęzi: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista z 2.5), Enter przenosi gałąź jako ostatnie dziecko celu; zaznaczenie zostaje na niej. Lista pomija samą gałąź i jej potomków. Bez pozycji w menu podręcznym (na telefonie: „…” → „Wszystkie polecenia…”); komenda „:” i skróty – ustal według 0.5. Jeden krok cofania. Testy w `palette.spec.js`, także w Firefoksie.
+W palecie komend na zaznaczonej gałęzi: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista z 2.5), Enter przenosi gałąź jako ostatnie dziecko celu; zaznaczenie zostaje na niej. Lista pomija samą gałąź i jej potomków. Pozycja „Przenieś do…” w menu podręcznym. Skróty wstępnie Ctrl+M, `m`, `:m` (decyzja 2026-11-27) – najpierw test w Firefoksie, że Ctrl+M nie wycisza karty; jeśli nie da się go przejąć – karta. Jeden krok cofania. Testy w `palette.spec.js`, także w Firefoksie.
 
 **Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` aktualne.
 
