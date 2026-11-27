@@ -81,6 +81,8 @@ Decyzja 2026-11-26 (wzór: SimpleMind, wariant 1): tylko przy zaznaczonym węźl
 
 ### 3.5 Panel właściwości węzła – tylko jeśli jest w projekcie
 
+**Pominięte** (decyzja 2026-11-27, `docs/decyzje.md`): projekt 3.2 nie przewiduje panelu; notatka, link i zadanie z „⋯” na pasku nad węzłem.
+
 Jeden opis pól (nazwa, rodzaj, odczyt i zapis do węzła) buduje panel; każda zmiana to `snap()` / `changed()`. Jeśli projekt go nie przewiduje – pomiń i zapisz w `docs/decyzje.md`.
 
 ### 3.6 Widok drzewa
