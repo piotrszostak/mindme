@@ -245,6 +245,7 @@ function openCmd(p, bar) {
   findQ = null;
   const c = $('cmd');
   c.style.display = 'block';
+  $('cmdall').hidden = p !== '/'; /* „wszystkie” – lista trafień (2.5), na telefonie jedyna droga */
   c.value = p;
   c.focus();
 }
@@ -252,6 +253,7 @@ function closeCmd() {
   const c = $('cmd');
   c.blur();
   c.style.display = 'none';
+  $('cmdall').hidden = true;
   setMode('NORMAL');
 } /* fokus nie może zostać w ukrytym polu (Chromium) */
 $('cmd').addEventListener('keydown', ev => {
@@ -259,6 +261,10 @@ $('cmd').addEventListener('keydown', ev => {
   const v = $('cmd').value,
     d = ev.shiftKey ? -1 : 1;
   if (ev.key === 'Escape') return closeCmd();
+  if (ev.key === 'Enter' && ev.altKey && v[0] === '/') {
+    ev.preventDefault();
+    return hitList(v.slice(1)); /* lista wszystkich trafień (2.5) */
+  }
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'f') {
     /* Ctrl+F w otwartym polu: jak w przeglądarce zaznacz zapytanie (inaczej otworzy się szukanie na stronie) */
     ev.preventDefault();
@@ -302,28 +308,30 @@ document.addEventListener('paste', e => {
 document.addEventListener(
   'pointerdown',
   e => {
-    if ($('cmd').style.display === 'block' && e.target !== $('cmd')) closeCmd();
+    const t = e.target;
+    if ($('cmd').style.display === 'block' && t !== $('cmd') && t !== $('cmdall')) closeCmd();
   },
   true
 );
 /** @param {string} q @param {number} [d] 1 – od pierwszego trafienia, −1 – od ostatniego */
 function search(q, d = 1) {
-  q = q.toLowerCase();
-  hits = q
-    ? (function w(/** @type {MapNode} */ n, /** @type {number[]} */ a = []) {
-        if (n.text.toLowerCase().includes(q)) a.push(n.id);
-        n.children.forEach(c => w(c, a));
-        return a;
-      })(root)
-    : [];
+  /* bez polskich znaków i wielkości liter, jak lista trafień (`matchAt` w palette.js) */
+  hits = (function w(/** @type {MapNode} */ n, /** @type {number[]} */ a = []) {
+    if (matchAt(q, n.text)) a.push(n.id);
+    n.children.forEach(c => w(c, a));
+    return a;
+  })(root);
   hi = d > 0 ? -1 : 0;
   if (!hits.length) return info('0 trafień');
   jump(d);
 }
 /** następne (1) / poprzednie (−1) trafienie @param {number} d */
 function jump(d) {
-  if (!hits.length) return;
-  hi = (hi + d + hits.length) % hits.length;
+  if (hits.length) hitGo((hi + d + hits.length) % hits.length);
+}
+/** przejdź do i-tego trafienia (rozwija zwiniętych przodków) @param {number} i */
+function hitGo(i) {
+  hi = i;
   sel = hits[hi];
   showSel();
   go(sel);

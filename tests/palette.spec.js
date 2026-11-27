@@ -465,5 +465,85 @@ test.describe('paleta: menu „…” i telefon', () => {
       await expect(pal(page)).toBeHidden();
       expect(await texts(page)).toContain('- Jeden <!--c-->');
     });
+
+    test('lista trafień z przycisku „wszystkie”: 5 wierszy z tekstem i ścieżką, stuknięcie idzie do węzła', async ({
+      page,
+    }) => {
+      await loadMap(page, '# R\n' + [...Array(8)].map((_, i) => `- grupa ${i}\n  - x${i}\n`).join(''));
+      await page.evaluate(() => openCmd('/', true)); // na telefonie: „…” → Wszystkie polecenia → Szukaj
+      await page.locator('#cmd').fill('/x');
+      await page.locator('#cmdall').tap();
+      await expect(pal(page)).toBeVisible();
+      await expect(page.locator('#palt')).toHaveText('Trafienia (8)');
+      const b = await pal(page).boundingBox();
+      expect(b.x + b.width).toBeLessThanOrEqual(390);
+      const l = await page.$eval('#pall', e => ({
+        ch: e.clientHeight,
+        rh: /** @type {HTMLElement} */ (e.querySelector('.pi')).offsetHeight,
+      }));
+      expect(Math.round(l.ch / l.rh)).toBe(5);
+      expect(l.rh).toBeGreaterThanOrEqual(44);
+      await rows(page).nth(2).tap();
+      await expect(pal(page)).toBeHidden();
+      expect(await selText(page)).toBe('x2');
+    });
+  });
+});
+
+test.describe('paleta: tryb listy (lista trafień 2.5, „Przenieś do…” 2.7, :lint 4.8)', () => {
+  const ITEMS = [
+    { id: 11, t: 'Badania · ankiety', sub: 'Projekt' },
+    { id: 12, t: 'Strona www', sub: 'Projekt › Marketing' },
+    { id: 13, t: 'Budżet', sub: '' },
+  ];
+  test('ogólne wejście: tytuł, pozycje ze ścieżką, wpisywane litery zawężają listę, Enter wybiera pozycję', async ({
+    page,
+  }) => {
+    await page.evaluate(
+      items => openList({ title: 'Przenieś do…', items, pick: it => (window.__pick = it.id), filter: true }),
+      ITEMS
+    );
+    await expect(pal(page)).toBeVisible();
+    await expect(page.locator('#palt')).toHaveText('Przenieś do…');
+    await expect(palq(page)).toBeFocused();
+    await expect(palq(page)).toBeEditable();
+    expect(await names(page)).toEqual(['Badania · ankiety', 'Strona www', 'Budżet']);
+    await expect(rows(page).nth(1).locator('.ps')).toHaveText('Projekt › Marketing');
+    await expect(rows(page).nth(2).locator('.ps')).toHaveCount(0); // bez ścieżki – jedna linia
+    await page.keyboard.type('bud');
+    expect(await names(page)).toEqual(['Budżet']);
+    await expect(rows(page).first().locator('.m')).toHaveText('Bud');
+    await palq(page).fill('zzz');
+    await expect(page.locator('#pall .none')).toHaveText('Nic nie pasuje');
+    await palq(page).fill('ba');
+    expect((await names(page))[0]).toBe('Badania · ankiety');
+    await page.keyboard.press('Enter');
+    await expect(pal(page)).toBeHidden();
+    expect(await page.evaluate(() => window.__pick)).toBe(11);
+    expect(await page.evaluate(() => localStorage.getItem('mm.cmd'))).toBeNull();
+    // potem zwykła paleta poleceń: bez tytułu, z poleceniami
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#palt')).toBeHidden();
+    await expect(palq(page)).toHaveAttribute('placeholder', 'Szukaj polecenia…');
+    await expect(palq(page)).toBeEditable();
+    expect(await names(page)).toContain('Edytuj');
+    await page.keyboard.press('Escape');
+  });
+
+  test('bez zawężania: pole tylko do odczytu, litery nie zmieniają listy; Esc zamyka bez wyboru', async ({ page }) => {
+    await page.evaluate(
+      items => openList({ title: 'Problemy (3)', items, pick: it => (window.__pick = it.id) }),
+      ITEMS
+    );
+    await expect(page.locator('#palt')).toHaveText('Problemy (3)');
+    await expect(palq(page)).toBeFocused();
+    await page.keyboard.type('bud');
+    await expect(rows(page)).toHaveCount(3);
+    await page.keyboard.press('ArrowDown');
+    await expect(hi(page)).toHaveText(/Strona www/);
+    await page.keyboard.press('Escape');
+    await expect(pal(page)).toBeHidden();
+    expect(await page.evaluate(() => window.__pick)).toBeUndefined();
+    expect(await page.evaluate(() => mode)).toBe('NORMAL');
   });
 });

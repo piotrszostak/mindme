@@ -54,6 +54,7 @@ Każda czynność ma skrót zwykły i skrót vim:
 | przesuń, wsuń, wysuń (zgodnie z układem)   | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
 | cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z, Ctrl+Y        | `u` / Ctrl+R                                          |
 | szukaj, następne, poprzednie               | Ctrl+F, Ctrl+G, Ctrl+Shift+G         | `/`, `n`, `N`                                         |
+| lista wszystkich trafień (w polu szukania) | Alt+Enter                            | Alt+Enter                                             |
 | dopasuj całą mapę / pokaż zaznaczony węzeł | Shift+1 / Shift+2 (z przybliżeniem)  | `=` / `zz`                                            |
 | menu podręczne / odznacz                   | klawisz Menu / Esc                   |                                                       |
 | emoji / pomoc                              | Ctrl+. / Ctrl+/                      | `?`                                                   |
@@ -63,7 +64,7 @@ Schowek: kopiowanie i wycinanie zapisują gałąź także w schowku systemowym j
 
 Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń).
 
-**Szukanie:** po Ctrl+F pole zostaje otwarte jak w przeglądarce: Enter i Shift+Enter przechodzą do następnego i poprzedniego trafienia, a Esc zamyka pole. Po `/` Enter szuka i zamyka pole jak w vim, a dalej działają `n` i `N`.
+**Szukanie:** po Ctrl+F pole zostaje otwarte jak w przeglądarce: Enter i Shift+Enter przechodzą do następnego i poprzedniego trafienia, a Esc zamyka pole. Po `/` Enter szuka i zamyka pole jak w vim, a dalej działają `n` i `N`. Wielkość liter i polskie znaki nie mają znaczenia: „zolw” znajdzie „Żółw”, a „laka” – „łąka”. Alt+Enter w polu (albo przycisk _wszystkie_ obok niego – na telefonie jedyna droga) otwiera listę wszystkich trafień: tekst węzła w jednym wierszu (linie złączone „ · ”) i drobna ścieżka od korzenia, np. „Mapa › Projekt”. Enter albo klik przechodzi do węzła (zwinięte gałęzie się rozwijają), Esc zamyka listę, a `n` / `N` idą dalej od wybranego trafienia.
 
 **Paleta komend:** Ctrl+K otwiera u góry okienko ze wszystkimi poleceniami, ich skrótami i 5 ostatnio użytymi na początku. Wpisany tekst zawęża listę: słowa można podać w dowolnej kolejności, bez polskich znaków (np. „zw wsz” znajdzie „Zwiń wszystko”). Strzałki wybierają, Enter uruchamia, a Esc zamyka. Na telefonie paletę otwiera menu „…” → „Wszystkie polecenia…”.
 

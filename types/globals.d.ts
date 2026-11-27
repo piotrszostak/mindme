@@ -168,6 +168,37 @@ interface PalItem {
   rec: string;
   /** pozycje dopasowanych znaków nazwy (`[...t]`) – wyróżnione litery */
   hit?: number[];
+  /** tryb listy: drobna, wyszarzona linia pod tekstem (ścieżka od korzenia) */
+  sub?: string;
+}
+
+/** Pozycja trybu listy palety (`openList`; dla węzłów mapy – `nodeItems`). */
+interface ListItem {
+  /** id węzła (albo inny numer pozycji) */
+  id: number;
+  /** tekst w jednym wierszu (za długi kończy się „…”) */
+  t: string;
+  /** drobna linia pod tekstem, np. ścieżka „Mapa › Projekt” ('' – bez niej) */
+  sub?: string;
+  /** pozycje znaków `[...t]` do wyróżnienia, gdy nic nie wpisano */
+  hit?: number[];
+  /** powód niedostępności (szara, na końcu, strzałki ją pomijają) */
+  off?: string;
+}
+
+/** Tryb listy palety (`openList`): lista trafień (2.5), „Przenieś do…” (2.7), `:lint` (4.8). */
+interface PalList {
+  /** tytuł nad listą, np. „Trafienia (7)” */
+  title: string;
+  items: ListItem[];
+  /** Enter / klik – paleta jest już zamknięta */
+  pick: (it: ListItem) => unknown;
+  /** wpisywane litery zawężają listę (dopasowanie z 2.3); bez tego pole jest tylko do odczytu i niewidoczne */
+  filter?: boolean;
+  /** podpowiedź w pustym polu (domyślnie „Wpisz, żeby zawęzić…”) */
+  hint?: string;
+  /** napis, gdy nic nie pasuje (domyślnie „Nic nie pasuje”) */
+  none?: string;
 }
 
 /** Pozycja menu (`openMenu`). */
@@ -210,6 +241,7 @@ interface Elements {
   emo: HTMLDivElement;
   pal: HTMLDivElement;
   palq: HTMLInputElement;
+  palt: HTMLDivElement;
   pall: HTMLDivElement;
   clip: HTMLTextAreaElement;
   ask: HTMLDialogElement;
@@ -219,6 +251,7 @@ interface Elements {
   st: HTMLDivElement;
   mode: HTMLSpanElement;
   cmd: HTMLInputElement;
+  cmdall: HTMLButtonElement;
   info: HTMLSpanElement;
   hint: HTMLSpanElement;
   save: HTMLSpanElement;

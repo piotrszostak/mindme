@@ -64,7 +64,9 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | polecenie / czynność                    | jedna rzecz do zrobienia z nazwą, skrótami i komendą; w interfejsie „polecenie”, w kodzie i planie „czynność”                                                                    | `ACT`                 |
 | paleta komend                           | okienko „Wszystkie polecenia…” (Ctrl+K)                                                                                                                                          | `openPal`             |
 | komenda „:”                             | polecenie wpisane w palecie po dwukropku, np. `:w`, `:layout down`                                                                                                               | `exec`                |
-| szukanie, trafienie, lista trafień      | Ctrl+F albo `/`; trafienie to znaleziony węzeł; lista wszystkich trafień (2.5)                                                                                                   | `search`, `jump`      |
+| szukanie, trafienie, lista trafień      | Ctrl+F albo `/`, zawsze bez polskich znaków i wielkości liter; trafienie to znaleziony węzeł; lista trafień – wszystkie naraz w palecie (Alt+Enter albo przycisk „wszystkie” w polu szukania, 2.5) | `search`, `jump`, `hitList` |
+| tryb listy (palety)                     | paleta z węzłami albo innymi pozycjami zamiast poleceń, z tytułem nad listą: lista trafień (2.5), „Przenieś do…” (2.7), `:lint` (4.8)                                           | `openList`            |
+| ścieżka (od korzenia)                   | przodkowie węzła od korzenia mapy, „Mapa › Projekt”; na liście trafień drobnym tekstem pod węzłem; w trybie skupienia – klikalna na pasku górnym (4.5)                          | `nodeItems`           |
 | skrót zwykły / skrót vim / ukryty alias | każda czynność ma skrót zwykły i vim; ukryty alias działa, ale nie ma go w pomocy, menu ani README                                                                               | `normal()`            |
 
 ## Zapis i schowek

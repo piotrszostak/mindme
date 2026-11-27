@@ -49,7 +49,7 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 - **Etapy 0, 1 i A:** sprawdzanie stylu i układu z pliku (A.1), pomiar wydajności z progami (A.2; cel: płynnie do 500 węzłów, także na telefonie), aliasy klawiszy (A.3), usunięcie Tauri (A.5), porządki (A.6).
 - **A.7 Ochrona danych (2026-11-27):** autozapis nie nadpisuje pliku zmienionego na dysku (np. przez Syncthing) ani mapy z innej karty – pyta; ostrzeżenie przy pełnej pamięci przeglądarki; widok Markdown nie gubi po cichu linii, których mapa nie pokaże; Ctrl+S w edycji i w widoku Markdown; hjkl idą tam, gdzie strzałki, a Alt+strzałki i H J K L przesuwają w stronę strzałki – w każdym układzie; nazwa „mindme” wszędzie; `#` i `-` bez spacji; `<!--layout/style-->` pod drugą mapą liczone jako pominięte; Service Worker nie czeka na wolną sieć dłużej niż 3 s; Capacitor usunięty do czasu portu (decyzje 2026-11-27).
 - **T.1:** adres https na GitHub Pages, publikacja po zielonych testach.
-- **2.1–2.4:** szukanie Ctrl+F i „/”, wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania w kolorach trybu.
+- **2.1–2.5:** szukanie Ctrl+F i „/” (bez polskich znaków i wielkości liter), wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania, lista wszystkich trafień w palecie (Alt+Enter albo „wszystkie”; tryb listy `openList` także dla 2.7 i 4.8).
 
 ## Odłożone
 
@@ -61,13 +61,6 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 # PODSTAWA (etapy 2–6)
 
 ## Etap 2 – Szukanie, schowek i paleta komend
-
-### 2.5 Lista wszystkich trafień
-
-- Ctrl+F i „/” skaczą po trafieniach; **Alt+Enter** w polu szukania (sprawdź według 0.5) albo przycisk „wszystkie” otwiera paletę w trybie „Trafienia (N)”: tekst i drobna, wyszarzona ścieżka od korzenia. Enter / klik → `go` (z rozwinięciem przodków), Esc zamyka. Paleta nie dostaje drugiego szukania węzłów.
-- Węzeł z kilkoma liniami: jeden wiersz, linie złączone „ · ”, szukane litery wyróżnione, za długi kończy się „…” (decyzja 2026-11-27).
-- Szukanie bez polskich znaków i wielkości liter („zolw” → „Żółw”) – w Ctrl+F, „/”, n / N i liście, żeby liczba trafień była wszędzie ta sama (potwierdzone 2026-11-27).
-- Z tego trybu listy korzysta też `:lint` (4.8) i „Przenieś do…” (2.7). Testy: `search.spec.js`, `palette.spec.js`.
 
 ### 2.6 Podpowiedzi klawiszy (which-key)
 

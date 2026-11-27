@@ -230,3 +230,191 @@ test('polskie znaki i wielkość liter: „żółw” znajduje „Żółw”', a
   await findVim(page, 'żółw');
   expect(await selText(page)).toBe('Żółw');
 });
+
+// --- 2.5: szukanie bez polskich znaków i lista wszystkich trafień ---
+const PL = '# Mapa\n- Żółw\n  - zolw mały\n- łąka\n- ZÓŁWIE jajo\n- kot\n';
+const list = page => page.locator('#pal');
+const listRows = page => page.locator('#pall .pi');
+/** wiersze listy: tekst, wyróżnione litery i ścieżka */
+const listed = page =>
+  page.$$eval('#pall .pi', r =>
+    r.map(x => ({
+      t: x.querySelector('.pt').textContent,
+      m: [...x.querySelectorAll('.pt .m')].map(m => m.textContent),
+      path: x.querySelector('.ps')?.textContent ?? '',
+    }))
+  );
+/** Alt+Enter w polu szukania otwartym przez Ctrl+F („bar”) albo „/” („vim”) */
+async function allHits(page, how, q) {
+  await keys(page, [how === 'bar' ? 'Control+f' : '/']);
+  await expect(page.locator('#cmd')).toBeFocused();
+  await page.keyboard.type(q);
+  await keys(page, ['Alt+Enter']);
+}
+
+test('bez polskich znaków i wielkości liter: ta sama liczba trafień w Ctrl+F, „/”, n / N i na liście', async ({
+  page,
+}) => {
+  for (const [q, n] of [
+    ['zolw', 3],
+    ['żół', 3],
+    ['ŻÓŁW', 3],
+    ['laka', 1],
+    ['ŁĄKA', 1],
+    ['kot', 1],
+  ]) {
+    await loadMap(page, PL);
+    await findVim(page, q);
+    await expect(page.locator('#info'), `„/” ${q}`).toHaveText(`trafienie 1 z ${n}`);
+    const seen = [];
+    for (let i = 0; i < n; i++) {
+      seen.push(await selText(page));
+      await keys(page, ['n']);
+    }
+    expect(new Set(seen).size, `n: ${q}`).toBe(n);
+    expect(await selText(page), `n wraca do pierwszego: ${q}`).toBe(seen[0]);
+    await keys(page, ['N']);
+    expect(await selText(page), `N: ${q}`).toBe(seen[n - 1]);
+
+    await findBar(page, q);
+    await expect(page.locator('#info'), `Ctrl+F ${q}`).toHaveText(`trafienie 1 z ${n}`);
+    await keys(page, ['Alt+Enter']);
+    await expect(page.locator('#palt'), `lista ${q}`).toHaveText(`Trafienia (${n})`);
+    await expect(listRows(page)).toHaveCount(n);
+    await keys(page, ['Escape']);
+  }
+  await loadMap(page, PL);
+  await allHits(page, 'vim', 'zolw');
+  expect((await listed(page)).map(r => r.t)).toEqual(['Żółw', 'zolw mały', 'ZÓŁWIE jajo']);
+  expect((await listed(page)).map(r => r.m)).toEqual([['Żółw'], ['zolw'], ['ZÓŁW']]);
+});
+
+test('lista trafień: Alt+Enter w obu trybach pola i przycisk „wszystkie” otwierają paletę „Trafienia (N)”', async ({
+  page,
+}) => {
+  const all = page.locator('#cmdall');
+  await loadMap(page, MD);
+  await expect(all).toBeHidden();
+  for (const how of ['bar', 'vim']) {
+    await allHits(page, how, 'a');
+    await expect(list(page), how).toBeVisible();
+    await expect(page.locator('#palt')).toHaveText('Trafienia (4)');
+    await expect(listRows(page)).toHaveCount(4);
+    await expect(page.locator('#cmd')).toBeHidden(); // pole szukania zamknięte, lista ma fokus
+    await expect(page.locator('#palq')).toBeFocused();
+    await keys(page, ['Escape']);
+    await expect(list(page)).toBeHidden();
+  }
+  for (const how of ['bar', 'vim']) {
+    await keys(page, [how === 'bar' ? 'Control+f' : '/']);
+    await expect(all, how).toBeVisible();
+    await expect(all).toHaveText('wszystkie');
+    await page.keyboard.type('a');
+    await all.click();
+    await expect(list(page), how).toBeVisible();
+    await expect(page.locator('#palt')).toHaveText('Trafienia (4)');
+    await keys(page, ['Escape']);
+    await expect(all).toBeHidden();
+  }
+  // na liście trafień się nie pisze: litery nie zmieniają listy
+  await allHits(page, 'bar', 'a');
+  await page.keyboard.type('zzz');
+  await expect(listRows(page)).toHaveCount(4);
+});
+
+test('lista trafień: węzeł z kilkoma liniami w jednym wierszu („ · ”), ścieżka od korzenia, litery wyróżnione', async ({
+  page,
+}) => {
+  await loadMap(page, '# Mapa\n- Projekt\n  - Zakupy\n    mleko i chleb\n- Mleko\n');
+  await allHits(page, 'vim', 'mleko');
+  expect(await listed(page)).toEqual([
+    { t: 'Zakupy · mleko i chleb', m: ['mleko'], path: 'Mapa › Projekt' },
+    { t: 'Mleko', m: ['Mleko'], path: 'Mapa' },
+  ]);
+  // korzeń bez ścieżki; za długi tekst ucięty „…” (CSS), nie zawija się w drugą linię
+  await keys(page, ['Escape']);
+  await loadMap(page, `# Mapa długa\n- ${'bardzo długi tekst '.repeat(12)}\n`);
+  await allHits(page, 'vim', 'dług');
+  const rows = await listed(page);
+  expect(rows[0]).toEqual({ t: 'Mapa długa', m: ['dług'], path: '' });
+  const pt = await page
+    .locator('#pall .pi .pt')
+    .nth(1)
+    .evaluate(e => {
+      const s = getComputedStyle(e);
+      return { over: e.scrollWidth > e.clientWidth, ell: s.textOverflow, ws: s.whiteSpace };
+    });
+  expect(pt).toEqual({ over: true, ell: 'ellipsis', ws: 'nowrap' });
+});
+
+test('lista trafień: Enter i klik idą do węzła i rozwijają zwiniętego przodka; dalej n / N; cofanie bez zmian', async ({
+  page,
+}) => {
+  await loadMap(page, '# R\n- a <!--c-->\n  - a1\n  - ukryty x\n- b x\n- c x\n');
+  const undo = () => page.evaluate(() => undoS.length);
+  const u0 = await undo();
+  await allHits(page, 'bar', 'x');
+  expect((await listed(page)).map(r => r.t)).toEqual(['ukryty x', 'b x', 'c x']);
+  expect((await listed(page))[0].path).toBe('R › a');
+  await expect(page.locator('#pall .pi.hi')).toHaveText(/ukryty x/); // pierwsza podświetlona
+  await keys(page, ['ArrowDown', 'ArrowUp', 'Tab', 'Shift+Tab']); // strzałki i Tab jak w palecie
+  await expect(page.locator('#pall .pi.hi')).toHaveText(/ukryty x/);
+  await keys(page, ['Enter']);
+  await expect(list(page)).toBeHidden();
+  expect(await selText(page)).toBe('ukryty x');
+  expect(await page.evaluate(() => vis().map(n => n.text))).toContain('ukryty x');
+  await expect(page.locator('#info')).toHaveText('trafienie 1 z 3');
+  expect(await page.evaluate(() => mode)).toBe('NORMAL');
+  await keys(page, ['n']);
+  expect(await selText(page)).toBe('b x');
+
+  await allHits(page, 'vim', 'x');
+  await listRows(page).nth(2).click();
+  await expect(list(page)).toBeHidden();
+  expect(await selText(page)).toBe('c x');
+  await expect(page.locator('#info')).toHaveText('trafienie 3 z 3');
+  await keys(page, ['N']);
+  expect(await selText(page)).toBe('b x');
+  expect(await undo(), 'szukanie nie dodaje kroków cofania').toBe(u0);
+  expect(await page.evaluate(() => localStorage.getItem('mm.cmd'))).toBeNull(); // nie trafia do ostatnio użytych
+});
+
+test('lista trafień: Esc zamyka bez zmiany zaznaczenia; brak trafień – komunikat, bez palety', async ({ page }) => {
+  await loadMap(page, MD);
+  await select(page, 'b');
+  await allHits(page, 'bar', 'a');
+  await keys(page, ['Escape']);
+  await expect(list(page)).toBeHidden();
+  expect(await selText(page)).toBe('b');
+  expect(await page.evaluate(() => mode)).toBe('NORMAL');
+  await keys(page, ['j']); // klawisze znów sterują mapą
+  expect(await selText(page)).toBe('c');
+  await keys(page, ['n']); // trafienia z listy zostają dla n
+  expect(await selText(page)).toBe('a');
+
+  for (const how of ['bar', 'vim']) {
+    await allHits(page, how, 'zzz');
+    await expect(page.locator('#info')).toHaveText('0 trafień');
+    await expect(list(page)).toBeHidden();
+    await expect(page.locator('#cmd'), 'pole zostaje do poprawienia zapytania').toBeFocused();
+    await page.locator('#cmdall').click();
+    await expect(list(page)).toBeHidden();
+    await keys(page, ['Escape']);
+  }
+  expect(await selText(page)).toBe('a');
+});
+
+test('Alt+Enter w polu szukania nie trafia do przeglądarki', async ({ page }) => {
+  await loadMap(page, MD);
+  await page.evaluate(() => {
+    window.__prev = [];
+    document.addEventListener(
+      'keydown',
+      e => setTimeout(() => window.__prev.push(`${e.altKey ? 'Alt+' : ''}${e.key}:${e.defaultPrevented}`)),
+      true
+    );
+  });
+  await allHits(page, 'bar', 'a');
+  await page.waitForTimeout(50);
+  expect(await page.evaluate(() => window.__prev.filter(s => s.startsWith('Alt+Enter')))).toEqual(['Alt+Enter:true']);
+});

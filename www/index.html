@@ -36,12 +36,19 @@
       <button id="edemo" type="button" title="Wstaw emoji (Ctrl+.)" aria-label="Wstaw emoji">😊</button>
     </div>
     <div id="st">
-      <span id="mode">NORMAL</span><input id="cmd" /><span id="info"></span><span id="hint"></span
-      ><span id="save"></span>
+      <span id="mode">NORMAL</span><input id="cmd" /><button
+        id="cmdall"
+        type="button"
+        hidden
+        title="Lista wszystkich trafień (Alt+Enter)"
+      >
+        wszystkie</button
+      ><span id="info"></span><span id="hint"></span><span id="save"></span>
     </div>
     <div id="menu" role="menu"></div>
     <div id="emo" role="dialog" aria-label="Wybór emoji"></div>
     <div id="pal" role="dialog" aria-label="Wszystkie polecenia">
+      <div id="palt" hidden></div>
       <input
         id="palq"
         role="combobox"

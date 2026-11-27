@@ -46,6 +46,11 @@ const HELP = {
     ],
     ['/', 'jak w vim: Enter szuka i zamyka pole, dalej n / N'],
     ['Esc', 'zamknij pole – zaznaczenie zostaje na trafieniu'],
+    [
+      'Alt+Enter',
+      'w polu: lista wszystkich trafień ze ścieżką od korzenia (też przycisk „wszystkie”); Enter / klik przechodzi do węzła',
+    ],
+    ['zolw', 'bez polskich znaków i wielkości liter: znajdzie „Żółw”'],
   ],
   'Komendy (:)': [
     [':', 'otwiera paletę z dwukropkiem: wpisana komenda jest pierwsza na liście, Enter ją uruchamia'],

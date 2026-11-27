@@ -249,6 +249,11 @@ svg {
   #info:empty {
     display: none;
   }
+  /* pole szukania i „wszystkie” w jednym wierszu; pole bierze prawie całe wolne miejsce (podpowiedź – resztę) */
+  #cmd {
+    min-width: 0;
+    flex-grow: 8;
+  }
 }
 /* pomoc: na komputerze panel na dolnej połowie, na telefonie pełny ekran */
 #help {
@@ -747,6 +752,54 @@ svg {
 #pall .none {
   padding: 8px;
   opacity: 0.6;
+}
+/* tryb listy (2.5): tytuł nad listą, np. „Trafienia (7)”; bez zawężania pole niewidoczne, ale z fokusem */
+#palt {
+  padding: 4px 8px 2px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+#pal.ro #palq {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+/* wiersz z drobną ścieżką pod tekstem (lista trafień) */
+#pall.sub {
+  --ph: 46px;
+}
+#pall .pc {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.3;
+}
+#pall .ps {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  opacity: 0.6;
+}
+#pall .pi.hi .ps {
+  opacity: 0.85;
+}
+/* przycisk „wszystkie” przy polu szukania (lista trafień) */
+#cmdall {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+}
+#cmdall[hidden] {
+  display: none;
 }
 /* niewidoczne pole na Ctrl+V w trybie mapy (keys.js) – poza ekranem, ale nie display:none, bo musi przyjąć fokus */
 #clip {

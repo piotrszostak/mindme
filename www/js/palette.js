@@ -1,4 +1,5 @@
-/* Paleta komend (Ctrl+K, „:”, menu „…”): czynności z ACT, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd). */
+/* Paleta komend (Ctrl+K, „:”, menu „…”): czynności z ACT, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd).
+   Tryb listy (`openList`): ta sama paleta z dowolnymi pozycjami – lista trafień (2.5), „Przenieś do…”, `:lint`. */
 /* ---- paleta komend ---- */
 let palOpen = false;
 /** @type {PalItem[]} pozycje na liście: pełna komenda „:”, dostępne, potem niedostępne */
@@ -7,6 +8,8 @@ let palItems = [];
 let palHi = -1;
 /** ostatnia pozycja myszy nad listą – przewijanie pod nieruchomym kursorem nie zmienia podświetlenia */
 let palXY = '';
+/** @type {PalList | null} tryb listy (`openList`); null – polecenia */
+let palL = null;
 /** czynności w palecie: wszystkie z `f`, bez samego poruszania się i bez samej palety */
 const palActs = () => ACT.filter(a => a.f && a.pal !== false);
 /** @type {string[]} ostatnio użyte: id czynności, najnowsza pierwsza, najwyżej 5 (mm.cmd) */
@@ -18,6 +21,38 @@ try {
 } catch (e) {}
 /** bez polskich znaków i wielkości liter @param {string} s */
 const plain = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l');
+/** @type {Map<string, string>} `plain` pojedynczych znaków (szukanie przechodzi przez każdy węzeł) */
+const plainC = new Map();
+/**
+ * tekst bez polskich znaków z pozycjami: `at[j]` – numer znaku `[...t]`, z którego pochodzi j-ty znak `s`
+ * @param {string} t @returns {{s: string, at: number[]}}
+ */
+function plainAt(t) {
+  let s = '';
+  /** @type {number[]} */
+  const at = [];
+  [...t].forEach((c, i) => {
+    let p = plainC.get(c);
+    if (p === undefined) plainC.set(c, (p = plain(c)));
+    s += p;
+    for (let k = 0; k < p.length; k++) at.push(i);
+  });
+  return { s, at };
+}
+/**
+ * szukanie węzłów (Ctrl+F, „/”, n / N, lista trafień): podciąg bez polskich znaków i wielkości liter
+ * @param {string} q zapytanie @param {string} t tekst węzła
+ * @returns {number[] | null} pozycje znaków `[...t]` wszystkich wystąpień; null – nie pasuje (także puste zapytanie)
+ */
+function matchAt(q, t) {
+  const w = plainAt(q).s;
+  if (!w) return null;
+  const { s, at } = plainAt(t),
+    r = new Set();
+  for (let j = s.indexOf(w); j >= 0; j = s.indexOf(w, j + w.length))
+    for (let k = j; k < j + w.length; k++) r.add(at[k]);
+  return r.size ? [...r] : null;
+}
 /** słowa do dopasowania @param {string} s */
 const words = s =>
   plain(s)
@@ -95,6 +130,59 @@ function palList(q) {
     }));
   return [...top, ...items.filter(i => !i.off), ...items.filter(i => i.off)];
 }
+/** pozycje trybu listy dla wpisanego tekstu: bez tekstu wszystkie w podanej kolejności, inaczej dopasowanie z 2.3
+ * @param {PalList} L @param {string} q @returns {PalItem[]} */
+function listItems(L, q) {
+  const w = L.filter ? words(q) : [];
+  const items = L.items
+    .flatMap(it => {
+      const m = w.length ? fuzzy(w, it.t) : { s: 0, at: it.hit || [] };
+      return m ? [{ it, m }] : [];
+    })
+    .sort((p, q) => q.m.s - p.m.s)
+    .map(({ it, m }) => ({
+      id: String(it.id),
+      t: it.t,
+      sub: it.sub,
+      keys: [],
+      off: it.off || '',
+      f: () => L.pick(it),
+      rec: '',
+      hit: m.at,
+    }));
+  return [...items.filter(i => !i.off), ...items.filter(i => i.off)];
+}
+/** tekst węzła w jednym wierszu: linie złączone „ · ”; `hit` (pozycje `[...text]`) przeliczone na ten wiersz
+ * @param {string} text @param {number[]} [hit] @returns {{t: string, hit: number[]}} */
+function oneLine(text, hit = []) {
+  const h = new Set(hit),
+    out = /** @type {number[]} */ ([]);
+  /** @type {string[]} znaki wiersza */
+  const t = [];
+  [...text].forEach((c, i) => {
+    if (c === '\n') return t.push(' ', '·', ' ');
+    if (h.has(i)) out.push(t.length);
+    t.push(c);
+  });
+  return { t: t.join(''), hit: out };
+}
+/**
+ * pozycje listy dla węzłów wszystkich map, w kolejności drzewa (jak szukanie): tekst w jednym wierszu i ścieżka
+ * od korzenia mapy (pierwsze linie przodków, „ › ”; korzeń – bez ścieżki)
+ * @param {(n: MapNode) => number[] | boolean | null} keep węzeł na liście? tablica – pozycje liter `[...n.text]` do wyróżnienia
+ * @returns {ListItem[]}
+ */
+function nodeItems(keep) {
+  /** @type {ListItem[]} */
+  const out = [];
+  (function w(/** @type {MapNode} */ n, /** @type {string[]} */ path) {
+    const k = n.top ? null : keep(n);
+    if (k) out.push({ id: n.id, ...oneLine(n.text, Array.isArray(k) ? k : []), sub: path.join(' › ') });
+    const p = n.top ? path : [...path, n.text.split('\n')[0]];
+    n.children.forEach(c => w(c, p));
+  })(root, []);
+  return out;
+}
 /** element z klasą i tekstem (zawsze `textContent`, nigdy HTML) @param {string} tag @param {string} cls @param {string} t */
 function palEl(tag, cls, t) {
   const e = document.createElement(tag);
@@ -121,14 +209,22 @@ function palRow(it, i) {
     else parts.push({ m, s: c });
   });
   parts.forEach(p => t.append(p.m ? palEl('span', 'm', p.s) : p.s));
-  r.append(t, ...(it.off ? [palEl('span', 'why', it.off)] : it.keys.map(k => palEl('kbd', '', k))));
+  /* tryb listy: pod tekstem drobna ścieżka (lista trafień, „Przenieś do…”) */
+  const c = it.sub ? palEl('span', 'pc', '') : t;
+  if (it.sub) c.append(t, palEl('span', 'ps', it.sub));
+  r.append(c, ...(it.off ? [palEl('span', 'why', it.off)] : it.keys.map(k => palEl('kbd', '', k))));
   return r;
 }
 function drawPal() {
-  palItems = palList($('palq').value);
+  palItems = palL ? listItems(palL, $('palq').value) : palList($('palq').value);
   palHi = palItems.findIndex(it => !it.off);
-  const L = $('pall');
-  L.replaceChildren(...(palItems.length ? palItems.map(palRow) : [palEl('div', 'none', 'Brak pasujących poleceń')]));
+  const L = $('pall'),
+    none = palL ? palL.none || 'Nic nie pasuje' : 'Brak pasujących poleceń';
+  L.classList.toggle(
+    'sub',
+    palItems.some(it => it.sub)
+  );
+  L.replaceChildren(...(palItems.length ? palItems.map(palRow) : [palEl('div', 'none', none)]));
   L.scrollTop = 0;
   palSet(palHi);
 }
@@ -156,8 +252,8 @@ function palMove(d) {
   const j = on.indexOf(palHi);
   palSet(j < 0 ? on[d > 0 ? 0 : on.length - 1] : on[(j + d + on.length) % on.length]);
 }
-/** @param {string} [pre] początek tekstu: '' (Ctrl+K, menu „…”) albo ':' (komenda) */
-function openPal(pre = '') {
+/** @param {string} [pre] początek tekstu: '' (Ctrl+K, menu „…”) albo ':' (komenda) @param {PalList | null} [L] tryb listy */
+function openPal(pre = '', L = null) {
   if (tv) return;
   if (editing) endEdit();
   closeMenu();
@@ -165,20 +261,54 @@ function openPal(pre = '') {
   closeCmd();
   setMode('COMMAND');
   palOpen = true;
-  const p = $('pal');
+  palL = L;
+  const p = $('pal'),
+    q = $('palq');
   p.style.top = $('top').getBoundingClientRect().bottom + 8 + 'px'; /* tuż pod górnym paskiem */
   p.classList.add('open');
-  $('palq').value = pre;
+  /* tryb listy: tytuł nad listą; bez zawężania pole tylko do odczytu i niewidoczne (fokus zostaje na klawisze,
+     na telefonie nie wysuwa się klawiatura) */
+  p.classList.toggle('ro', !!L && !L.filter);
+  p.setAttribute('aria-label', L ? L.title : 'Wszystkie polecenia');
+  $('palt').textContent = L ? L.title : '';
+  $('palt').hidden = !L;
+  q.readOnly = !!L && !L.filter;
+  q.placeholder = L ? L.hint || 'Wpisz, żeby zawęzić…' : 'Szukaj polecenia…';
+  q.value = pre;
   drawPal();
-  $('palq').focus();
+  q.focus();
+}
+/**
+ * tryb listy palety (2.5): własne pozycje zamiast poleceń; Enter / klik – `L.pick(pozycja)` po zamknięciu palety,
+ * Esc zamyka, strzałki i Tab jak w palecie. Pozycje dla węzłów mapy daje `nodeItems`.
+ * @param {PalList} L
+ */
+function openList(L) {
+  openPal('', L);
 }
 function closePal() {
   if (!palOpen) return;
   palOpen = false;
+  palL = null;
   $('palq').blur(); /* fokus nie może zostać w schowanym polu (Chromium) */
   $('pal').classList.remove('open');
   setMode('NORMAL');
 }
+/* ---- lista trafień (2.5): Alt+Enter albo przycisk „wszystkie” w polu szukania ---- */
+/** @param {string} q zapytanie z pola szukania (bez „/”) */
+function hitList(q) {
+  const items = nodeItems(n => matchAt(q, n.text));
+  hits = items.map(it => it.id); /* te same trafienia co „/” (ta sama kolejność) – dalej n / N */
+  hi = -1;
+  if (!items.length) return info('0 trafień'); /* pole szukania zostaje – można poprawić zapytanie */
+  openList({ title: `Trafienia (${items.length})`, items, pick: it => hitGo(hits.indexOf(it.id)) });
+}
+/* przycisk nie zabiera fokusu polu szukania (klawiatura ekranowa) */
+['pointerdown', 'mousedown'].forEach(t => $('cmdall').addEventListener(t, e => e.preventDefault()));
+$('cmdall').addEventListener('click', () => {
+  hitList($('cmd').value.slice(1));
+  if (!palOpen) $('cmd').focus();
+});
 /** uruchom pozycję i zapamiętaj ją jako ostatnio użytą @param {number} i */
 function palRun(i) {
   const it = palItems[i];
@@ -207,7 +337,7 @@ $('palq').addEventListener('keydown', ev => {
     ev.preventDefault();
     if (palHi >= 0) return palRun(palHi);
     const v = $('palq').value;
-    if (v[0] !== ':') return; /* nic nie pasuje – paleta zostaje */
+    if (palL || v[0] !== ':') return; /* nic nie pasuje – paleta zostaje */
     closePal();
     exec(v.slice(1).trim()); /* nieznana komenda – komunikat jak dawniej */
   } else if ((ev.ctrlKey || ev.metaKey) && k.toLowerCase() === 'k') ev.preventDefault();
