@@ -1,6 +1,6 @@
-# Mapa myśli
+# mindme
 
-Lekka aplikacja do map myśli, która zapisuje mapy jako zwykłe pliki **Markdown**. Działa w przeglądarce i offline (PWA), na komputerze i na telefonie. Obsługuje mysz, dotyk i klawiaturę, także skróty w stylu **vim**.
+**mindme** to lekka aplikacja do map myśli, która zapisuje mapy jako zwykłe pliki **Markdown**. Działa w przeglądarce i offline (PWA), na komputerze i na telefonie. Obsługuje mysz, dotyk i klawiaturę, także skróty w stylu **vim**.
 
 ![Zrzut ekranu: mapa w układzie „na obie strony”](docs/screenshot.png)
 
@@ -135,18 +135,18 @@ Pierwsze uruchomienie testów wymaga przeglądarek: `npx playwright install --wi
 ### Kontener (Podman / Docker)
 
 ```bash
-podman build -t mindmap -f Containerfile .
-podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap bash
+podman build -t mindme -f Containerfile .
+podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindme bash
 # w kontenerze: npm install && npm run verify && npm run serve
 ```
 
 Opcja `-p 3000:3000` musi być podana przy `run`, bo sam `Containerfile` deklaruje tylko `EXPOSE 3000`.
 
-Obraz z agentem (Claude Code) to osobny plik, budowany na obrazie `mindmap`:
+Obraz z agentem (Claude Code) to osobny plik, budowany na obrazie `mindme`:
 
 ```bash
-podman build -t mindmap-agent -f Containerfile.agent .
-podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindmap-agent bash
+podman build -t mindme-agent -f Containerfile.agent .
+podman run -it --rm -p 3000:3000 -v "$PWD":/work:Z mindme-agent bash
 ```
 
 Wskazówki dla agentów AI (mapa kodu, zasady, znane pułapki) są w [`CLAUDE.md`](CLAUDE.md).

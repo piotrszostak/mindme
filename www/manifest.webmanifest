@@ -1,5 +1,6 @@
 {
-  "name": "Mapa myśli",
+  "name": "mindme",
+  "description": "Mapy myśli zapisywane jako zwykłe pliki Markdown",
   "short_name": "mindme",
   "start_url": "./index.html",
   "display": "standalone",

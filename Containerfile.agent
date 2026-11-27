@@ -1,7 +1,7 @@
-# Środowisko pracy z agentem: obraz projektu (Containerfile, nazwa mindmap) + Claude Code (decyzja A.6).
-# Najpierw obraz projektu: podman build -t mindmap -f Containerfile .
-# potem ten:               podman build -t mindmap-agent -f Containerfile.agent .
-FROM mindmap
+# Środowisko pracy z agentem: obraz projektu (Containerfile, nazwa mindme) + Claude Code (decyzja A.6).
+# Najpierw obraz projektu: podman build -t mindme -f Containerfile .
+# potem ten:               podman build -t mindme-agent -f Containerfile.agent .
+FROM mindme
 USER root
 RUN npm i -g @anthropic-ai/claude-code
 USER node

@@ -1,10 +1,10 @@
-# Mapa myśli – notatki dla agenta
+# mindme – notatki dla agenta
 
 PWA bez frameworka i bez budowania: `www/` to gotowe pliki statyczne. Interfejs po polsku. Najpierw PWA; inne platformy (APK, Linux) dopiero po niej (`ROADMAP.md`, „Po PWA”).
 
 ## Polecenia
 
-- `npm run serve` – podgląd (http://localhost:3000); w aplikacji desktopowej panel podglądu, serwer `mapa` z `.claude/launch.json`
+- `npm run serve` – podgląd (http://localhost:3000); w aplikacji desktopowej panel podglądu, serwer `mindme` z `.claude/launch.json`
 - `npx playwright test tests/menu.spec.js` – jeden obszar w trakcie pracy; `-g "nazwa"` – jeden test
 - `npm run check` – TypeScript (JSDoc, tryb strict) – szybki, uruchamiaj po każdej zmianie
 - `npm run format` – Prettier (po edycji robi to automat); `npm run verify` – typy + format + wszystkie testy + pomiar wydajności, uruchamia je bramka `.githooks/pre-commit`
@@ -51,7 +51,7 @@ Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie
 - Testy: Playwright z `reducedMotion: 'reduce'` (pozycje od razu końcowe; testy animacji ustawiają `no-preference`). Logikę testujesz przez `page.evaluate` jak w `tests/parser.spec.js`; obszary w `tests/README.md`, pomocniki w `tests/helpers.js`.
 - Commity na `main`.
 - Otwarte błędy i rzeczy do sprawdzenia → `docs/znane-problemy.md` (w gicie); `HANDOVER.md` (lokalny) tylko na bieżącą pracę.
-- Zmiany widoczne na ekranie oglądasz w panelu podglądu (serwer `mapa`), także w rozmiarze telefonu. Dotyk, przeciąganie i płynność: `/na-telefonie`.
+- Zmiany widoczne na ekranie oglądasz w panelu podglądu (serwer `mindme`), także w rozmiarze telefonu. Dotyk, przeciąganie i płynność: `/na-telefonie`.
 - Prototypy (`/prototyp`): `www/_prototyp/<temat>/`, w podglądzie `/_prototyp/<temat>/`.
 
 ## Pułapki (już raz nas ugryzły)

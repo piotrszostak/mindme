@@ -3,7 +3,7 @@
   "autoVerify": false,
   "configurations": [
     {
-      "name": "mapa",
+      "name": "mindme",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "serve"],
       "port": 3000,
