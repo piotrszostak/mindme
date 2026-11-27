@@ -33,6 +33,7 @@ function normal(ev) {
       x: cut,
       f: () => openCmd('/', true),
       k: () => openPal(),
+      m: moveList /* Firefox: wyciszanie karty – oddaje je stronie (preventDefault) */,
       g: () => jump(sh ? -1 : 1),
       '/': toggleHelp,
       '.': () => {
@@ -203,6 +204,9 @@ function normal(ev) {
       for (let i = 0; i < n; i++) shift(key);
       break;
     }
+    case 'm':
+      moveList();
+      break;
     case 'u':
       for (let i = 0; i < n; i++) undo();
       break;

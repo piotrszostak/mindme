@@ -136,10 +136,14 @@ function listItems(L, q) {
   const w = L.filter ? words(q) : [];
   const items = L.items
     .flatMap(it => {
-      const m = w.length ? fuzzy(w, it.t) : { s: 0, at: it.hit || [] };
-      return m ? [{ it, m }] : [];
+      const len = [...it.t].length,
+        own = w.length ? fuzzy(w, it.t) : { s: 0, at: it.hit || [] },
+        /* z `path` – gdy sam tekst nie pasuje, próba z tekstem i ścieżką; takie pozycje idą pod trafienia w tekście */
+        m = own || (L.path && it.sub ? fuzzy(w, it.t + ' › ' + it.sub) : null);
+      /* litery dopasowane w ścieżce nie są wyróżniane (wyróżnienie tylko w tekście) */
+      return m ? [{ it, txt: !!own, m: { s: m.s, at: m.at.filter(i => i < len) } }] : [];
     })
-    .sort((p, q) => q.m.s - p.m.s)
+    .sort((p, q) => Number(q.txt) - Number(p.txt) || q.m.s - p.m.s)
     .map(({ it, m }) => ({
       id: String(it.id),
       t: it.t,

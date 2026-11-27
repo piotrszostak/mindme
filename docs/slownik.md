@@ -66,6 +66,7 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | komenda „:”                             | polecenie wpisane w palecie po dwukropku, np. `:w`, `:layout down`                                                                                                               | `exec`                |
 | szukanie, trafienie, lista trafień      | Ctrl+F albo `/`, zawsze bez polskich znaków i wielkości liter; trafienie to znaleziony węzeł; lista trafień – wszystkie naraz w palecie (Alt+Enter albo przycisk „wszystkie” w polu szukania, 2.5) | `search`, `jump`, `hitList` |
 | tryb listy (palety)                     | paleta z węzłami albo innymi pozycjami zamiast poleceń, z tytułem nad listą: lista trafień (2.5), „Przenieś do…” (2.7), `:lint` (4.8)                                           | `openList`            |
+| przenieś do…                            | przeniesienie zaznaczonej gałęzi jako ostatniego dziecka węzła wybranego z listy (Ctrl+M, `m`, `:m`, menu podręczne; 2.7); lista pomija samą gałąź i jej potomków | `moveList`, `moveTo` |
 | ścieżka (od korzenia)                   | przodkowie węzła od korzenia mapy, „Mapa › Projekt”; na liście trafień drobnym tekstem pod węzłem; w trybie skupienia – klikalna na pasku górnym (4.5)                          | `nodeItems`           |
 | skrót zwykły / skrót vim / ukryty alias | każda czynność ma skrót zwykły i vim; ukryty alias działa, ale nie ma go w pomocy, menu ani README                                                                               | `normal()`            |
 | prefiks, licznik (vim)                  | prefiks – pierwszy klawisz skrótu z dwóch (`z`, `g`, `y`, `d`, np. `z` w `za`); licznik – liczba przed skrótem, np. `3` w `3j` (trzy razy)                                       | `pend`, `cnt`         |
@@ -110,5 +111,6 @@ Jedna nazwa na jedno pojęcie – w interfejsie, w planie (`ROADMAP.md`), w doku
 | note, sticky note (Whimsical)                                                 | kartka                                |
 | note (Xmind, MindNode)                                                        | notatka do węzła                      |
 | hoist, zoom in, narrow (Workflowy, Logseq, Org-mode)                          | tryb skupienia                        |
+| refile (Org-mode)                                                             | przenieś do…                          |
 | command palette                                                               | paleta komend („Wszystkie polecenia”) |
 | vault (Obsidian)                                                              | — (odrzucone)                         |

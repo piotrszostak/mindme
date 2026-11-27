@@ -25,7 +25,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 | layout.js                     | `applyStyle`, pomiar `tw`, `wrap`, `fit(n)` (rozmiar węzła), `lay()` (wiele korzeni), `layD` (układ „dół”)                                                |
 | render.js                     | `render(keepView)`, animacja (`pos`, `step`, `draw`, `kick`, duchy), `edgeD`, `nodeHTML`, `fitView`, `centerSel`, `changed()`                             |
 | edit.js                       | edycja w węźle: `startEdit`, `endEdit`, `placeEd`, `addSib`, `addChild`                                                                                   |
-| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `fold`, `foldAll`, `foldTo`, `go`, `arrow`                               |
+| ops.js                        | `del(cut)`, `cut`, `copy`, `duplicate`, `paste`, `moveSib`, `indent`, `outdent`, `moveTo` („Przenieś do…”), `fold`, `foldAll`, `foldTo`, `go`, `arrow`                               |
 | emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                           |
 | keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                         |
 | files.js / help.js / side.js  | pliki i autozapis (`autosave`, `toStorage`, `diskAsk`, `reloadIfChanged`), widok Markdown, tryb jasny / ciemny / `HELP` / panel „Wygląd mapy”, `PAL0`, `cleanStyle` |

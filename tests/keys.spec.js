@@ -113,6 +113,20 @@ const PAIRS = [
     async p => expect(await md(p)).toContain('  - a3\n- a2\n- b\n'),
     [['Alt+ArrowLeft']],
   ],
+  [
+    'przenieś do (2.7; Ctrl+M w Firefoksie to wyciszanie karty – przejmujemy je)',
+    'a3',
+    ['Control+m'],
+    ['m'],
+    async p => {
+      await expect(p.locator('#palt')).toHaveText('Przenieś do…');
+      await p.keyboard.type('c');
+      await p.keyboard.press('Enter');
+      expect(await md(p)).toBe('# R\n\n- a\n  - a1\n  - a2\n- b\n- c\n  - a3\n- d\n');
+      expect(await selText(p)).toBe('a3');
+    },
+    [[':', 'm', 'Enter']], // komenda „:m”
+  ],
   ['cofnij', 'b', ['Delete', 'Control+z'], ['x', 'u'], async p => expect(await md(p)).toBe(MD.replace('\n', '\n\n'))],
   [
     'ponów',
@@ -407,6 +421,9 @@ test('klawisze w trybie mapy nie trafiają do przeglądarki (defaultPrevented)',
     'Control+/',
     'F3',
     'F1',
+    'Escape',
+    'j',
+    'Control+m', // Firefox: wycisz kartę („Przenieś do…” otwiera listę)
     'Escape',
     'Control+k', // przeglądarka: pole wyszukiwania
     'Escape',

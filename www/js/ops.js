@@ -285,6 +285,42 @@ function outdent() {
   g.p.children.splice(g.p.children.indexOf(f.p) + 1, 0, f.n);
   changed();
 }
+/* ---- „Przenieś do…” (2.7, wzór: refile w Org-mode) ---- */
+/** lista węzłów wszystkich map bez zaznaczonej gałęzi (sama gałąź i jej potomkowie); wybór – `moveTo` */
+function moveList() {
+  const why = needMove();
+  if (why) return info(why);
+  const f = /** @type {Found} */ (S()),
+    out = new Set();
+  (function w(/** @type {MapNode} */ n) {
+    out.add(n.id);
+    n.children.forEach(w);
+  })(f.n);
+  /* litery pasują do tekstu węzła i do ścieżki (decyzja 2026-11-27); trafienia w samym tekście są na górze */
+  openList({
+    title: 'Przenieś do…',
+    items: nodeItems(n => !out.has(n.id)),
+    pick: it => moveTo(it.id),
+    filter: true,
+    path: true,
+  });
+}
+/** przenieś zaznaczoną gałąź jako ostatnie dziecko węzła `id`; zwinięci przodkowie nowego miejsca się rozwijają
+ * @param {number} id */
+function moveTo(id) {
+  const f = need(),
+    t = find(id);
+  if (!f || !f.p || !t || find(id, f.n)) return; /* nie do własnej gałęzi */
+  const a = t.n.children,
+    name = `„${t.n.text.split('\n')[0]}”`;
+  if (a[a.length - 1] === f.n) return info('gałąź już jest ostatnim dzieckiem ' + name);
+  snap();
+  f.p.children.splice(f.p.children.indexOf(f.n), 1);
+  a.push(f.n);
+  showSel(); /* rozwija cel i jego przodków – gałąź jest widoczna */
+  info(`przeniesiono do ${name} (Ctrl+Z – cofnij)`);
+  changed();
+}
 /** @param {boolean} [v] zwiń/rozwiń; bez argumentu – przełącz */
 function fold(v) {
   const f = need();

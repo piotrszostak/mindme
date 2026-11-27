@@ -8,6 +8,12 @@ const needDel = () => {
   if (!f) return 'najpierw zaznacz węzeł';
   return f.p === root && root.children.length < 2 ? 'nie można usunąć jedynego korzenia' : '';
 };
+/** „Przenieś do…”: korzeń jedynej mapy nie ma dokąd iść (wszystko inne to jego potomkowie) */
+const needMove = () => {
+  const f = S();
+  if (!f) return 'najpierw zaznacz węzeł';
+  return f.p === root && root.children.length < 2 ? 'nie ma dokąd przenieść' : '';
+};
 const needYank = () => (yank ? '' : 'schowek pusty');
 const needKids = () => {
   const f = S();
@@ -113,6 +119,19 @@ const ACT = [
     cnt: true,
     f: () => outdent(),
     off: needSel,
+  },
+  {
+    id: 'moveto',
+    ic: 'moveto',
+    t: 'Przenieś do…',
+    k: ['Ctrl+M'],
+    v: ['m'],
+    c: 'm',
+    ca: ['move'],
+    tip: 'Jako ostatnie dziecko węzła wybranego z listy',
+    d: 'jako ostatnie dziecko węzła z listy',
+    f: () => moveList(),
+    off: needMove,
   },
   {
     id: 'undo',

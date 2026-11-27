@@ -52,6 +52,7 @@ Każda czynność ma skrót zwykły i skrót vim:
 | wklej jako dziecko / brata                 | Ctrl+V / Ctrl+Shift+V                | `p` / `P`                                             |
 | zwiń / rozwiń                              | Shift+Spacja                         | `za` (wszystko: `zM` / `zR`, do poziomu N: `z1`…`z9`) |
 | przesuń, wsuń, wysuń (zgodnie z układem)   | Alt+strzałki (wysuń także Shift+Tab) | `K` `J`, `L`, `H`                                     |
+| przenieś do… (jako ostatnie dziecko)       | Ctrl+M                               | `m`, komenda `:m`                                     |
 | cofnij / ponów                             | Ctrl+Z / Ctrl+Shift+Z, Ctrl+Y        | `u` / Ctrl+R                                          |
 | szukaj, następne, poprzednie               | Ctrl+F, Ctrl+G, Ctrl+Shift+G         | `/`, `n`, `N`                                         |
 | lista wszystkich trafień (w polu szukania) | Alt+Enter                            | Alt+Enter                                             |
@@ -70,7 +71,9 @@ Gdy nic nie jest zaznaczone, Enter i wklejanie tworzą nową mapę (nowy korzeń
 
 **Paleta komend:** Ctrl+K otwiera u góry okienko ze wszystkimi poleceniami, ich skrótami i 5 ostatnio użytymi na początku. Wpisany tekst zawęża listę: słowa można podać w dowolnej kolejności, bez polskich znaków (np. „zw wsz” znajdzie „Zwiń wszystko”). Strzałki wybierają, Enter uruchamia, a Esc zamyka. Na telefonie paletę otwiera menu „…” → „Wszystkie polecenia…”.
 
-`:` otwiera tę samą paletę z wpisanym dwukropkiem, a pełna komenda staje się pierwszą pozycją listy. Komendy: `w`, `e`, `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod Ctrl+/ (albo `?`).
+**Przenieś do…:** Ctrl+M (albo `m`, `:m`, pozycja w menu podręcznym) na zaznaczonej gałęzi otwiera listę węzłów wszystkich map – bez samej gałęzi i jej potomków. Wpisane litery zawężają listę jak w palecie (pasuje tekst węzła), Enter albo klik przenosi gałąź jako ostatnie dziecko wybranego węzła, a zwinięte miejsce docelowe się rozwija. Zaznaczenie zostaje na przeniesionej gałęzi, Ctrl+Z cofa całość jednym krokiem, Esc nic nie zmienia.
+
+`:` otwiera tę samą paletę z wpisanym dwukropkiem, a pełna komenda staje się pierwszą pozycją listy. Komendy: `w`, `e`, `m` (przenieś do…), `new [tytuł]`, `text`, `fit`, `test`, `layout right|left|both|down`, `export svg|png`, `theme dark|light`. Pełna lista skrótów jest w aplikacji pod Ctrl+/ (albo `?`).
 
 ## Format pliku
 

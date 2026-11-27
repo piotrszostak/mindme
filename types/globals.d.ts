@@ -197,6 +197,8 @@ interface PalList {
   pick: (it: ListItem) => unknown;
   /** wpisywane litery zawężają listę (dopasowanie z 2.3); bez tego pole jest tylko do odczytu i niewidoczne */
   filter?: boolean;
+  /** przy zawężaniu litery pasują także do ścieżki (`sub`), np. „proj bad” znajdzie „Badania” pod „Projekt” */
+  path?: boolean;
   /** podpowiedź w pustym polu (domyślnie „Wpisz, żeby zawęzić…”) */
   hint?: string;
   /** napis, gdy nic nie pasuje (domyślnie „Nic nie pasuje”) */

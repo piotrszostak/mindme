@@ -38,10 +38,10 @@ module.exports = defineConfig({
   webServer: { command: `npx serve www -l ${port}`, url: `http://localhost:${port}`, reuseExistingServer: true },
   projects: [
     { name: 'chromium', use: { browserName: 'chromium' } },
-    // Firefox: skróty klawiszowe przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”
+    // Firefox: skróty klawiszowe i paleta (m.in. Ctrl+M – „Przenieś do…”, w Firefoksie wyciszanie karty) przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”
     {
       name: 'firefox',
-      testMatch: /(keys|search|clipboard)\.spec\.js/,
+      testMatch: /(keys|search|clipboard|palette)\.spec\.js/,
       use: {
         browserName: 'firefox',
         launchOptions: {

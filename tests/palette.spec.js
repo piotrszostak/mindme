@@ -530,6 +530,14 @@ test.describe('paleta: tryb listy (lista trafień 2.5, „Przenieś do…” 2.7
     await page.keyboard.press('Escape');
   });
 
+  test('path: litery pasują także do ścieżki, wyróżnione tylko w tekście', async ({ page }) => {
+    await page.evaluate(items => openList({ title: 'Lista', items, pick: () => {}, filter: true, path: true }), ITEMS);
+    await page.keyboard.type('mark www');
+    expect(await names(page)).toEqual(['Strona www']);
+    await expect(rows(page).first().locator('.m')).toHaveText('www');
+    await page.keyboard.press('Escape');
+  });
+
   test('bez zawężania: pole tylko do odczytu, litery nie zmieniają listy; Esc zamyka bez wyboru', async ({ page }) => {
     await page.evaluate(
       items => openList({ title: 'Problemy (3)', items, pick: it => (window.__pick = it.id) }),
@@ -545,5 +553,172 @@ test.describe('paleta: tryb listy (lista trafień 2.5, „Przenieś do…” 2.7
     await expect(pal(page)).toBeHidden();
     expect(await page.evaluate(() => window.__pick)).toBeUndefined();
     expect(await page.evaluate(() => mode)).toBe('NORMAL');
+  });
+});
+
+test.describe('„Przenieś do…” (2.7)', () => {
+  const MAPS =
+    '# Praca\n- Projekt\n  - Badania\n    - ankiety\n  - Strona\n- Zakupy <!--c-->\n  - mleko\n# Dom\n- Kuchnia\n';
+  const undos = page => page.evaluate(() => undoS.length);
+  /** otwórz „Przenieś do…” na węźle `t` wybranym sposobem */
+  async function moveList(page, t, how = ['Control+m']) {
+    await select(page, t);
+    for (const k of how) await page.keyboard.press(k);
+    await expect(pal(page)).toBeVisible();
+    await expect(page.locator('#palt')).toHaveText('Przenieś do…');
+  }
+
+  test('Ctrl+M, m, :m i :move otwierają listę węzłów wszystkich map bez samej gałęzi i jej potomków', async ({
+    page,
+  }) => {
+    await loadMap(page, MAPS);
+    for (const how of [['Control+m'], ['m'], [':', 'm', 'Enter'], [':', 'm', 'o', 'v', 'e', 'Enter']]) {
+      await moveList(page, 'Projekt', how);
+      await expect(palq(page)).toBeFocused();
+      await expect(palq(page)).toBeEditable();
+      await expect(palq(page)).toHaveValue('');
+      expect(await names(page)).toEqual(['Praca', 'Zakupy', 'mleko', 'Dom', 'Kuchnia']);
+      await expect(rows(page).nth(2).locator('.ps')).toHaveText('Praca › Zakupy');
+      await page.keyboard.press('Escape');
+      await expect(pal(page)).toBeHidden();
+    }
+  });
+
+  test('litery pasują do tekstu węzła i do ścieżki; trafienia w samym tekście są na górze', async ({ page }) => {
+    await loadMap(page, MAPS);
+    await moveList(page, 'Strona');
+    await page.keyboard.type('kuch');
+    expect(await names(page)).toEqual(['Kuchnia']);
+    await expect(rows(page).first().locator('.m')).toHaveText('Kuch');
+    await palq(page).fill('praca'); // „Praca” w tekście na górze, potem węzły z „Praca” w ścieżce
+    const n = await names(page);
+    expect(n[0]).toBe('Praca');
+    expect(n.slice(1).sort()).toEqual(['Badania', 'Projekt', 'Zakupy', 'ankiety', 'mleko']);
+    await palq(page).fill('bad'); // „Badania” w tekście przed „ankiety” (Badania tylko w ścieżce)
+    expect(await names(page)).toEqual(['Badania', 'ankiety']);
+    await palq(page).fill('proj ank'); // słowa z tekstu i ze ścieżki razem
+    expect((await names(page))[0]).toBe('ankiety');
+    await palq(page).fill('zzz');
+    await expect(page.locator('#pall .none')).toHaveText('Nic nie pasuje');
+    await page.keyboard.press('Escape');
+  });
+
+  test('Enter przenosi jako ostatnie dziecko; zaznaczenie zostaje; zwinięty cel się rozwija; jedno Ctrl+Z cofa', async ({
+    page,
+  }) => {
+    await loadMap(page, MAPS);
+    const before = await texts(page),
+      u = await undos(page);
+    await moveList(page, 'Badania');
+    await page.keyboard.type('zakupy');
+    await page.keyboard.press('Enter');
+    await expect(pal(page)).toBeHidden();
+    expect(await texts(page)).toBe(
+      '# Praca\n\n- Projekt\n  - Strona\n- Zakupy\n  - mleko\n  - Badania\n    - ankiety\n\n# Dom\n\n- Kuchnia\n'
+    );
+    expect(await selText(page)).toBe('Badania');
+    expect(await page.evaluate(() => vis().some(n => n.text === 'Badania'))).toBe(true);
+    await expect(page.locator('#info')).toContainText('przeniesiono do „Zakupy”');
+    expect(await undos(page)).toBe(u + 1);
+    expect(await page.evaluate(() => mode)).toBe('NORMAL');
+    await page.keyboard.press('Control+z');
+    expect(await texts(page)).toBe(before);
+    expect(await selText(page)).toBe('Badania');
+  });
+
+  test('cel w zwiniętej gałęzi: przodkowie rozwijają się, gałąź widać; klik przenosi między mapami', async ({
+    page,
+  }) => {
+    await loadMap(page, MAPS);
+    await moveList(page, 'Kuchnia', ['m']);
+    await page.keyboard.type('mleko');
+    await rows(page).first().click();
+    await expect(pal(page)).toBeHidden();
+    expect(await texts(page)).toBe(
+      '# Praca\n\n- Projekt\n  - Badania\n    - ankiety\n  - Strona\n- Zakupy\n  - mleko\n    - Kuchnia\n\n# Dom\n\n' // pusta mapa zostaje
+    );
+    expect(await selText(page)).toBe('Kuchnia');
+    expect(await page.evaluate(() => vis().some(n => n.text === 'Kuchnia'))).toBe(true);
+  });
+
+  test('cała mapa (korzeń) przenosi się do innej mapy; jedynej mapy nie ma dokąd przenieść', async ({ page }) => {
+    await loadMap(page, MAPS);
+    await moveList(page, 'Dom');
+    expect(await names(page)).toEqual(['Praca', 'Projekt', 'Badania', 'ankiety', 'Strona', 'Zakupy', 'mleko']);
+    await palq(page).fill('strona');
+    await page.keyboard.press('Enter');
+    expect(await texts(page)).toBe(
+      '# Praca\n\n- Projekt\n  - Badania\n    - ankiety\n  - Strona\n    - Dom\n      - Kuchnia\n- Zakupy <!--c-->\n  - mleko\n'
+    );
+    expect(await selText(page)).toBe('Dom');
+    // została jedna mapa: jej korzenia nie ma dokąd przenieść
+    await select(page, 'Praca');
+    const before = await texts(page);
+    await page.keyboard.press('Control+m');
+    await expect(pal(page)).toBeHidden();
+    await expect(page.locator('#info')).toHaveText('nie ma dokąd przenieść');
+    expect(await texts(page)).toBe(before);
+  });
+
+  test('Esc nic nie zmienia', async ({ page }) => {
+    await loadMap(page, MAPS);
+    const before = await texts(page),
+      u = await undos(page);
+    await moveList(page, 'Badania');
+    await page.keyboard.type('dom');
+    await page.keyboard.press('Escape');
+    await expect(pal(page)).toBeHidden();
+    expect(await texts(page)).toBe(before);
+    expect(await undos(page)).toBe(u);
+    expect(await selText(page)).toBe('Badania');
+    expect(await page.evaluate(() => mode)).toBe('NORMAL');
+  });
+
+  test('bez zaznaczenia niedostępne: skrót nic nie otwiera, w palecie i menu szara z powodem', async ({ page }) => {
+    await loadMap(page, MAPS);
+    await page.evaluate(() => deselect());
+    await page.keyboard.press('Control+m');
+    await expect(pal(page)).toBeHidden();
+    await expect(page.locator('#info')).toHaveText('najpierw zaznacz węzeł');
+    await page.keyboard.press('m');
+    await expect(pal(page)).toBeHidden();
+    await page.keyboard.press('Control+k');
+    await expect(row(page, 'moveto')).toHaveClass(/off/);
+    await expect(row(page, 'moveto').locator('.why')).toHaveText('najpierw zaznacz węzeł');
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => ctxMenu(10, 10));
+    await expect(act(page, 'moveto')).toBeDisabled();
+  });
+
+  test('menu podręczne: „Przenieś do…” ze skrótem Ctrl+M otwiera listę, klik przenosi', async ({ page }) => {
+    await loadMap(page, MAPS);
+    await select(page, 'ankiety');
+    await page.evaluate(() => ctxMenu(10, 10));
+    await expect(act(page, 'moveto').locator('span')).toHaveText('Przenieś do…');
+    await expect(act(page, 'moveto').locator('kbd')).toHaveText('Ctrl+M');
+    await act(page, 'moveto').click();
+    await expect(page.locator('#palt')).toHaveText('Przenieś do…');
+    await palq(page).fill('dom');
+    await rows(page).first().click();
+    expect(await texts(page)).toContain('# Dom\n\n- Kuchnia\n- ankiety\n');
+    expect(await selText(page)).toBe('ankiety');
+  });
+
+  test.describe('telefon', () => {
+    test.use({ viewport: { width: 390, height: 780 }, hasTouch: true, isMobile: true });
+
+    test('menu po przytrzymaniu: „Przenieś do…”, stuknięcie w węzeł na liście przenosi', async ({ page }) => {
+      await loadMap(page, MAPS);
+      await select(page, 'Strona');
+      await page.evaluate(() => ctxMenu(100, 100, true)); // jak po przytrzymaniu węzła (touch.spec.js)
+      await page.waitForTimeout(400); // menu dotykowe przez 350 ms nie przyjmuje stuknięć
+      await act(page, 'moveto').tap();
+      await expect(pal(page)).toBeVisible();
+      await palq(page).fill('kuch');
+      await rows(page).first().tap();
+      await expect(pal(page)).toBeHidden();
+      expect(await texts(page)).toContain('# Dom\n\n- Kuchnia\n  - Strona\n');
+      expect(await selText(page)).toBe('Strona');
+    });
   });
 });

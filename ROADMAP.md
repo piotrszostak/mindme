@@ -49,7 +49,7 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 - **Etapy 0, 1 i A:** sprawdzanie stylu i układu z pliku (A.1), pomiar wydajności z progami (A.2; cel: płynnie do 500 węzłów, także na telefonie), aliasy klawiszy (A.3), usunięcie Tauri (A.5), porządki (A.6).
 - **A.7 Ochrona danych (2026-11-27):** autozapis nie nadpisuje pliku zmienionego na dysku (np. przez Syncthing) ani mapy z innej karty – pyta; ostrzeżenie przy pełnej pamięci przeglądarki; widok Markdown nie gubi po cichu linii, których mapa nie pokaże; Ctrl+S w edycji i w widoku Markdown; hjkl idą tam, gdzie strzałki, a Alt+strzałki i H J K L przesuwają w stronę strzałki – w każdym układzie; nazwa „mindme” wszędzie; `#` i `-` bez spacji; `<!--layout/style-->` pod drugą mapą liczone jako pominięte; Service Worker nie czeka na wolną sieć dłużej niż 3 s; Capacitor usunięty do czasu portu (decyzje 2026-11-27).
 - **T.1:** adres https na GitHub Pages, publikacja po zielonych testach.
-- **2.1–2.6:** szukanie Ctrl+F i „/” (bez polskich znaków i wielkości liter), wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania, lista wszystkich trafień w palecie (Alt+Enter albo „wszystkie”; tryb listy `openList` także dla 2.7 i 4.8), dymek podpowiedzi klawiszy po prefiksie i liczniku.
+- **Etap 2 (2.1–2.7, 2026-11-27):** szukanie Ctrl+F i „/” (bez polskich znaków i wielkości liter), wklejanie ze schowka systemowego, wyszukiwanie przybliżone w palecie, cienki pasek przewijania, lista wszystkich trafień w palecie (Alt+Enter albo „wszystkie”; tryb listy `openList` także dla 4.8), dymek podpowiedzi klawiszy po prefiksie i liczniku, „Przenieś do…” (Ctrl+M, `m`, `:m`, menu podręczne).
 
 ## Odłożone
 
@@ -59,14 +59,6 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 ---
 
 # PODSTAWA (etapy 2–6)
-
-## Etap 2 – Szukanie, schowek i paleta komend
-
-### 2.7 „Przenieś do…” (wzór: refile w Org-mode)
-
-W palecie komend na zaznaczonej gałęzi: wpisane litery zawężają listę węzłów (dopasowanie z 2.3, lista z 2.5), Enter przenosi gałąź jako ostatnie dziecko celu; zaznaczenie zostaje na niej. Lista pomija samą gałąź i jej potomków. Pozycja „Przenieś do…” w menu podręcznym. Skróty wstępnie Ctrl+M, `m`, `:m` (decyzja 2026-11-27) – najpierw test w Firefoksie, że Ctrl+M nie wycisza karty; jeśli nie da się go przejąć – karta. Jeden krok cofania. Testy w `palette.spec.js`, także w Firefoksie.
-
-**Akceptacja etapu 2:** testy w `search.spec.js`, `clipboard.spec.js`, `palette.spec.js` i `keys.spec.js` przechodzą w Chromium i Firefoksie; README i `HELP` aktualne.
 
 ## Etap 3 – Panel boczny i menu
 

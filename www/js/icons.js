@@ -22,6 +22,7 @@ const IC = {
   indent: 'M4 5h16 M11 12h9 M11 19h9 M4 9l4 3-4 3',
   outdent: 'M4 5h16 M11 12h9 M11 19h9 M8 9l-4 3 4 3',
   up: 'M12 19V5 M6 11l6-6 6 6',
+  moveto: 'M3 12h11 M10 8l4 4-4 4 M14 4h6v16h-6', // strzałka do ramki: przenieś do…
   emoji: 'M12 21a9 9 0 100-18 9 9 0 000 18z M8 14s1.5 2 4 2 4-2 4-2 M9 9.5h.01 M15 9.5h.01',
   sliders: 'M4 6h9 M17 6h3 M15 4v4 M4 12h3 M11 12h9 M9 10v4 M4 18h11 M19 18h1 M17 16v4',
   close: 'M6 6l12 12 M18 6L6 18',

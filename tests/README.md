@@ -17,7 +17,7 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 | `edit.spec.js`                                                        | edycja w węźle                                                                           |
 | `keys.spec.js`                                                        | **wszystkie skróty** (zwykły + vim), także w **Firefoksie**                              |
 | `search.spec.js`                                                      | szukanie „/” i Ctrl+F, n / N, także w **Firefoksie**                                     |
-| `palette.spec.js`                                                     | paleta komend (Ctrl+K, `:`), tabela czynności `ACT`                                      |
+| `palette.spec.js`                                                     | paleta komend (Ctrl+K, `:`), `ACT`, tryb listy, „Przenieś do…”, także w **Firefoksie**   |
 | `navigation.spec.js`                                                  | strzałki zgodne z układem, Alt+strzałki                                                  |
 | `dnd.spec.js`, `touch.spec.js`                                        | przeciąganie myszą, gesty dotykowe                                                       |
 | `animation.spec.js`                                                   | sprężyny, wyrastanie/chowanie węzłów                                                     |

@@ -109,6 +109,7 @@ function ctxMenu(x, y, touch) {
         f: () => pasteClip(true, !!touch) /* przy PPM `touch` bywa pominięte */,
         off: false,
       }),
+      mi('moveto'),
       mi('del'),
       '-',
       mi('fit'),
