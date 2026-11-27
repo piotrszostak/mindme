@@ -71,6 +71,7 @@ Nazwy pojęć w interfejsie, planie i rozmowie: `docs/slownik.md`. Nowe pojęcie
 - Ukryty panel podglądu animuje wolno, zrzut łapie stan pośredni → nakładanie węzłów sprawdzaj liczbowo (pozycje docelowe), nie tylko na zrzucie.
 - Sprawdzanie w podglądzie (`load()`, zmiany na mapie) nadpisuje autozapis użytkownika (`mm.md`) → najpierw kopia `localStorage.getItem('mm.md')`, na koniec przywrócenie i przeładowanie strony.
 - Edycja skryptem (sed, python) omija automatyczny Prettier → przed commitem `npx prettier --write` na zmienionych plikach z `www/`, `tests/`, `types/` (dokumentacji nie – zob. niżej), inaczej bramka zatrzyma commit.
+- Serwer podglądu (`npm run serve`) przekierowuje `…/x.html` na `…/x` i `…/index.html` na katalog bez ukośnika – gubi przy tym `?parametry`, a ścieżki względne trafiają piętro wyżej → w prototypach pełna ścieżka i adres bez `.html`.
 - Serwer podglądu z poprzedniej sesji może dalej działać na :3000: `preview_start` z `name` się wtedy nie uruchomi – użyj `preview_start` z `url`; dziennik (`preview_logs`) ma tylko serwer uruchomiony w tej sesji.
 - Podgląd bez `reducedMotion`: tuż po `load()` węzły jeszcze jadą – symulowany dotyk trafia w zły węzeł; odczekaj ok. 1 s.
 - `ROADMAP.md` i `docs/*.md` nie przechodzą przez Prettiera (bramka sprawdza kod) – nie formatuj całych plików, diff zrobi się nieczytelny, a blokada gita nie pozwoli cofnąć tego przez `git checkout`.
