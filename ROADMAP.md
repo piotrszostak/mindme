@@ -53,7 +53,7 @@ mindme ma być **prosta, intuicyjna i przejrzysta**, a dopiero potem bogata w fu
 
 ## Odłożone
 
-- **A.4 Edycja palet bez pamięci przeglądarki 🗳** – odłożone na prośbę użytkownika, wróć najpóźniej przy 3.2. Dziś „Edytuj paletę” zmienia paletę na tym urządzeniu (`mm.pal`), więc wygląda różnie na komputerze i telefonie. Karta gotowa: (a) edycja zmienia tylko kolory tej mapy (zapis w pliku) – polecana; (b) usunąć edycję. W obu: co z poprawkami już zapisanymi w `mm.pal`.
+- **A.4 Edycja palet bez pamięci przeglądarki** – rozstrzygnięte 2026-11-28 (`docs/decyzje.md`, „3.3: ustalenia przed pracą”): edycja zmienia tylko kolory tej mapy (zapis w pliku), `mm.pal` przestaje być czytane; wdrożenie w 3.3 razem z panelem (krok 2).
 - **A.8 Safari (WebKit) ⏸** – najpierw zapytaj, czy użytkownik używa iPhone’a albo Safari. Jeśli tak: projekt `webkit` w `playwright.config.js` (najpierw skróty, szukanie, schowek, dotyk), `npx playwright install webkit` w CI, poprawki różnic. Jeśli nie – zapisz w `docs/decyzje.md`, że Safari nie jest celem.
 
 ---
