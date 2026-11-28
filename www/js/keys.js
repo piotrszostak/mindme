@@ -1,4 +1,4 @@
-/* Klawiatura (tryb Normal: skrót zwykły + vim), wiersz poleceń „:” i wyszukiwanie „/”. */
+/* Klawiatura (tryb Normal: skrót zwykły + vim), wyszukiwanie (`search`, `jump`) i komendy „:” (`exec`). */
 /* ---- tryb Normal (klawiatura) ---- */
 /* Skróty: dla każdej czynności standardowy (Ctrl/klawisz specjalny) i vim; dawne klawisze (F1, F2, F3, Shift+F10)
    zostają jako ukryte aliasy – działają, ale nie ma ich w pomocy, w menu ani w README (decyzja A.3); nowych nie dodajemy. */
@@ -31,7 +31,7 @@ function normal(ev) {
       c: copy,
       d: duplicate,
       x: cut,
-      f: () => openCmd('/', true),
+      f: () => openFind(true),
       k: () => openPal(),
       m: moveList /* Firefox: wyciszanie karty – oddaje je stronie (preventDefault) */,
       g: () => jump(sh ? -1 : 1),
@@ -226,7 +226,7 @@ function normal(ev) {
       openPal(':');
       break;
     case '/':
-      openCmd('/');
+      openFind(false);
       break;
     case '?':
     case 'F1': // ukryty alias
@@ -242,63 +242,6 @@ function normal(ev) {
   }
   ev.preventDefault();
 }
-/* ---- Command / wyszukiwanie ---- */
-/* Szukanie po „/” jak w vim: Enter szuka i zamyka pole, dalej n / N. Po Ctrl+F jak w przeglądarce: pole zostaje,
-   Enter / Shift+Enter (też Ctrl+G / Ctrl+Shift+G) – następne / poprzednie trafienie, Esc zamyka. */
-let findBar = false;
-/** @type {string | null} zapytanie obecnych trafień w polu Ctrl+F (inne = szukaj od nowa) */
-let findQ = null;
-/** @param {string} p ':' albo '/' @param {boolean} [bar] pole szukania zostaje otwarte (Ctrl+F) */
-function openCmd(p, bar) {
-  setMode(p === ':' ? 'COMMAND' : 'SEARCH');
-  findBar = !!bar && p === '/';
-  findQ = null;
-  const c = $('cmd');
-  c.style.display = 'block';
-  $('cmdall').hidden = p !== '/'; /* „wszystkie” – lista trafień (2.5), na telefonie jedyna droga */
-  c.value = p;
-  c.focus();
-}
-function closeCmd() {
-  const c = $('cmd');
-  c.blur();
-  c.style.display = 'none';
-  $('cmdall').hidden = true;
-  setMode('NORMAL');
-} /* fokus nie może zostać w ukrytym polu (Chromium) */
-$('cmd').addEventListener('keydown', ev => {
-  ev.stopPropagation();
-  const v = $('cmd').value,
-    d = ev.shiftKey ? -1 : 1;
-  if (ev.key === 'Escape') return closeCmd();
-  if (ev.key === 'Enter' && ev.altKey && v[0] === '/') {
-    ev.preventDefault();
-    return hitList(v.slice(1)); /* lista wszystkich trafień (2.5) */
-  }
-  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'f') {
-    /* Ctrl+F w otwartym polu: jak w przeglądarce zaznacz zapytanie (inaczej otworzy się szukanie na stronie) */
-    ev.preventDefault();
-    if (v[0] !== '/') return openCmd('/', true);
-    findBar = true;
-    $('cmd').setSelectionRange(1, v.length);
-    return;
-  }
-  if (findBar) {
-    const g = (ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'g';
-    if (ev.key === 'Enter' || ev.key === 'F3' || g) {
-      ev.preventDefault();
-      const q = v.slice(1);
-      if (q === findQ) return jump(d);
-      findQ = q;
-      search(q, d);
-    }
-    return;
-  }
-  if (ev.key === 'Enter') {
-    closeCmd();
-    v[0] === ':' ? exec(v.slice(1).trim()) : search(v.slice(1), d);
-  }
-});
 /* Ctrl+V / Ctrl+Shift+V w trybie mapy: tekst ze schowka systemowego (bez pytania o zgodę, w odróżnieniu od
    navigator.clipboard.readText); pola tekstowe wklejają same */
 let pasteSib = false;
@@ -313,16 +256,7 @@ document.addEventListener('paste', e => {
   const cd = e.clipboardData;
   pasteText(cd?.getData('text/plain') || '', !sib, cd?.getData('text/html') || '');
 });
-/* kliknięcie poza polem (mapa, pasek) zamyka je – inaczej tryb zostaje SEARCH i klawisze nie sterują mapą,
-   a Ctrl+F i „/” trafiają do przeglądarki; trafienia zostają dla n / N */
-document.addEventListener(
-  'pointerdown',
-  e => {
-    const t = e.target;
-    if ($('cmd').style.display === 'block' && t !== $('cmd') && t !== $('cmdall')) closeCmd();
-  },
-  true
-);
+/* ---- wyszukiwanie (pole w górnym pasku – palette.js: `openFind`) i komendy „:” ---- */
 /** @param {string} q @param {number} [d] 1 – od pierwszego trafienia, −1 – od ostatniego */
 function search(q, d = 1) {
   /* bez polskich znaków i wielkości liter, jak lista trafień (`matchAt` w palette.js) */
@@ -363,7 +297,7 @@ function cmdFind(c) {
   const x = by(n => n === full) || by(n => !n.includes(' ') && n === a);
   return x && x.f ? { id: x.id, t: x.t, f: x.f } : null;
 }
-/** komenda „:” (w palecie i z pola na dole) @param {string} c */
+/** komenda „:” (w polu w górnym pasku) @param {string} c */
 function exec(c) {
   const x = cmdFind(c);
   if (x) x.f();

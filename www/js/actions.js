@@ -155,7 +155,7 @@ const ACT = [
     off: () => (redoS.length ? '' : 'nic do ponowienia'),
   },
   /* widok */
-  { id: 'find', t: 'Szukaj', k: ['Ctrl+F'], v: ['/'], f: () => openCmd('/', true) },
+  { id: 'find', t: 'Szukaj', k: ['Ctrl+F'], v: ['/'], f: () => openFind(true) },
   { id: 'next', t: 'Następne trafienie', k: ['Ctrl+G'], v: ['n'] },
   { id: 'prev', t: 'Poprzednie trafienie', k: ['Ctrl+Shift+G'], v: ['N'] },
   { id: 'fit', ic: 'fit', t: 'Dopasuj całą mapę', k: ['Shift+1'], v: ['='], c: 'fit', f: () => fitView() },

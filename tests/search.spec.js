@@ -16,17 +16,17 @@ async function keys(page, list) {
 /** Ctrl+F, zapytanie, Enter – pole zostaje otwarte */
 async function findBar(page, q) {
   await keys(page, ['Control+f']);
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#sr')).toBeFocused();
   await page.keyboard.type(q);
   await keys(page, ['Enter']);
 }
 /** „/”, zapytanie, Enter – pole się zamyka */
 async function findVim(page, q) {
   await keys(page, ['/']);
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#sr')).toBeFocused();
   await page.keyboard.type(q);
   await keys(page, ['Enter']);
-  await expect(page.locator('#cmd')).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
 }
 
 test('szukanie „/” jak w vim: Enter zamyka pole; dalej Ctrl+G, Ctrl+Shift+G | n, N (też F3, Shift+F3)', async ({
@@ -36,7 +36,7 @@ test('szukanie „/” jak w vim: Enter zamyka pole; dalej Ctrl+G, Ctrl+Shift+G 
   await keys(page, ['/']);
   await page.keyboard.type('a');
   await page.keyboard.press('Enter');
-  await expect(page.locator('#cmd')).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
   expect(await selText(page)).toBe('a');
   await expect(page.locator('#info')).toHaveText('trafienie 1 z 4');
   for (const [k, t] of [
@@ -58,7 +58,7 @@ test('szukanie „/”: Shift+Enter zamyka pole i skacze do ostatniego trafienia
   await keys(page, ['/']);
   await page.keyboard.type('a');
   await page.keyboard.press('Shift+Enter');
-  await expect(page.locator('#cmd')).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
   expect(await selText(page)).toBe('a3');
 });
 
@@ -68,7 +68,7 @@ test('szukanie Ctrl+F jak w przeglądarce: pole zostaje, Enter / Shift+Enter i C
   await loadMap(page, MD);
   await keys(page, ['Control+f']);
   await page.keyboard.type('a');
-  const cmd = page.locator('#cmd');
+  const cmd = page.locator('#sr');
   for (const [k, t] of [
     ['Enter', 'a'],
     ['Enter', 'a1'],
@@ -87,29 +87,29 @@ test('szukanie Ctrl+F jak w przeglądarce: pole zostaje, Enter / Shift+Enter i C
   await keys(page, ['Enter']); // nowe zapytanie – od pierwszego trafienia
   expect(await selText(page)).toBe('b');
   await keys(page, ['Escape']);
-  await expect(cmd).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
+  await expect(cmd).not.toBeFocused();
   expect(await selText(page)).toBe('b'); // zaznaczenie zostaje na trafieniu
   await keys(page, ['j']); // klawisze znów sterują mapą
   expect(await selText(page)).toBe('c');
 });
 
-test('szukanie z palety (Ctrl+K → „szukaj”) i z menu „…” → Wszystkie polecenia', async ({ page }) => {
+test('szukanie z pola (Ctrl+K → „szukaj”) i po kliknięciu w pole', async ({ page }) => {
   await loadMap(page, MD);
   await keys(page, ['Control+k']);
   await page.keyboard.type('szukaj');
   await keys(page, ['Enter']);
-  await expect(page.locator('#pal')).toBeHidden();
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#mode')).toHaveText('SEARCH'); // to samo pole, teraz tylko z węzłami
+  await expect(page.locator('#sr')).toBeFocused();
   await page.keyboard.type('c');
   await keys(page, ['Enter']);
   expect(await selText(page)).toBe('c');
   await keys(page, ['Escape']);
 
-  await page.click('#bm');
-  await page.click('#menu [data-act="pal"]');
+  await page.click('#sr');
   await page.keyboard.type('szukaj');
   await keys(page, ['Enter']);
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#sr')).toBeFocused();
   await page.keyboard.type('d');
   await keys(page, ['Enter']);
   expect(await selText(page)).toBe('d');
@@ -193,7 +193,7 @@ test('Ctrl+F i „/” nie trafiają do przeglądarki – także drugi Ctrl+F w 
   await page.waitForTimeout(50);
   const prev = await page.evaluate(() => window.__prev.filter(s => s.startsWith('/') || s.startsWith('Ctrl+f')));
   expect(prev).toEqual(['/:true', 'Ctrl+f:true', 'Ctrl+f:true']);
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#sr')).toBeFocused();
 });
 
 test('kliknięcie mapy przy otwartym polu Ctrl+F zamyka pole; klawisze znowu sterują mapą', async ({ page }) => {
@@ -201,7 +201,7 @@ test('kliknięcie mapy przy otwartym polu Ctrl+F zamyka pole; klawisze znowu ste
   await findBar(page, 'a');
   expect(await selText(page)).toBe('a');
   await page.mouse.click(5, (await page.locator('#sv').boundingBox()).y + 5); // puste tło mapy
-  await expect(page.locator('#cmd')).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
   expect(await page.evaluate(() => mode)).toBe('NORMAL');
   await select(page, 'b');
   await keys(page, ['j']);
@@ -233,11 +233,12 @@ test('polskie znaki i wielkość liter: „żółw” znajduje „Żółw”', a
 
 // --- 2.5: szukanie bez polskich znaków i lista wszystkich trafień ---
 const PL = '# Mapa\n- Żółw\n  - zolw mały\n- łąka\n- ZÓŁWIE jajo\n- kot\n';
-const list = page => page.locator('#pal');
-const listRows = page => page.locator('#pall .pi');
+/** lista trafień otwarta: pole z tytułem trybu listy */
+const list = page => page.locator('#srRes:has(#srT:not([hidden]))');
+const listRows = page => page.locator('#srL .pi');
 /** wiersze listy: tekst, wyróżnione litery i ścieżka */
 const listed = page =>
-  page.$$eval('#pall .pi', r =>
+  page.$$eval('#srL .pi', r =>
     r.map(x => ({
       t: x.querySelector('.pt').textContent,
       m: [...x.querySelectorAll('.pt .m')].map(m => m.textContent),
@@ -247,7 +248,7 @@ const listed = page =>
 /** Alt+Enter w polu szukania otwartym przez Ctrl+F („bar”) albo „/” („vim”) */
 async function allHits(page, how, q) {
   await keys(page, [how === 'bar' ? 'Control+f' : '/']);
-  await expect(page.locator('#cmd')).toBeFocused();
+  await expect(page.locator('#sr')).toBeFocused();
   await page.keyboard.type(q);
   await keys(page, ['Alt+Enter']);
 }
@@ -279,7 +280,7 @@ test('bez polskich znaków i wielkości liter: ta sama liczba trafień w Ctrl+F,
     await findBar(page, q);
     await expect(page.locator('#info'), `Ctrl+F ${q}`).toHaveText(`trafienie 1 z ${n}`);
     await keys(page, ['Alt+Enter']);
-    await expect(page.locator('#palt'), `lista ${q}`).toHaveText(`Trafienia (${n})`);
+    await expect(page.locator('#srT'), `lista ${q}`).toHaveText(`Trafienia (${n})`);
     await expect(listRows(page)).toHaveCount(n);
     await keys(page, ['Escape']);
   }
@@ -289,32 +290,27 @@ test('bez polskich znaków i wielkości liter: ta sama liczba trafień w Ctrl+F,
   expect((await listed(page)).map(r => r.m)).toEqual([['Żółw'], ['zolw'], ['ZÓŁW']]);
 });
 
-test('lista trafień: Alt+Enter w obu trybach pola i przycisk „wszystkie” otwierają paletę „Trafienia (N)”', async ({
-  page,
-}) => {
-  const all = page.locator('#cmdall');
+test('lista trafień: Alt+Enter w obu trybach pola otwiera w tym samym polu listę „Trafienia (N)”', async ({ page }) => {
   await loadMap(page, MD);
-  await expect(all).toBeHidden();
   for (const how of ['bar', 'vim']) {
     await allHits(page, how, 'a');
     await expect(list(page), how).toBeVisible();
-    await expect(page.locator('#palt')).toHaveText('Trafienia (4)');
+    await expect(page.locator('#srT')).toHaveText('Trafienia (4)');
     await expect(listRows(page)).toHaveCount(4);
-    await expect(page.locator('#cmd')).toBeHidden(); // pole szukania zamknięte, lista ma fokus
-    await expect(page.locator('#palq')).toBeFocused();
+    await expect(page.locator('#sr')).toBeFocused(); // to samo pole: zapytanie widać, ale się w nim nie pisze
+    await expect(page.locator('#sr')).toHaveValue('a');
+    await expect(page.locator('#sr')).not.toBeEditable();
     await keys(page, ['Escape']);
     await expect(list(page)).toBeHidden();
+    await expect(page.locator('#srRes')).toBeHidden();
   }
+  // bez Alt+Enter (np. na telefonie) wszystkie trafienia widać od razu pod polem: „W mapie (N)”
   for (const how of ['bar', 'vim']) {
     await keys(page, [how === 'bar' ? 'Control+f' : '/']);
-    await expect(all, how).toBeVisible();
-    await expect(all).toHaveText('wszystkie');
     await page.keyboard.type('a');
-    await all.click();
-    await expect(list(page), how).toBeVisible();
-    await expect(page.locator('#palt')).toHaveText('Trafienia (4)');
+    await expect(page.locator('#srL .sh'), how).toHaveText(['W mapie (4)']);
+    await expect(listRows(page)).toHaveCount(4);
     await keys(page, ['Escape']);
-    await expect(all).toBeHidden();
   }
   // na liście trafień się nie pisze: litery nie zmieniają listy
   await allHits(page, 'bar', 'a');
@@ -338,7 +334,7 @@ test('lista trafień: węzeł z kilkoma liniami w jednym wierszu („ · ”), �
   const rows = await listed(page);
   expect(rows[0]).toEqual({ t: 'Mapa długa', m: ['dług'], path: '' });
   const pt = await page
-    .locator('#pall .pi .pt')
+    .locator('#srL .pi .pt')
     .nth(1)
     .evaluate(e => {
       const s = getComputedStyle(e);
@@ -356,9 +352,9 @@ test('lista trafień: Enter i klik idą do węzła i rozwijają zwiniętego przo
   await allHits(page, 'bar', 'x');
   expect((await listed(page)).map(r => r.t)).toEqual(['ukryty x', 'b x', 'c x']);
   expect((await listed(page))[0].path).toBe('R › a');
-  await expect(page.locator('#pall .pi.hi')).toHaveText(/ukryty x/); // pierwsza podświetlona
+  await expect(page.locator('#srL .pi.hi')).toHaveText(/ukryty x/); // pierwsza podświetlona
   await keys(page, ['ArrowDown', 'ArrowUp', 'Tab', 'Shift+Tab']); // strzałki i Tab jak w palecie
-  await expect(page.locator('#pall .pi.hi')).toHaveText(/ukryty x/);
+  await expect(page.locator('#srL .pi.hi')).toHaveText(/ukryty x/);
   await keys(page, ['Enter']);
   await expect(list(page)).toBeHidden();
   expect(await selText(page)).toBe('ukryty x');
@@ -396,9 +392,8 @@ test('lista trafień: Esc zamyka bez zmiany zaznaczenia; brak trafień – komun
     await allHits(page, how, 'zzz');
     await expect(page.locator('#info')).toHaveText('0 trafień');
     await expect(list(page)).toBeHidden();
-    await expect(page.locator('#cmd'), 'pole zostaje do poprawienia zapytania').toBeFocused();
-    await page.locator('#cmdall').click();
-    await expect(list(page)).toBeHidden();
+    await expect(page.locator('#sr'), 'pole zostaje do poprawienia zapytania').toBeFocused();
+    await expect(page.locator('#srL .none')).toHaveText('Brak trafień');
     await keys(page, ['Escape']);
   }
   expect(await selText(page)).toBe('a');

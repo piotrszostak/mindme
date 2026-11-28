@@ -19,12 +19,42 @@
         <button id="br" data-ic="redo" data-tip="Ponów (Ctrl+Shift+Z, Ctrl+R)"></button>
         <button id="bf" data-ic="fit" data-tip="Dopasuj całą mapę (Shift+1, =)"></button>
       </div>
+      <div id="srW" role="search">
+        <div id="srBox" class="island">
+          <button id="srBack" type="button" data-ic="back" data-tip="Wróć do mapy"></button>
+          <span id="srIc"></span>
+          <input
+            id="sr"
+            role="combobox"
+            aria-controls="srL"
+            aria-expanded="false"
+            aria-autocomplete="list"
+            aria-label="Szukaj w mapie lub wpisz polecenie"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="go"
+            placeholder="Szukaj w mapie lub wpisz polecenie…"
+          />
+          <kbd id="srK">Ctrl+K</kbd>
+        </div>
+        <div id="srRes" class="island" hidden>
+          <div id="srT" hidden></div>
+          <div id="srL" role="listbox" aria-label="Węzły i polecenia"></div>
+        </div>
+      </div>
       <div id="tr">
         <div id="views" class="island" role="group" aria-label="Widok">
           <button id="bv" class="tr" data-ic="map" data-lbl="Mapa" data-tip="Mapa (Esc w widoku .md)"></button>
           <button id="bt" class="tr" data-ic="text" data-lbl=".md" data-tip="Tekst Markdown (:text)"></button>
         </div>
         <div class="island">
+          <button
+            id="srBtn"
+            class="tr"
+            data-ic="search"
+            data-tip="Szukaj w mapie lub wpisz polecenie (Ctrl+K)"
+          ></button>
           <button id="bp" class="tr" data-tip="Wygląd mapy: tekst, linie, węzły, odstępy, kolory">Aa</button>
         </div>
       </div>
@@ -38,33 +68,10 @@
       <div id="wk"></div>
     </div>
     <div id="st">
-      <span id="mode">NORMAL</span><input id="cmd" /><button
-        id="cmdall"
-        type="button"
-        hidden
-        title="Lista wszystkich trafień (Alt+Enter)"
-      >
-        wszystkie</button
-      ><span id="info"></span><span id="hint"></span><span id="save"></span>
+      <span id="mode">NORMAL</span><span id="info"></span><span id="hint"></span><span id="save"></span>
     </div>
     <div id="menu" role="menu"></div>
     <div id="emo" role="dialog" aria-label="Wybór emoji"></div>
-    <div id="pal" role="dialog" aria-label="Wszystkie polecenia">
-      <div id="palt" hidden></div>
-      <input
-        id="palq"
-        role="combobox"
-        aria-controls="pall"
-        aria-expanded="true"
-        aria-autocomplete="list"
-        autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
-        enterkeyhint="go"
-        placeholder="Szukaj polecenia…"
-      />
-      <div id="pall" role="listbox" aria-label="Polecenia"></div>
-    </div>
     <textarea id="clip" tabindex="-1" aria-hidden="true"></textarea>
     <dialog id="ask" aria-labelledby="askt">
       <p id="askt"></p>

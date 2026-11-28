@@ -119,7 +119,7 @@ const PAIRS = [
     ['Control+m'],
     ['m'],
     async p => {
-      await expect(p.locator('#palt')).toHaveText('Przenieś do…');
+      await expect(p.locator('#srT')).toHaveText('Przenieś do…');
       await p.keyboard.type('c');
       await p.keyboard.press('Enter');
       expect(await md(p)).toBe('# R\n\n- a\n  - a1\n  - a2\n- b\n- c\n  - a3\n- d\n');
@@ -142,8 +142,8 @@ const PAIRS = [
     ['Control+f'],
     ['/'],
     async p => {
-      await expect(p.locator('#cmd')).toBeFocused();
-      await expect(p.locator('#cmd')).toHaveValue('/');
+      await expect(p.locator('#sr')).toBeFocused();
+      await expect(p.locator('#mode')).toHaveText('SEARCH'); // pole w górnym pasku tylko z węzłami
       await p.keyboard.press('Escape');
     },
   ],
@@ -153,10 +153,10 @@ const PAIRS = [
     ['Control+k'],
     [':'],
     async p => {
-      await expect(p.locator('#pal')).toBeVisible();
-      await expect(p.locator('#palq')).toBeFocused();
+      await expect(p.locator('#srRes')).toBeVisible();
+      await expect(p.locator('#sr')).toBeFocused();
       await p.keyboard.press('Escape');
-      await expect(p.locator('#pal')).toBeHidden();
+      await expect(p.locator('#srRes')).toBeHidden();
     },
   ],
   [
@@ -314,10 +314,10 @@ test('pozostałe: licznik 2j, 0 / $, zR / zM, Ctrl+. (emoji), klawisz Menu (też
     await keys(page, ['Escape']);
   }
   await keys(page, [':']); // paleta z wpisanym dwukropkiem
-  await expect(page.locator('#palq')).toHaveValue(':');
+  await expect(page.locator('#sr')).toHaveValue(':');
   await keys(page, ['Escape']);
   await keys(page, ['Control+k']); // paleta od pustego pola
-  await expect(page.locator('#palq')).toHaveValue('');
+  await expect(page.locator('#sr')).toHaveValue('');
   await keys(page, ['Escape']);
 });
 
@@ -373,7 +373,7 @@ test('ukryte aliasy (F1, F2, F3, F10) nie są pokazywane w pomocy, menu, palecie
       closeMenu();
     }
     openPal();
-    t.push($('pall').textContent || '');
+    t.push($('srL').textContent || '');
     closePal();
     return t.join('\n');
   });
@@ -451,9 +451,9 @@ test('paleta: pisanie zawęża listę, strzałki wybierają, Enter uruchamia; �
   });
   await keys(page, ['Control+k']);
   await page.keyboard.type('przesuń');
-  await expect(page.locator('#pall .pi.hi .pt')).toHaveText('Przesuń w górę');
+  await expect(page.locator('#srL .pi.hi .pt')).toHaveText('Przesuń w górę');
   await keys(page, ['ArrowDown', 'Enter']);
-  await expect(page.locator('#pal')).toBeHidden();
+  await expect(page.locator('#srRes')).toBeHidden();
   expect(await md(page)).toContain('- c\n- b\n- d\n');
   await keys(page, [':', 'w', 'Enter']);
   expect(await page.evaluate(() => window.__saved)).toBe(1);
@@ -602,17 +602,17 @@ test.describe('dymek podpowiedzi klawiszy (2.6)', () => {
     await page.waitForTimeout(WAIT);
     await expect(wk(page)).toBeVisible();
     await keys(page, ['Control+k']);
-    await expect(page.locator('#pal')).toBeVisible();
+    await expect(page.locator('#srRes')).toBeVisible();
     await expect(wk(page)).toBeHidden();
     await keys(page, ['Escape', 'Escape']); // zamknij paletę; drugi Esc kasuje prefiks (jak dziś zostaje po Ctrl+K)
     await keys(page, ['z', 'Control+k']); // paleta przed upływem czasu – dymek nie wyskoczy nad nią
     await page.waitForTimeout(WAIT + 100);
-    await expect(page.locator('#pal')).toBeVisible();
+    await expect(page.locator('#srRes')).toBeVisible();
     await expect(wk(page)).toBeHidden();
     await keys(page, ['Escape', 'Escape']);
     await keys(page, ['z', ':']); // jak dziś: kasuje prefiks, paleta się nie otwiera
     await page.waitForTimeout(WAIT + 100);
-    await expect(page.locator('#pal')).toBeHidden();
+    await expect(page.locator('#srRes')).toBeHidden();
     await expect(wk(page)).toBeHidden();
     await keys(page, ['z']);
     await page.waitForTimeout(WAIT);

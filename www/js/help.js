@@ -51,12 +51,12 @@ const HELP = {
     ['Esc', 'zamknij pole – zaznaczenie zostaje na trafieniu'],
     [
       'Alt+Enter',
-      'w polu: lista wszystkich trafień ze ścieżką od korzenia (też przycisk „wszystkie”); Enter / klik przechodzi do węzła',
+      'w polu: lista wszystkich trafień ze ścieżką od korzenia (trafienia widać też od razu pod polem); Enter / klik przechodzi do węzła',
     ],
     ['zolw', 'bez polskich znaków i wielkości liter: znajdzie „Żółw”'],
   ],
   'Komendy (:)': [
-    [':', 'otwiera paletę z dwukropkiem: wpisana komenda jest pierwsza na liście, Enter ją uruchamia'],
+    [':', 'otwiera pole u góry z dwukropkiem: wpisana komenda jest pierwsza na liście, Enter ją uruchamia'],
     [':w|:e', 'zapisz / otwórz'],
     [':new tytuł', 'nowa mapa'],
     [':text', 'widok Markdown'],

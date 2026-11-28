@@ -119,7 +119,7 @@ test('pasek przewijania: cienki w każdym przewijanym miejscu, kolor zgodny z tr
   await theme('light');
   const light = await bars();
   const ids = light.map(b => b.id);
-  for (const id of ['pall', 'sb', 'txt', 'hb', 'grid', 'askf']) expect(ids).toContain(id);
+  for (const id of ['srL', 'sb', 'txt', 'hb', 'grid', 'askf']) expect(ids).toContain(id);
   for (const b of light) {
     expect(b, b.id).toMatchObject({ w: 'thin' });
     expect(b.c, b.id).not.toBe('auto');

@@ -1,5 +1,6 @@
-/* Paleta komend (Ctrl+K, „:”, menu ☰): czynności z ACT, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd).
-   Tryb listy (`openList`): ta sama paleta z dowolnymi pozycjami – lista trafień (2.5), „Przenieś do…”, `:lint`. */
+/* Pole „Szukaj w mapie lub wpisz polecenie…” w górnym pasku (paleta komend; Ctrl+K, „:”, „/”, Ctrl+F): czynności z ACT,
+   węzły mapy, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd).
+   Tryb listy (`openList`): to samo pole z dowolnymi pozycjami – lista trafień (2.5), „Przenieś do…”, `:lint`. */
 /* ---- paleta komend ---- */
 let palOpen = false;
 /** @type {PalItem[]} pozycje na liście: pełna komenda „:”, dostępne, potem niedostępne */
@@ -187,6 +188,64 @@ function nodeItems(keep) {
   })(root, []);
   return out;
 }
+/* ---- pole „Szukaj w mapie lub wpisz polecenie…” w górnym pasku (3.3 krok 3) ---- */
+/* Jedno miejsce do pisania: Ctrl+K i klik – ostatnio użyte, po wpisaniu węzły i czynności, po „:” komendy;
+   „/” i Ctrl+F – tylko węzły. Tryb listy (`openList`) też tutaj. Na telefonie lupa (#srBtn) i pole na cały ekran. */
+const SR_PH = 'Szukaj w mapie lub wpisz polecenie…';
+/** @type {'all' | 'find'} 'all' – Ctrl+K i klik; 'find' – „/” i Ctrl+F (tylko węzły) */
+let srKind = 'all';
+/* „/” jak w vim: Enter idzie do trafienia i zamyka pole, dalej n / N. Ctrl+F jak w przeglądarce: pole zostaje,
+   Enter / Shift+Enter (też Ctrl+G / Ctrl+Shift+G, F3) – następne / poprzednie trafienie, Esc zamyka. */
+let findBar = false;
+/** @type {string | null} zapytanie obecnych trafień w polu Ctrl+F (inne = szukaj od nowa) */
+let findQ = null;
+/** pozycję wybrano strzałką – Enter idzie do niej, a nie do następnego trafienia */
+let palMoved = false;
+/**
+ * węzły pasujące do zapytania jako pozycje pola – jak lista trafień: bez polskich znaków, tekst w jednym wierszu,
+ * ścieżka od korzenia; wybór ustawia trafienia (dalej n / N) i nie trafia do ostatnio użytych
+ * @param {string} q @returns {PalItem[]}
+ */
+function nodeHits(q) {
+  const items = nodeItems(n => matchAt(q, n.text)),
+    ids = items.map(it => it.id);
+  return items.map((it, i) => ({
+    id: 'n' + it.id,
+    t: it.t,
+    sub: it.sub,
+    keys: [],
+    off: '',
+    rec: '',
+    hit: it.hit,
+    f: () => {
+      hits = ids;
+      hitGo(i);
+    },
+  }));
+}
+/** grupy pozycji dla wpisanego tekstu: nagłówek ('' – bez) i pozycje @param {string} q @returns {[string, PalItem[]][]} */
+function srGroups(q) {
+  if (palL) return [['', listItems(palL, q)]];
+  /** @returns {[string, PalItem[]][]} */
+  const nodes = () => {
+    const n = nodeHits(q);
+    return n.length ? [[`W mapie (${n.length})`, n]] : [];
+  };
+  if (srKind === 'find') return q ? nodes() : [];
+  if (q[0] === ':') return [['', palList(q)]];
+  if (!q.trim()) {
+    /* puste pole: ostatnio użyte, pod nimi wszystkie pozostałe czynności (dostępne, potem szare) */
+    const all = palList(''),
+      rec = all.filter(it => palRecent.includes(it.rec)),
+      rest = all.filter(it => !palRecent.includes(it.rec));
+    return [
+      ...(rec.length ? [/** @type {[string, PalItem[]]} */ (['Ostatnio użyte', rec])] : []),
+      [`Czynności (${rest.length})`, rest],
+    ];
+  }
+  const a = palList(q);
+  return [...nodes(), ...(a.length ? [/** @type {[string, PalItem[]]} */ ([`Czynności (${a.length})`, a])] : [])];
+}
 /** element z klasą i tekstem (zawsze `textContent`, nigdy HTML) @param {string} tag @param {string} cls @param {string} t */
 function palEl(tag, cls, t) {
   const e = document.createElement(tag);
@@ -194,9 +253,9 @@ function palEl(tag, cls, t) {
   e.textContent = t;
   return e;
 }
-/** wiersz palety; dopasowane litery w `<span class="m">` (sąsiednie razem) @param {PalItem} it @param {number} i */
+/** wiersz listy; dopasowane litery w `<span class="m">` (sąsiednie razem) @param {PalItem} it @param {number} i */
 function palRow(it, i) {
-  const r = palEl('div', 'pi' + (it.off ? ' off' : ''), '');
+  const r = palEl('div', 'pi' + (it.off ? ' off' : '') + (it.sub ? ' two' : ''), '');
   r.id = 'pi' + i;
   r.setAttribute('role', 'option');
   r.dataset.i = String(i);
@@ -213,41 +272,56 @@ function palRow(it, i) {
     else parts.push({ m, s: c });
   });
   parts.forEach(p => t.append(p.m ? palEl('span', 'm', p.s) : p.s));
-  /* tryb listy: pod tekstem drobna ścieżka (lista trafień, „Przenieś do…”) */
+  /* węzły: pod tekstem drobna ścieżka (lista trafień, „Przenieś do…”) */
   const c = it.sub ? palEl('span', 'pc', '') : t;
   if (it.sub) c.append(t, palEl('span', 'ps', it.sub));
   r.append(c, ...(it.off ? [palEl('span', 'why', it.off)] : it.keys.map(k => palEl('kbd', '', k))));
   return r;
 }
 function drawPal() {
-  palItems = palL ? listItems(palL, $('palq').value) : palList($('palq').value);
+  const q = $('sr').value,
+    groups = srGroups(q);
+  palItems = groups.flatMap(g => g[1]);
   palHi = palItems.findIndex(it => !it.off);
-  const L = $('pall'),
-    none = palL ? palL.none || 'Nic nie pasuje' : 'Brak pasujących poleceń';
-  L.classList.toggle(
-    'sub',
-    palItems.some(it => it.sub)
+  palMoved = false;
+  const none = palL
+    ? palL.none || 'Nic nie pasuje'
+    : srKind === 'find'
+      ? q
+        ? 'Brak trafień'
+        : 'Wpisz kawałek tekstu węzła'
+      : q[0] === ':'
+        ? 'Brak pasujących poleceń'
+        : 'Brak pasujących węzłów i poleceń';
+  let i = 0;
+  const L = $('srL');
+  L.replaceChildren(
+    ...(palItems.length
+      ? groups.flatMap(([h, items]) => [...(h ? [palEl('div', 'sh', h)] : []), ...items.map(it => palRow(it, i++))])
+      : [palEl('div', 'none', none)])
   );
-  L.replaceChildren(...(palItems.length ? palItems.map(palRow) : [palEl('div', 'none', none)]));
   L.scrollTop = 0;
   palSet(palHi);
 }
 /** podświetl pozycję @param {number} i @param {boolean} [scroll] przewiń listę, żeby była widoczna */
 function palSet(i, scroll = true) {
   palHi = i;
-  const L = $('pall');
+  const L = $('srL');
   L.querySelectorAll('.pi').forEach((r, j) => {
     r.classList.toggle('hi', j === i);
     r.setAttribute('aria-selected', String(j === i));
   });
   const r = L.querySelector('.pi.hi');
   if (r instanceof HTMLElement) {
-    $('palq').setAttribute('aria-activedescendant', r.id);
+    $('sr').setAttribute('aria-activedescendant', r.id);
     if (!scroll) return;
-    if (r.offsetTop < L.scrollTop) L.scrollTop = r.offsetTop;
+    /* nad pierwszą pozycją grupy widać też jej nagłówek */
+    const h = r.previousElementSibling,
+      top = h instanceof HTMLElement && h.classList.contains('sh') ? h.offsetTop : r.offsetTop;
+    if (top < L.scrollTop) L.scrollTop = top;
     else if (r.offsetTop + r.offsetHeight > L.scrollTop + L.clientHeight)
       L.scrollTop = r.offsetTop + r.offsetHeight - L.clientHeight;
-  } else $('palq').removeAttribute('aria-activedescendant');
+  } else $('sr').removeAttribute('aria-activedescendant');
 }
 /** następna (1) / poprzednia (−1) dostępna pozycja, z zawijaniem @param {number} d */
 function palMove(d) {
@@ -255,35 +329,47 @@ function palMove(d) {
   if (!on.length) return;
   const j = on.indexOf(palHi);
   palSet(j < 0 ? on[d > 0 ? 0 : on.length - 1] : on[(j + d + on.length) % on.length]);
+  palMoved = true;
 }
-/** @param {string} [pre] początek tekstu: '' (Ctrl+K, menu ☰) albo ':' (komenda) @param {PalList | null} [L] tryb listy */
-function openPal(pre = '', L = null) {
+/**
+ * otwórz pole (Ctrl+K, klik, „:”) @param {string} [pre] początek tekstu: '' albo ':' (komenda)
+ * @param {PalList | null} [L] tryb listy @param {'all' | 'find'} [kind] 'find' – tylko węzły („/”, Ctrl+F; `openFind`)
+ */
+function openPal(pre = '', L = null, kind = 'all') {
   if (tv) return;
   if (editing) endEdit();
   closeMenu();
   closeEmoji();
-  closeCmd();
-  setMode('COMMAND');
+  setMode(kind === 'find' && !L ? 'SEARCH' : 'COMMAND');
   palOpen = true;
   palL = L;
-  const p = $('pal'),
-    q = $('palq');
-  p.style.top = $('top').getBoundingClientRect().bottom + 8 + 'px'; /* tuż pod górnym paskiem */
-  p.classList.add('open');
-  /* tryb listy: tytuł nad listą; bez zawężania pole tylko do odczytu i niewidoczne (fokus zostaje na klawisze,
-     na telefonie nie wysuwa się klawiatura) */
-  p.classList.toggle('ro', !!L && !L.filter);
-  p.setAttribute('aria-label', L ? L.title : 'Wszystkie polecenia');
-  $('palt').textContent = L ? L.title : '';
-  $('palt').hidden = !L;
+  srKind = L ? 'all' : kind;
+  findBar = false;
+  findQ = null;
+  const q = $('sr');
+  document.body.classList.add('srch'); /* telefon: pole na cały ekran */
+  $('srRes').hidden = false;
+  q.setAttribute('aria-expanded', 'true');
+  /* tryb listy: tytuł nad listą; bez zawężania pole tylko do odczytu (na telefonie nie wysuwa się klawiatura) */
+  $('srT').textContent = L ? L.title : '';
+  $('srT').hidden = !L;
   q.readOnly = !!L && !L.filter;
-  q.placeholder = L ? L.hint || 'Wpisz, żeby zawęzić…' : 'Szukaj polecenia…';
+  q.placeholder = L
+    ? L.hint || (L.filter ? 'Wpisz, żeby zawęzić…' : L.title)
+    : kind === 'find'
+      ? 'Szukaj w mapie…'
+      : SR_PH;
   q.value = pre;
   drawPal();
   q.focus();
 }
+/** szukanie węzłów w polu: „/” (bar = false, Enter zamyka) albo Ctrl+F (bar = true, pole zostaje) @param {boolean} bar */
+function openFind(bar) {
+  openPal('', null, 'find');
+  findBar = bar;
+}
 /**
- * tryb listy palety (2.5): własne pozycje zamiast poleceń; Enter / klik – `L.pick(pozycja)` po zamknięciu palety,
+ * tryb listy (2.5): własne pozycje zamiast poleceń; Enter / klik – `L.pick(pozycja)` po zamknięciu pola,
  * Esc zamyka, strzałki i Tab jak w palecie. Pozycje dla węzłów mapy daje `nodeItems`.
  * @param {PalList} L
  */
@@ -294,25 +380,39 @@ function closePal() {
   if (!palOpen) return;
   palOpen = false;
   palL = null;
-  $('palq').blur(); /* fokus nie może zostać w schowanym polu (Chromium) */
-  $('pal').classList.remove('open');
+  srKind = 'all';
+  findBar = false;
+  const q = $('sr');
+  q.blur(); /* fokus nie może zostać w schowanym polu (Chromium) */
+  q.value = '';
+  q.readOnly = false;
+  q.placeholder = SR_PH;
+  q.setAttribute('aria-expanded', 'false');
+  q.removeAttribute('aria-activedescendant');
+  $('srRes').hidden = true;
+  $('srT').hidden = true;
+  $('srL').replaceChildren();
+  document.body.classList.remove('srch');
   setMode('NORMAL');
 }
-/* ---- lista trafień (2.5): Alt+Enter albo przycisk „wszystkie” w polu szukania ---- */
-/** @param {string} q zapytanie z pola szukania (bez „/”) */
+/**
+ * pole dostępne (mapa) albo schowane – widok .md ma w tym miejscu pasek edycji Markdown (krok 5 planu 3.3);
+ * jedyne miejsce, które chowa pole i lupę (klasa `sr-off` na body) @param {boolean} on
+ */
+function srAvail(on) {
+  if (!on) closePal();
+  document.body.classList.toggle('sr-off', !on);
+}
+/* ---- lista trafień (2.5): Alt+Enter w polu ---- */
+/** @param {string} q zapytanie z pola */
 function hitList(q) {
   const items = nodeItems(n => matchAt(q, n.text));
   hits = items.map(it => it.id); /* te same trafienia co „/” (ta sama kolejność) – dalej n / N */
   hi = -1;
-  if (!items.length) return info('0 trafień'); /* pole szukania zostaje – można poprawić zapytanie */
+  if (!items.length) return info('0 trafień'); /* pole zostaje – można poprawić zapytanie */
   openList({ title: `Trafienia (${items.length})`, items, pick: it => hitGo(hits.indexOf(it.id)) });
+  $('sr').value = q; /* zapytanie widać w polu (tylko do odczytu) */
 }
-/* przycisk nie zabiera fokusu polu szukania (klawiatura ekranowa) */
-['pointerdown', 'mousedown'].forEach(t => $('cmdall').addEventListener(t, e => e.preventDefault()));
-$('cmdall').addEventListener('click', () => {
-  hitList($('cmd').value.slice(1));
-  if (!palOpen) $('cmd').focus();
-});
 /** uruchom pozycję i zapamiętaj ją jako ostatnio użytą @param {number} i */
 function palRun(i) {
   const it = palItems[i];
@@ -326,33 +426,88 @@ function palRun(i) {
   }
   it.f();
 }
-$('palq').addEventListener('input', drawPal);
-$('palq').addEventListener('keydown', ev => {
-  ev.stopPropagation();
-  if (ev.isComposing) return;
-  const k = ev.key;
+$('srIc').innerHTML = icon('search');
+$('sr').addEventListener('focus', () => {
+  if (tv) $('sr').blur();
+  else if (!palOpen) openPal(); /* klik w pole = Ctrl+K */
+});
+/* klik obok pola, ale w jego ramce (ikona, „Ctrl+K”) też otwiera */
+$('srBox').addEventListener('click', e => asEl(e.target)?.closest('#srBack') || $('sr').focus());
+$('srBtn').addEventListener('click', () => openPal());
+$('srBack').addEventListener('click', closePal);
+$('sr').addEventListener('input', drawPal);
+$('sr').addEventListener('keydown', ev => {
+  ev.stopPropagation(); /* klawisze nie trafiają do `normal()` – Ctrl+S obsługujemy tutaj */
+  if (!palOpen || ev.isComposing) return;
+  const k = ev.key,
+    lk = k.length === 1 ? k.toLowerCase() : k,
+    ctrl = ev.ctrlKey || ev.metaKey,
+    q = $('sr'),
+    v = q.value,
+    d = ev.shiftKey ? -1 : 1,
+    find = srKind === 'find' && !palL;
   if (k === 'Escape') {
     ev.preventDefault();
+    return closePal(); /* zamyka wszystko – także listę trafień (trafienia zostają dla n / N) */
+  }
+  if (ctrl && lk === 's') {
+    ev.preventDefault(); /* inaczej przeglądarka otworzy „Zapisz stronę” */
     closePal();
-  } else if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Tab') {
-    ev.preventDefault(); /* Tab jak w menu: fokus zostaje w palecie */
-    palMove(k === 'ArrowUp' || (k === 'Tab' && ev.shiftKey) ? -1 : 1);
-  } else if (k === 'Enter') {
+    return save();
+  }
+  if (ctrl && lk === 'f') {
+    /* Ctrl+F w otwartym polu: szukanie węzłów jak w przeglądarce, zapytanie zaznaczone */
     ev.preventDefault();
-    if (palHi >= 0) return palRun(palHi);
-    const v = $('palq').value;
-    if (palL || v[0] !== ':') return; /* nic nie pasuje – paleta zostaje */
+    if (!find) {
+      openFind(true);
+      q.value = v[0] === ':' ? '' : v;
+      drawPal();
+    }
+    findBar = true;
+    return q.select();
+  }
+  if (ctrl && lk === 'k') {
+    ev.preventDefault();
+    if (find || palL) openPal(v); /* z szukania i z listy – węzły i czynności z tym samym tekstem */
+    return;
+  }
+  if (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Tab') {
+    ev.preventDefault(); /* Tab jak w menu: fokus zostaje w polu */
+    return palMove(k === 'ArrowUp' || (k === 'Tab' && ev.shiftKey) ? -1 : 1);
+  }
+  if (k === 'Enter' && ev.altKey) {
+    ev.preventDefault();
+    if (!palL && v[0] !== ':') hitList(v); /* lista wszystkich trafień (2.5) */
+    return;
+  }
+  if (find && findBar && !palMoved && (k === 'Enter' || k === 'F3' || (ctrl && lk === 'g'))) {
+    ev.preventDefault();
+    if (v === findQ) jump(d);
+    else {
+      findQ = v;
+      search(v, d);
+    }
+    return palSet(palItems.findIndex(it => it.id === 'n' + sel));
+  }
+  if (k !== 'Enter') return;
+  ev.preventDefault();
+  if (find && !palMoved) {
+    /* „/”: Enter – pierwsze trafienie, Shift+Enter – ostatnie; pole się zamyka */
     closePal();
-    exec(v.slice(1).trim()); /* nieznana komenda – komunikat jak dawniej */
-  } else if ((ev.ctrlKey || ev.metaKey) && k.toLowerCase() === 'k') ev.preventDefault();
+    return search(v, d);
+  }
+  if (palHi >= 0) return palRun(palHi);
+  if (palL || v[0] !== ':') return; /* nic nie pasuje – pole zostaje */
+  closePal();
+  exec(v.slice(1).trim()); /* nieznana komenda – komunikat jak dawniej */
 });
 /* klik w pozycję nie zabiera fokusu polu (klawiatura ekranowa zostaje) */
 ['pointerdown', 'mousedown'].forEach(t =>
-  $('pall').addEventListener(t, e => {
+  $('srL').addEventListener(t, e => {
     if (asEl(e.target)?.closest('.pi')) e.preventDefault();
   })
 );
-$('pall').addEventListener('pointermove', e => {
+$('srL').addEventListener('pointermove', e => {
   if (e.pointerType === 'touch') return;
   const xy = e.clientX + ',' + e.clientY;
   if (xy === palXY) return;
@@ -360,7 +515,7 @@ $('pall').addEventListener('pointermove', e => {
   const r = asEl(e.target)?.closest('.pi');
   if (r instanceof HTMLElement && !r.classList.contains('off')) palSet(Number(r.dataset.i), false);
 });
-$('pall').addEventListener('click', e => {
+$('srL').addEventListener('click', e => {
   const r = asEl(e.target)?.closest('.pi');
   if (r instanceof HTMLElement) palRun(Number(r.dataset.i));
 });

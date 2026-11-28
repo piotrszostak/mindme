@@ -135,7 +135,6 @@ function moreMenu(x, y) {
       '-',
       mi('theme'),
       mi('help'),
-      mi('pal'),
     ],
     x,
     y

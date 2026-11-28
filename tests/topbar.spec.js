@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => open(page));
 test.describe('górny pasek', () => {
   test('ikony z objaśnieniami („Aa” i podpisy widoków to napisy); operacje na węzłach w menu', async ({ page }) => {
     const btns = page.locator('#top button');
-    await expect(btns).toHaveCount(7);
+    await expect(btns).toHaveCount(9); // z „Wróć” i lupą pola szukania (widać je tylko na telefonie)
     const text = { bv: 'Mapa', bt: '.md', bp: 'Aa' };
     for (const b of await btns.all()) {
       const id = await b.getAttribute('id');
@@ -139,9 +139,9 @@ test.describe('pasek: ☰ po lewej, widoki i panel wyglądu po prawej', () => {
 });
 
 test.describe('pasek: kolejność', () => {
-  test('z lewej ☰, cofnij, ponów, dopasuj; z prawej Mapa / .md i „Aa”', async ({ page }) => {
+  test('z lewej ☰, cofnij, ponów, dopasuj; na środku pole szukania; z prawej Mapa / .md i „Aa”', async ({ page }) => {
     const ids = await page.$$eval('#top button', bs => bs.map(b => b.id));
-    expect(ids).toEqual(['bm', 'bu', 'br', 'bf', 'bv', 'bt', 'bp']);
+    expect(ids).toEqual(['bm', 'bu', 'br', 'bf', 'srBack', 'bv', 'bt', 'srBtn', 'bp']); // srBack, srBtn – telefon
     await expect(page.locator('#bs')).toHaveCount(0);
     const x = async id => (await page.locator('#' + id).boundingBox()).x;
     const w = page.viewportSize().width;
@@ -149,7 +149,7 @@ test.describe('pasek: kolejność', () => {
     expect(await x('bv')).toBeGreaterThan(w / 2);
     expect(await x('bp')).toBeGreaterThan(w - 60); // panel wyglądu przy prawej krawędzi
     for (const id of ['bm', 'bu', 'br', 'bf']) await expect(page.locator('#' + id)).not.toHaveClass(/tr/);
-    for (const id of ['bv', 'bt', 'bp']) await expect(page.locator('#' + id)).toHaveClass(/tr/); // objaśnienie w lewo
+    for (const id of ['bv', 'bt', 'srBtn', 'bp']) await expect(page.locator('#' + id)).toHaveClass(/tr/); // objaśnienie w lewo
   });
 
   test('telefon 360 px: wyspy się nie nakładają', async ({ page }) => {
