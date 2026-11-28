@@ -41,7 +41,7 @@ module.exports = defineConfig({
     // Firefox: skróty klawiszowe i paleta (m.in. Ctrl+M – „Przenieś do…”, w Firefoksie wyciszanie karty) przy włączonym „Szukaj tekstu podczas pisania” (typeaheadfind) i szybkim wyszukiwaniu „/”; dołączone kroje (w Firefoksie zamiast „Odręcznej” wychodził Noto Nastaliq Urdu)
     {
       name: 'firefox',
-      testMatch: /(keys|search|clipboard|palette|fonts)\.spec\.js/,
+      testMatch: /(keys|search|clipboard|palette|fonts|nodebar)\.spec\.js/,
       use: {
         browserName: 'firefox',
         launchOptions: {

@@ -143,6 +143,7 @@ button:disabled {
 #views button {
   width: auto;
   display: inline-flex;
+  justify-content: center; /* sama ikona (telefon, węższe okno) na środku przycisku */
   gap: 6px;
   padding: 0 10px;
 }
@@ -1451,4 +1452,111 @@ body.srch #srK {
 body.sr-off #srW,
 body.sr-off #top #srBtn {
   display: none;
+}
+
+/* ===== 3.3 krok 4 – pasek nad węzłem (#nbar) i przyciski „+” (3.4); położenie ustawia nodebar.js (transform) ===== */
+#nbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  padding: 3px;
+  gap: 1px;
+  --ax: 50%; /* strzałka nad środkiem węzła, także gdy pasek dobity do krawędzi */
+}
+#nbar[hidden],
+.plus[hidden] {
+  display: none;
+}
+#nbar button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+#nbar button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+#nbar .ic {
+  width: 18px;
+  height: 18px;
+}
+#nbar [data-act='menu'] .ic {
+  stroke-width: 3; /* „⋯” z kropek – przy 2 px ginie obok innych ikon */
+}
+#nbar::after {
+  content: '';
+  position: absolute;
+  left: var(--ax);
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  background: var(--card);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+#nbar.below::after {
+  bottom: auto;
+  top: -6px;
+  transform: translateX(-50%) rotate(-135deg);
+}
+/* objaśnienie nad paskiem (pod nim jest zaznaczony węzeł); pasek pod węzłem – objaśnienie pod spodem */
+@media (hover: hover) {
+  #nbar:not(.below) [data-tip]:hover::after {
+    top: auto;
+    bottom: calc(100% + 8px);
+  }
+  #nbar [data-tip]:last-child:hover::after {
+    left: auto;
+    right: 0;
+  }
+}
+.plus {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--c, var(--acc));
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--c, var(--acc));
+  box-shadow: 0 1px 4px #0002;
+}
+.plus:hover {
+  border-color: var(--c, var(--acc));
+  background: color-mix(in srgb, var(--fg) 12%, var(--card));
+}
+.plus .ic {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+}
+/* dotyk: ok. 28 px (ten sam rozmiar liczy nodebar.js – `nbMeasure`) */
+:root.pt-touch .plus {
+  width: 28px;
+  height: 28px;
+}
+@media (hover: none) {
+  .plus {
+    width: 28px;
+    height: 28px;
+  }
+}
+/* telefon: zamiast paska dolny pasek (krok 6) */
+@media (max-width: 600px) {
+  #nbar {
+    display: none !important;
+  }
 }

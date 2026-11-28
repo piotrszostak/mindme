@@ -64,6 +64,10 @@
       ><textarea id="ed" rows="1" spellcheck="false" enterkeyhint="next"></textarea>
       <div id="help"></div>
       <aside id="side" aria-label="Wygląd mapy"></aside>
+      <div id="nbar" class="island" role="toolbar" aria-label="Pasek przy węźle" hidden></div>
+      <button class="plus" data-k="child" type="button" hidden></button
+      ><button class="plus" data-k="child" type="button" hidden></button
+      ><button class="plus" data-k="sib" type="button" hidden></button>
       <button id="edemo" type="button" title="Wstaw emoji (Ctrl+.)" aria-label="Wstaw emoji">😊</button>
       <div id="wk"></div>
     </div>
@@ -96,6 +100,7 @@
     <script src="js/side.js"></script>
     <script src="js/dnd.js"></script>
     <script src="js/pointer.js"></script>
+    <script src="js/nodebar.js"></script>
     <script src="js/main.js"></script>
     <script>
       if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');

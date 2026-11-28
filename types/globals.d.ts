@@ -241,6 +241,7 @@ interface Elements {
   txt: HTMLTextAreaElement;
   ed: HTMLTextAreaElement;
   edemo: HTMLButtonElement;
+  nbar: HTMLDivElement;
   help: HTMLDivElement;
   side: HTMLElement;
   menu: HTMLDivElement;

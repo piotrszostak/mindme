@@ -146,6 +146,7 @@ function render(keepView) {
   const all = ghosts.map(g => ({ n: g.n, col: g.col, ghost: g }));
   for (const n of N) all.push({ n, col: C.get(n.id) || '' });
   drawN = all.map((d, i) => ({ ...d, g: gs[i] }));
+  nbSync();
   if (!keepView) ensureVisible();
   apply();
   kick();
@@ -219,6 +220,7 @@ function draw() {
     if (e.ghost) e.el.style.opacity = String(e.ghost.done ? 0 : (e.ghost.k ?? 1));
   }
   placeEd();
+  placeNb();
 }
 function reap() {
   if (!ghosts.some(g => g.done)) return;
@@ -258,6 +260,7 @@ function settle() {
 function apply() {
   $('g').setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
   placeEd();
+  placeNb();
 }
 /** ile góry mapy zasłaniają wyspy górnego paska (px od górnej krawędzi mapy) @param {DOMRect} r prostokąt mapy */
 function topIn(r) {

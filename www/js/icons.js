@@ -7,6 +7,7 @@ const IC = {
   undo: 'M9 14L4 9l5-5 M4 9h10a6 6 0 010 12h-3',
   redo: 'M15 14l5-5-5-5 M20 9H10a6 6 0 000 12h3',
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
+  plus: 'M12 7v10 M7 12h10', // „+” przy węźle
   menu: 'M4 6h16 M4 12h16 M4 18h16', // ☰
   fit: 'M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5',
   edit: 'M4 20h4L19 9l-4-4L4 16z M14 6l4 4',

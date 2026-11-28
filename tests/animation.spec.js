@@ -57,6 +57,7 @@ test.describe('animacja', () => {
 
   test('potomkowie przeciąganego węzła podążają z opóźnieniem (sprężyście)', async ({ page }) => {
     await loadMap(page, MD);
+    await page.evaluate(() => deselect()); // pasek nad zaznaczonym korzeniem zasłania „Jeden”
     await page.waitForTimeout(1500);
     const j = await box(page, 'Jeden'),
       a0 = await box(page, '1a');

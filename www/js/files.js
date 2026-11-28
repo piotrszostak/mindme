@@ -343,6 +343,8 @@ function syncText() {
   $('bv').setAttribute('aria-pressed', String(!tv));
   /* „Aa” wyszarzone w widoku .md (makieta 3.2 C) */
   /** @type {const} */ (['bu', 'br', 'bf', 'bp']).forEach(i => ($(i).disabled = tv));
+  nbSync(); /* pasek nad węzłem i „+” schowane w widoku .md */
+  placeNb();
 }
 $('txt').addEventListener('keydown', e => {
   e.stopPropagation();

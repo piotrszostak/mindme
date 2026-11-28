@@ -48,6 +48,7 @@ test.describe('mysz: przeciąganie (drag and drop)', () => {
 
   test('cała gałąź jedzie razem z węzłem', async ({ page }) => {
     await loadMap(page, MD);
+    await page.evaluate(() => deselect()); // pasek nad zaznaczonym korzeniem zasłania „Jeden”
     const j = await box(page, 'Jeden'),
       a0 = await box(page, '1a');
     const t = await box(page, 'Trzy');

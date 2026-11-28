@@ -205,14 +205,14 @@ function addSib(id, after) {
   p.children.splice(p.children.indexOf(f.n) + (after ? 1 : 0), 0, n);
   startEdit(n.id, true, back);
 }
-/** @param {number} id */
-function addChild(id) {
+/** nowe dziecko – na końcu albo na miejscu `at` @param {number} id @param {number} [at] */
+function addChild(id, at) {
   const f = find(id),
     back = sel;
   if (!f) return;
   snap();
   const n = mk('');
-  f.n.children.push(n);
+  f.n.children.splice(at ?? f.n.children.length, 0, n);
   f.n.collapsed = false;
   startEdit(n.id, true, back);
 }

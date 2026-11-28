@@ -127,6 +127,7 @@ test.describe('menu podręczne węzła', () => {
 
   test('zwiń / rozwiń zmienia etykietę; usuń kasuje gałąź (cofalne)', async ({ page }) => {
     await loadMap(page, MD);
+    await page.evaluate(() => deselect()); // pasek nad zaznaczonym korzeniem zasłania „Jeden”
     let b = await box(page, 'Jeden');
     await page.mouse.click(b.cx, b.cy, { button: 'right' });
     await act(page, 'fold').click();
@@ -145,6 +146,7 @@ test.describe('menu podręczne węzła', () => {
 
   test('duplikuj gałąź: kopia zaraz za oryginałem (cofalne)', async ({ page }) => {
     await loadMap(page, MD);
+    await page.evaluate(() => deselect()); // pasek nad zaznaczonym korzeniem zasłania „Jeden”
     const b = await box(page, 'Jeden');
     await page.mouse.click(b.cx, b.cy, { button: 'right' });
     await act(page, 'dup').click();
@@ -193,6 +195,7 @@ test('kopiuj i wklej działają wewnątrz aplikacji (Ctrl+C → menu „Wklej ja
 test('menu: kopiuj, wytnij i usuń to osobne polecenia; usuń nie nadpisuje schowka', async ({ page }) => {
   await loadMap(page, MD);
   const menuOn = async t => {
+    await page.evaluate(() => deselect()); // pasek nad zaznaczonym węzłem bywa nad następnym
     const b = await box(page, t);
     await page.mouse.click(b.cx, b.cy, { button: 'right' });
   };

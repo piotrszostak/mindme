@@ -13,6 +13,7 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 | `layout.spec.js`, `wrap.spec.js`                                      | układy, brak nakładania, zawijanie, emoji w tekście                                      |
 | `topbar.spec.js`                                                      | pasek, przełącznik i widok Markdown, menu „…”                                            |
 | `menu.spec.js`                                                        | menu podręczne, kopiuj/wytnij/wklej/usuń                                                 |
+| `nodebar.spec.js`                                                     | pasek nad zaznaczonym węzłem, przyciski „+” przy węźle, także w **Firefoksie**           |
 | `selection.spec.js`                                                   | odznaczanie, praca bez zaznaczenia                                                       |
 | `edit.spec.js`                                                        | edycja w węźle                                                                           |
 | `keys.spec.js`                                                        | **wszystkie skróty** (zwykły + vim), także w **Firefoksie**                              |
