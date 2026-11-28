@@ -15,6 +15,23 @@ test('sw.js ma w cache wszystkie skrypty i style z index.html', () => {
   }
 });
 
+test('sw.js ma w cache pliki, do których odsyłają style (czcionki w fonts/)', () => {
+  const sw = fs.readFileSync(path.join(www, 'sw.js'), 'utf8');
+  const css = fs.readdirSync(path.join(www, 'css')).filter(f => f.endsWith('.css'));
+  let n = 0;
+  for (const c of css)
+    for (const m of fs
+      .readFileSync(path.join(www, 'css', c), 'utf8')
+      .matchAll(/url\(["']?(?!data:)([^"')]+)["']?\)/g)) {
+      const f = path.posix.normalize('css/' + m[1]);
+      expect(sw, `brak „${f}” (z ${c}) w liście cache sw.js`).toContain(`'${f}'`);
+      expect(fs.existsSync(path.join(www, f)), `plik ${f} nie istnieje`).toBe(true);
+      n++;
+    }
+  expect(n).toBeGreaterThanOrEqual(12); // 3 kroje × 2 grubości × 2 podzbiory
+  expect(fs.existsSync(path.join(www, 'fonts', 'OFL.txt')), 'licencja czcionek').toBe(true);
+});
+
 // GitHub Pages podaje aplikację z podkatalogu (https://…github.io/mindme/), więc ścieżki muszą być względne.
 test('aplikacja działa z podkatalogu (jak na GitHub Pages): nic nie sięga poza niego', async ({ page, baseURL }) => {
   const outside = [];
@@ -30,6 +47,7 @@ test('aplikacja działa z podkatalogu (jak na GitHub Pages): nic nie sięga poza
   await page.goto('/mindme/');
   await expect(page.locator('#info')).toContainText('round-trip OK');
   expect(await page.evaluate(() => [...document.styleSheets].map(s => s.href && new URL(s.href).pathname))).toEqual([
+    '/mindme/css/fonts.css',
     '/mindme/css/app.css',
   ]);
   expect(outside, 'żądania spoza podkatalogu').toEqual([]);

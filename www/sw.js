@@ -1,11 +1,12 @@
 // Najpierw sieć (zawsze świeża wersja po aktualizacji), cache jako zapas offline i przy bardzo wolnej sieci.
-const C = 'mm-v5',
+const C = 'mm-v6',
   A = [
     './',
     'index.html',
     'manifest.webmanifest',
     'icon-192.png',
     'icon-512.png',
+    'css/fonts.css',
     'css/app.css',
     'js/core.js',
     'js/icons.js',
@@ -25,6 +26,18 @@ const C = 'mm-v5',
     'js/dnd.js',
     'js/pointer.js',
     'js/main.js',
+    'fonts/nunito-latin-400-normal.woff2',
+    'fonts/nunito-latin-ext-400-normal.woff2',
+    'fonts/nunito-latin-700-normal.woff2',
+    'fonts/nunito-latin-ext-700-normal.woff2',
+    'fonts/kalam-latin-400-normal.woff2',
+    'fonts/kalam-latin-ext-400-normal.woff2',
+    'fonts/kalam-latin-700-normal.woff2',
+    'fonts/kalam-latin-ext-700-normal.woff2',
+    'fonts/archivo-narrow-latin-400-normal.woff2',
+    'fonts/archivo-narrow-latin-ext-400-normal.woff2',
+    'fonts/archivo-narrow-latin-700-normal.woff2',
+    'fonts/archivo-narrow-latin-ext-700-normal.woff2',
   ]; // przy nowym pliku dopisz go tutaj
 /** @type {ServiceWorkerGlobalScope} */
 const sw = /** @type {any} */ (self);

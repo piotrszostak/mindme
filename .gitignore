@@ -22,3 +22,5 @@ www/_prototyp/
 *.p12
 *.pem
 key.properties
+# kopie repozytorium pomocników (worktree)
+.claude/worktrees/

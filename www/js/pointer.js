@@ -174,8 +174,51 @@ function dl(b, n) {
   a.download = n;
   a.click();
 }
-/** eksport mapy @param {string} t svg | png */
-function exportImg(t) {
+/** zakres `unicode-range` → pary [od, do] @param {string} r np. „U+0000-00FF,U+0131” */
+const uniRanges = r =>
+  r.split(',').map(p => {
+    const [a, b] = p.trim().replace(/^U\+/i, '').split('-');
+    return [parseInt(a, 16), parseInt(b || a, 16)];
+  });
+/**
+ * Dołączony krój mapy do osadzenia w eksporcie: reguły `@font-face` z plikiem jako `data:font/woff2;base64,…`,
+ * tylko grubość mapy i podzbiory ze znakami z tekstu (obraz SVG w `<img>` – także PNG – nie wczyta pliku z zewnątrz).
+ * Krój systemowy albo brak pliku (offline bez pamięci) → '' (eksport z czcionką zapasową).
+ * @param {string} text tekst mapy
+ */
+async function ownFontCSS(text) {
+  const fam = has(OWN_FONTS, ST.font) ? OWN_FONTS[ST.font] : '';
+  if (!fam) return '';
+  const w = fw() === 'bold' ? '700' : '400',
+    cps = [...new Set([...text].map(c => /** @type {number} */ (c.codePointAt(0))))];
+  /** @type {CSSFontFaceRule[]} */
+  const faces = [];
+  for (const sh of document.styleSheets) {
+    try {
+      for (const r of sh.cssRules) if (r instanceof CSSFontFaceRule) faces.push(r);
+    } catch (e) {} // arkusz z innej domeny – bez dostępu do reguł
+  }
+  let css = '';
+  for (const r of faces) {
+    const st = r.style,
+      ur = st.getPropertyValue('unicode-range'),
+      u = st.getPropertyValue('src').match(/url\(["']?([^"')]+)["']?\)/);
+    if (st.getPropertyValue('font-family').replace(/["']/g, '') !== fam || st.getPropertyValue('font-weight') !== w)
+      continue;
+    if (!u || (ur && !cps.some(c => uniRanges(ur).some(([a, b]) => c >= a && c <= b)))) continue;
+    try {
+      const res = await fetch(new URL(u[1], r.parentStyleSheet?.href || location.href));
+      if (!res.ok) continue;
+      const by = new Uint8Array(await res.arrayBuffer());
+      let bin = '';
+      for (let i = 0; i < by.length; i += 0x8000) bin += String.fromCharCode(...by.subarray(i, i + 0x8000));
+      css += `@font-face{font-family:'${fam}';font-weight:${w};src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2')${ur ? ';unicode-range:' + ur : ''}}`;
+    } catch (e) {}
+  }
+  return css;
+}
+/** mapa jako dokument SVG (do pobrania i do rysowania PNG) */
+async function exportSvg() {
   if (editing) endEdit();
   settle();
   const b = bounds();
@@ -186,7 +229,13 @@ function exportImg(t) {
   const inner = $('g')
     .innerHTML.replace(/var\(--acc\)/g, v('--acc'))
     .replace(/ class="n[^"]*"/g, '');
-  const s = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${b.x0 - P} ${b.y0 - P} ${w} ${h}"><rect x="${b.x0 - P}" y="${b.y0 - P}" width="${w}" height="${h}" style="fill:${v('--bg')}"/><style>.emo{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-weight:normal}rect{fill:${v('--card')};stroke-width:${ST.nb}}text{fill:${v('--fg')};font:${fw()} ${ST.fs}px ${ff().replace(/"/g, "'")};dominant-baseline:central}</style>${inner}</svg>`;
+  const font = await ownFontCSS($('g').textContent || '');
+  const s = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${b.x0 - P} ${b.y0 - P} ${w} ${h}"><rect x="${b.x0 - P}" y="${b.y0 - P}" width="${w}" height="${h}" style="fill:${v('--bg')}"/><style>${font}.emo{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-weight:normal}rect{fill:${v('--card')};stroke-width:${ST.nb}}text{fill:${v('--fg')};font:${fw()} ${ST.fs}px ${ff().replace(/"/g, "'")};dominant-baseline:central}</style>${inner}</svg>`;
+  return { s, w, h };
+}
+/** eksport mapy @param {string} t svg | png */
+async function exportImg(t) {
+  const { s, w, h } = await exportSvg();
   if (t === 'png') {
     const im = new Image();
     im.onload = () => {

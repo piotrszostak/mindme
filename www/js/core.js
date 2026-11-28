@@ -26,16 +26,22 @@ const DEF = {
 let ST = JSON.parse(JSON.stringify(DEF));
 /** styl zmieniony – `applyStyle()` przeliczy stałe układu */
 let stDirty = true;
-/* czcionki systemowe (bez pobierania – działa offline); każda z zapasowymi krojami */
+/* kroje: systemowe albo dołączone do aplikacji (css/fonts.css, pliki w fonts/ – w pamięci Service Workera, działa offline);
+   każdy z zapasowymi krojami. Klucze zapisują się w plikach map – nie zmieniać. */
 /** @type {Record<string, [string, string]>} krój: [nazwa, stos czcionek] */
 const FONTS = {
   system: ['Systemowa', 'system-ui,sans-serif'],
   serif: ['Szeryfowa', 'Georgia,"Times New Roman","DejaVu Serif",serif'],
   mono: ['Maszynowa', 'ui-monospace,"Cascadia Code","DejaVu Sans Mono",monospace'],
-  round: ['Zaokrąglona', 'ui-rounded,"SF Pro Rounded",Nunito,Quicksand,"Varela Round",system-ui,sans-serif'],
-  hand: ['Odręczna', '"Comic Neue","Comic Sans MS","Segoe Print","Bradley Hand",cursive'],
-  narrow: ['Wąska', '"Arial Narrow","Roboto Condensed","Liberation Sans Narrow",sans-serif-condensed,sans-serif'],
+  round: ['Zaokrąglona', 'Nunito,ui-rounded,"SF Pro Rounded",Quicksand,"Varela Round",system-ui,sans-serif'],
+  hand: ['Odręczna', 'Kalam,"Comic Neue","Comic Sans MS","Segoe Print","Bradley Hand",cursive'],
+  narrow: [
+    'Wąska',
+    '"Archivo Narrow","Arial Narrow","Roboto Condensed","Liberation Sans Narrow",sans-serif-condensed,sans-serif',
+  ],
 };
+/** dołączone kroje (`@font-face` w css/fonts.css): klucz z FONTS → rodzina @type {Record<string, string>} */
+const OWN_FONTS = { round: 'Nunito', hand: 'Kalam', narrow: 'Archivo Narrow' };
 /* emoji zawsze z kolorowej czcionki systemu – ta sama kolejność w pomiarze (canvas) i w SVG */
 const EMOJI_FONTS = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',
   EMOJI_FF = ',"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"';

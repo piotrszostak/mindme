@@ -36,6 +36,28 @@ function applyStyle() {
   g.style.setProperty('--fs', ST.fs + 'px');
   g.style.setProperty('--ff', ff());
   g.style.setProperty('--fw', fw());
+  loadOwnFont();
+}
+/* dołączony krój: canvas mierzy czcionką zapasową, dopóki plik się nie wczyta – mapa rysuje się od razu,
+   a po wczytaniu układ liczy się od nowa (pomiar + przerysowanie); każdy krój i grubość tylko raz */
+/** @type {Set<string>} „rodzina|grubość” wczytane albo w trakcie wczytywania */
+const ownLoaded = new Set();
+/* próbka z obu podzbiorów (latin i latin-ext), żeby wczytały się oba pliki kroju */
+const OWN_SAMPLE = 'Aaąćęłńóśźż';
+function loadOwnFont() {
+  const fam = has(OWN_FONTS, ST.font) ? OWN_FONTS[ST.font] : '',
+    w = fw(),
+    key = fam + '|' + w;
+  if (!fam || ownLoaded.has(key) || !document.fonts) return;
+  ownLoaded.add(key);
+  const retry = () => ownLoaded.delete(key);
+  document.fonts.load(`${w} 16px '${fam}'`, OWN_SAMPLE).then(f => {
+    if (!f.length) return retry();
+    if (has(OWN_FONTS, ST.font) && OWN_FONTS[ST.font] === fam && fw() === w) {
+      stDirty = true;
+      render(true);
+    }
+  }, retry);
 }
 /* emoji mierzone i rysowane kolorową czcionką emoji (czcionka tekstu bywa z czarno-białymi wersjami, np. DejaVu) */
 const EMO_RE =

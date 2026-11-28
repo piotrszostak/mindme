@@ -22,6 +22,7 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 | `dnd.spec.js`, `touch.spec.js`                                        | przeciąganie myszą, gesty dotykowe                                                       |
 | `animation.spec.js`                                                   | sprężyny, wyrastanie/chowanie węzłów                                                     |
 | `style.spec.js`, `emoji.spec.js`, `multiroot.spec.js`, `view.spec.js` | panel wyglądu, emoji, wiele korzeni, pomoc i widok                                       |
+| `fonts.spec.js`                                                       | dołączone kroje: polskie znaki, pomiar po wczytaniu, eksport SVG/PNG, też **Firefox**    |
 | `pwa.spec.js`                                                         | `sw.js` ma w cache każdy plik z `index.html`                                             |
 | `perf.spec.js` (tylko `npm run perf`)                                 | wydajność na dużej mapie (`bigMap`), progi                                               |
 
