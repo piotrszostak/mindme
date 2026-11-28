@@ -12,6 +12,7 @@ Jeden plik = jeden obszar (szukaj testów po nazwie pliku, nie czytaj wszystkich
 | `files.spec.js`                                                       | otwieranie i zapis plików, ochrona linii spoza mapy, plik zmieniony na dysku, inna karta |
 | `layout.spec.js`, `wrap.spec.js`                                      | układy, brak nakładania, zawijanie, emoji w tekście                                      |
 | `topbar.spec.js`                                                      | pasek, przełącznik i widok Markdown, menu „…”                                            |
+| `mdbar.spec.js`                                                       | widok .md: pasek edycji linii, szukanie w tekście, Ctrl+Z, także w **Firefoksie**        |
 | `menu.spec.js`                                                        | menu podręczne, kopiuj/wytnij/wklej/usuń                                                 |
 | `nodebar.spec.js`                                                     | pasek nad zaznaczonym węzłem, przyciski „+” przy węźle, także w **Firefoksie**           |
 | `selection.spec.js`                                                   | odznaczanie, praca bez zaznaczenia                                                       |

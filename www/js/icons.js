@@ -30,13 +30,15 @@ const IC = {
   close: 'M6 6l12 12 M18 6L6 18',
   map: 'M9 10h6v4H9z M15 12h2 M17 12c2 0 2-5 4-5 M17 12c2 0 2 5 4 5 M9 12H7 M7 12c-2 0-2-5-4-5 M7 12c-2 0-2 5-4 5',
   down: 'M12 5v14 M6 13l6 6 6-6',
+  delline: 'M3 12h10 M16 9l5 6 M21 9l-5 6', // linia z krzyżykiem: usuń całą linię (widok .md)
+  newitem: 'M4 6h.01 M8 6h12 M4 12h.01 M8 12h12 M14 18h6 M17 15v6', // lista z plusem: nowy punkt
+  search: 'M11 18a7 7 0 100-14 7 7 0 000 14z M20 20l-4.5-4.5', // lupa
   text: 'M6 3h8l5 5v13H6z M14 3v5h5 M9 9h2 M9 13h7 M9 17h7', // kartka z zagiętym rogiem i tekstem
   newmap: 'M6 3h8l5 5v13H6z M14 3v5h5 M12.5 11v7 M9 14.5h7', // kartka z zagiętym rogiem i plusem
   image: 'M4 5h16v14H4z M4 15l5-5 5 5 3-3 3 3',
   theme: 'M20 14A8 8 0 0110 4a8 8 0 1010 10z',
   help: 'M12 21a9 9 0 100-18 9 9 0 000 18z M9.5 9.5a2.5 2.5 0 115 0c0 1.7-2.5 2-2.5 3.5 M12 17h.01',
   cmd: 'M4 7l5 5-5 5 M12 17h8',
-  search: 'M11 18a7 7 0 100-14 7 7 0 000 14z M20 20l-4-4', // lupa
   back: 'M15 5l-7 7 7 7',
   lright: ['M3 12h4 M7 12c4 0 4-6 8-6h6 M7 12h14 M7 12c4 0 4 6 8 6h6'],
   lleft: ['M3 12h4 M7 12c4 0 4-6 8-6h6 M7 12h14 M7 12c4 0 4 6 8 6h6', 'matrix(-1 0 0 1 24 0)'],

@@ -50,7 +50,7 @@ test.describe('pomoc', () => {
     expect(Math.abs(h.y + h.height - (m.y + m.height))).toBeLessThan(2);
     const cols = await page.$eval('#help .hb', e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
     expect(cols).toBeGreaterThan(1);
-    await expect(page.locator('#help h3')).toHaveCount(7); // także „Szukanie”
+    await expect(page.locator('#help h3')).toHaveCount(8); // także „Szukanie” i „Widok .md”
     await expect(page.locator('#help kbd').first()).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.locator('#help')).toBeHidden();

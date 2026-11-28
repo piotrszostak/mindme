@@ -345,6 +345,7 @@ function syncText() {
   /** @type {const} */ (['bu', 'br', 'bf', 'bp']).forEach(i => ($(i).disabled = tv));
   nbSync(); /* pasek nad węzłem i „+” schowane w widoku .md */
   placeNb();
+  mdView(); /* pasek edycji .md (mdbar.js) */
 }
 $('txt').addEventListener('keydown', e => {
   e.stopPropagation();

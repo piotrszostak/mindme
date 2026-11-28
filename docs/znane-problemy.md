@@ -13,6 +13,8 @@ Otwarte sprawy, które nie są zadaniem w planie (`ROADMAP.md`) ani decyzją (`d
 - **Na telefonie:** wklejanie kilku linii przez „Wklej jako dziecko” dało spację, choć test zachowuje linie. Użytkownik uznał, że działa. Jeśli wróci: najpierw odświeżenie karty (podejrzenie: stary kod w karcie otwartej przed `3166f4b`).
 - **W Obsidianie:** plik z węzłem wielolinijkowym (linie wcięte pod punktem) – czy Obsidian pokazuje go jako jeden punkt listy.
 
+- **3.3 na prawdziwych urządzeniach** (2026-11-28, testy przechodzą w Chromium i Firefoksie): Ctrl+Shift+K (usuń linię w widoku .md) w prawdziwym Firefoksie otwiera też konsolę WWW – czy strona go przechwytuje; na telefonie wysuwana klawiatura może zasłonić dolny pasek widoku .md (meta viewport bez `interactive-widget`); pasek nad węzłem przy gęstej mapie zasłania sąsiada; „+” 28 px palcem; lupa i pole szukania na cały ekran; panel wyglądu na cały ekran; instalacja PWA z nowymi plikami (pamięć `mm-v6`).
+
 ## Zależności
 
 - **Akcje GitHuba na Node 20:** `actions/checkout@v4` i `actions/configure-pages@v5` dają w CI ostrzeżenie o wycofywanym Node 20 (działają, GitHub uruchamia je na Node 24). Podnieść wersje, gdy oficjalny wzór `pages/static.yml` je zmieni (stan z 2026-11-26).

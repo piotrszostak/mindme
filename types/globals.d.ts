@@ -233,6 +233,29 @@ interface SideItem {
 }
 
 /** Elementy strony według id – typ zwracany przez `$()`. */
+/** czynność paska widoku .md (mdbar.js, `MDA`) */
+interface MdAct {
+  id: string;
+  ic: string;
+  /** nazwa (objaśnienie, aria-label, pomoc) */
+  t: string;
+  /** skrót w polu tekstu */
+  k: string;
+  /** krótki podpis pod ikoną (telefon) */
+  l: string;
+  /** dopisek w pomocy */
+  d?: string;
+  /** kreska przed przyciskiem */
+  sep?: boolean;
+}
+/** zmiana tekstu w widoku .md: zastąp [from, to) tekstem `text`, potem zaznacz [s, e) */
+interface MdEdit {
+  from: number;
+  to: number;
+  text: string;
+  s: number;
+  e: number;
+}
 interface Elements {
   top: HTMLDivElement;
   main: HTMLDivElement;
@@ -268,6 +291,7 @@ interface Elements {
   hint: HTMLSpanElement;
   save: HTMLSpanElement;
   tl: HTMLDivElement;
+  tr: HTMLDivElement;
   bm: HTMLButtonElement;
   bu: HTMLButtonElement;
   br: HTMLButtonElement;
@@ -275,6 +299,12 @@ interface Elements {
   bv: HTMLButtonElement;
   bt: HTMLButtonElement;
   bp: HTMLButtonElement;
+  mdBar: HTMLDivElement;
+  mdHl: HTMLDivElement;
+  mdFind: HTMLDivElement;
+  mdQ: HTMLInputElement;
+  mdQn: HTMLSpanElement;
+  mdQx: HTMLButtonElement;
   // tworzone dynamicznie (pomoc, panel wyglądu)
   hx: HTMLButtonElement;
   sx: HTMLButtonElement;

@@ -36,6 +36,8 @@ Mapa zapisuje się automatycznie w pamięci przeglądarki. _Zapisz_ (Ctrl+S) zap
 
 **Edycja w węźle:** Enter lub Esc zatwierdza, a kolejny Enter dodaje brata. Tab zatwierdza i dodaje dziecko. Ctrl+Enter wstawia nową linię w tekście węzła. Ctrl+. albo przycisk 😊 wstawia emoji.
 
+**Widok .md:** pasek nad tekstem (na telefonie na dole ekranu) działa na liniach z kursorem albo zaznaczeniem: Ctrl+Shift+K usuwa całą linię, Alt+↑ / Alt+↓ przenoszą ją w górę / w dół, Tab / Shift+Tab robią wcięcie / wysunięcie o 2 spacje, „Wklej” wstawia tekst ze schowka, Enter na linii listy dodaje nowy punkt (na pustym punkcie kończy listę), Ctrl+F szuka w tekście (Enter / Shift+Enter – następne / poprzednie trafienie). Ctrl+Z cofa każdą z tych zmian. Esc wraca do mapy, Ctrl+S zapisuje.
+
 ### Klawiatura
 
 Każda czynność ma skrót zwykły i skrót vim:

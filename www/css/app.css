@@ -1560,3 +1560,170 @@ body.sr-off #top #srBtn {
     display: none !important;
   }
 }
+
+/* ---- 3.3 krok 5 – widok .md: pasek edycji linii i szukanie w tekście ---- */
+/* na komputerze na środku górnego paska, między wyspami (--mdL / --mdR ustawia mdPlace) */
+#mdBar,
+#mdFind {
+  position: fixed;
+  left: var(--mdL, 190px);
+  right: var(--mdR, 250px);
+  width: fit-content;
+  max-width: calc(100vw - var(--mdL, 190px) - var(--mdR, 250px));
+  margin: 0 auto;
+  box-sizing: border-box;
+  z-index: 21;
+  display: none;
+  align-items: center;
+}
+#mdBar {
+  top: 8px;
+  gap: 1px;
+  padding: 3px;
+  overflow-x: auto;
+}
+#mdBar.fits {
+  overflow: visible;
+}
+body.v-md #mdBar,
+body.v-md #mdFind:not([hidden]) {
+  display: flex;
+}
+#mdBar button,
+#mdQx {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+#mdBar button:hover,
+#mdQx:hover {
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+#mdBar .ml {
+  display: none;
+}
+#mdBar .sep {
+  flex: none;
+}
+#mdFind {
+  top: calc(var(--topH) + 4px);
+  gap: 6px;
+  padding: 3px 3px 3px 6px;
+}
+#mdQ {
+  width: 220px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--acc);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  outline: 0;
+}
+#mdQn {
+  min-width: 64px;
+  font-size: 12px;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+#mdQn:empty {
+  min-width: 0;
+}
+/* otwarte pole szukania nie zasłania pierwszych linii tekstu */
+body.md-find #txt {
+  padding-top: calc(var(--topH) + 52px);
+}
+/* telefon: pasek na dole ekranu, przewijany w bok, ikona nad podpisem; pole szukania pod górnym paskiem */
+@media (max-width: 600px) {
+  body.v-md {
+    box-sizing: border-box;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+  #mdBar {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding: 0 4px env(safe-area-inset-bottom, 0px);
+    border-radius: 0;
+    border-width: 1px 0 0;
+    box-shadow: none;
+    background: var(--bar);
+  }
+  #mdBar,
+  #mdBar.fits {
+    overflow-x: auto;
+  }
+  #mdBar button {
+    flex: 0 0 62px;
+    height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 11px;
+  }
+  #mdBar .ml {
+    display: block;
+  }
+  #mdBar .sep {
+    height: 32px;
+    align-self: center;
+  }
+  #mdFind {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+  #mdQ {
+    flex: 1;
+    width: auto;
+    height: 40px;
+  }
+  #mdQx {
+    width: 44px;
+    height: 44px;
+  }
+  body.md-find #txt {
+    padding-top: calc(var(--topH) + 64px);
+  }
+}
+/* wyróżnienie trafienia: warstwa pod przezroczystym tekstem, ten sam krój i zawijanie co #txt */
+#mdHl {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--bg);
+  color: transparent;
+  font:
+    14px ui-monospace,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  display: none;
+}
+body.md-hl.v-md #mdHl {
+  display: block;
+}
+body.md-hl #txt {
+  background: transparent;
+}
+#mdHl mark {
+  color: transparent;
+  background: color-mix(in srgb, var(--acc) 35%, transparent);
+  border-radius: 2px;
+}

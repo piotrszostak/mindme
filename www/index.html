@@ -59,8 +59,24 @@
         </div>
       </div>
     </div>
+    <div id="mdBar" class="island" role="toolbar" aria-label="Edycja Markdown"></div>
+    <div id="mdFind" class="island" role="search" hidden>
+      <input
+        id="mdQ"
+        type="text"
+        placeholder="Szukaj w tekście…"
+        aria-label="Szukaj w tekście"
+        autocomplete="off"
+        enterkeyhint="next"
+        spellcheck="false"
+      />
+      <span id="mdQn" aria-live="polite"></span>
+      <button id="mdQx" type="button" aria-label="Zamknij szukanie (Esc)" title="Zamknij szukanie (Esc)"></button>
+    </div>
     <div id="main">
-      <svg id="sv"><g id="g"></g></svg><textarea id="txt" spellcheck="false"></textarea
+      <svg id="sv"><g id="g"></g></svg>
+      <div id="mdHl" aria-hidden="true"></div>
+      <textarea id="txt" spellcheck="false"></textarea
       ><textarea id="ed" rows="1" spellcheck="false" enterkeyhint="next"></textarea>
       <div id="help"></div>
       <aside id="side" aria-label="Wygląd mapy"></aside>
@@ -93,6 +109,7 @@
     <script src="js/menu.js"></script>
     <script src="js/keys.js"></script>
     <script src="js/files.js"></script>
+    <script src="js/mdbar.js"></script>
     <script src="js/actions.js"></script>
     <script src="js/palette.js"></script>
     <script src="js/whichkey.js"></script>

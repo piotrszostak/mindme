@@ -31,6 +31,7 @@ Pliki zostają `.js` (bez budowania); typy w JSDoc, wspólne interfejsy w `types
 | emoji.js / menu.js            | okienko emoji / `openMenu`, `ctxMenu` (menu podręczne), `moreMenu`, `setLayout`                                                                           |
 | keys.js                       | `normal(ev)` – wszystkie skróty; `exec`/`cmdFind` (komendy „:”), `search`, `jump` (szukanie „/” jak vim, Ctrl+F jak przeglądarka)                         |
 | files.js / help.js / side.js  | pliki i autozapis (`autosave`, `toStorage`, `diskAsk`, `reloadIfChanged`), widok Markdown, tryb jasny / ciemny / `HELP` / panel „Wygląd mapy”, `PAL0`, `cleanStyle` |
+| mdbar.js                      | widok .md: pasek edycji linii (`MDA` – jedna tabela czynności, `mdEdit` – zmiana tekstu, `mdApply` przez `execCommand`, więc Ctrl+Z cofa), szukanie w tekście (`#mdFind`, wyróżnienie `#mdHl`) |
 | actions.js / palette.js       | `ACT` – jedna tabela czynności (nazwa, skróty, komenda „:”, dostępność) dla pomocy, menu i palety / paleta komend (`openPal`), ostatnio użyte `mm.cmd`    |
 | whichkey.js                   | dymek podpowiedzi (`#wk`): po prefiksie vim albo liczniku i 400 ms – dalsze klawisze z `ACT` (`v`, `cnt`); tylko patrzy na klawisze, obsługuje je `normal()` |
 | dnd.js / pointer.js / main.js | przeciąganie / mysz i dotyk (własny dwuklik, przytrzymanie) / start aplikacji                                                                             |

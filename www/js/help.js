@@ -38,6 +38,12 @@ const HELP = {
     ['klik obok', 'zatwierdź'],
     ['pusty tekst', 'nowy węzeł znika, istniejący wraca do poprzedniego'],
   ],
+  'Widok .md': [
+    ...MDA.map(a => /** @type {[string, string]} */ ([a.k, lc1(a.t) + (a.d ? ` (${a.d})` : '')])),
+    ['Enter|Shift+Enter', 'w polu szukania: następne / poprzednie trafienie (bez polskich znaków i wielkości liter)'],
+    ['Ctrl+Z', 'cofnij zmianę w tekście (także czynności z paska)'],
+    ['Ctrl+S|Esc', 'zapisz / wróć do mapy (Esc w polu szukania zamyka pole)'],
+  ],
   'Klawiatura (zwykły | vim)': [
     ...ACT.filter(a => a.help !== false && (a.k || a.v)).map(helpRow),
     ['z|g|y|d|3', 'po chwili bez kolejnego klawisza dymek podpowiedzi pokazuje dalsze klawisze i czynności'],
