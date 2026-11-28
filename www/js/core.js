@@ -22,6 +22,10 @@ const DEF = {
   gapTree: 60,
   colors: ['#e4572e', '#2f9e44', '#2f6fed', '#c2185b', '#f08c00', '#0b7285'],
 };
+/* wygląd nowej mapy, gdy nie ustawiono własnego (`mm.def`, zob. newLook w side.js); DEF zostaje bez zmian,
+   bo plik zapisuje różnice od DEF – inna wartość DEF rozsunęłaby stare mapy (decyzja 2026-11-28) */
+/** @type {MapStyle} */
+const NEWDEF = { ...JSON.parse(JSON.stringify(DEF)), gapX: 100, gapY: 20, gapTree: 100 };
 /** @type {MapStyle} styl bieżącej mapy */
 let ST = JSON.parse(JSON.stringify(DEF));
 /** styl zmieniony – `applyStyle()` przeliczy stałe układu */

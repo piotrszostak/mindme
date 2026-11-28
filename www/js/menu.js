@@ -162,4 +162,6 @@ function setLayout(d) {
 function syncLayout() {
   for (const b of document.querySelectorAll('#side .lays button'))
     b.classList.toggle('on', b instanceof HTMLElement && b.dataset.act === 'lay-' + dir);
+  const n = $('slay');
+  if (n) n.textContent = LAY[dir][1];
 }

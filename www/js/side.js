@@ -1,5 +1,5 @@
-/* Panel „Wygląd mapy”: czcionki, linie, węzły, odstępy, palety kolorów. */
-/** @type {[string, SideItem[]][]} sekcje panelu: [nagłówek, pozycje] */
+/* Panel „Wygląd mapy” (obok mapy, na całą wysokość): układ, kolory, czcionka, szczegóły; wygląd nowych map (`mm.def`). */
+/** @type {[string, SideItem[]][]} szczegóły panelu: [nagłówek, pozycje]; czcionka stoi wyżej, obok układu i kolorów */
 const SIDE = [
   [
     'Tekst',
@@ -51,13 +51,13 @@ const SIDE = [
   [
     'Odstępy',
     [
-      { k: 'gapX', t: 'Między poziomami', min: 16, max: 160, step: 2, u: 'px' },
-      { k: 'gapY', t: 'Między rodzeństwem', min: 0, max: 60, step: 1, u: 'px' },
-      { k: 'gapTree', t: 'Między mapami', min: 20, max: 240, step: 5, u: 'px' },
+      { k: 'gapX', t: 'Między poziomami', min: 16, max: 160, step: 2, u: 'px', gap: 1 },
+      { k: 'gapY', t: 'Między rodzeństwem', min: 0, max: 60, step: 1, u: 'px', gap: 1 },
+      { k: 'gapTree', t: 'Między mapami', min: 20, max: 240, step: 5, u: 'px', gap: 1 },
     ],
   ],
 ];
-/* palety: wbudowane presety + własne poprawki użytkownika (zapamiętane na urządzeniu) */
+/* palety: wszędzie te same; poprawki kolorów trafiają tylko do otwartej mapy (`ST.colors`, decyzja A.4 z 2026-11-28) */
 /** @type {Record<string, string[]>} */
 const PAL0 = {
   Domyślna: DEF.colors,
@@ -97,21 +97,51 @@ function cleanStyle(o) {
     }
   return [ok, bad];
 }
-/** @type {Record<string, string[]>} własne poprawki palet (localStorage) */
-let palOv = {};
-try {
-  palOv = JSON.parse(localStorage.getItem('mm.pal') || '{}');
-} catch (e) {}
-/** kolory palety (z poprawkami użytkownika) @param {string} n */
-const pal = n => (palOv[n] || PAL0[n] || DEF.colors).slice();
-/** jeden krok cofania na całe przeciągnięcie suwaka */
+/** kopia stylu @param {MapStyle} s @returns {MapStyle} */
+const copyStyle = s => JSON.parse(JSON.stringify(s));
+/* wygląd nowych map: własny z „Ustaw jako domyślny wygląd nowych map” (`mm.def` = {"style":{różnice od DEF},"layout":"…"})
+   albo wbudowany (NEWDEF, układ w prawo); złe pola z `mm.def` pomijamy jak w pliku */
+/** @returns {{ st: MapStyle, dir: string }} */
+function newLook() {
+  /** @type {unknown} */
+  let o = null;
+  try {
+    o = JSON.parse(localStorage.getItem('mm.def') || 'null');
+  } catch (e) {}
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return { st: copyStyle(NEWDEF), dir: 'right' };
+  const { style, layout } = /** @type {{ style?: unknown, layout?: unknown }} */ (o);
+  return {
+    st: { ...copyStyle(DEF), ...cleanStyle(style)[0] },
+    dir: typeof layout === 'string' && has(LAY, layout) ? layout : 'right',
+  };
+}
+/** bieżąca mapa dostaje wygląd nowych map (bez kroku cofania – robi go wywołujący) */
+function useNewLook() {
+  const l = newLook(),
+    moved = l.dir !== dir;
+  ST = l.st;
+  dir = l.dir;
+  stDirty = true;
+  if (moved) ty = 0; /* inny układ – mapa na nowo na środku, jak przy zmianie układu */
+  syncLayout();
+  syncSide();
+  return moved;
+}
+function saveNewLook() {
+  try {
+    localStorage.setItem('mm.def', JSON.stringify({ style: JSON.parse(styleStr() || '{}'), layout: dir }));
+    info('nowe mapy zaczną z tym wyglądem');
+  } catch (e) {
+    info('nie udało się zapamiętać wyglądu (pamięć przeglądarki niedostępna)');
+  }
+}
+/** kolory palety (zawsze oryginalne – poprawki są tylko w mapie) @param {string} n */
+const pal = n => (PAL0[n] || DEF.colors).slice();
+/** czy kolory mapy różnią się od jej palety */
+const palChanged = () => JSON.stringify(ST.colors) !== JSON.stringify(pal(ST.palette));
+/** jeden krok cofania na całe przeciągnięcie suwaka albo wpisywanie w jedno pole */
 let sideSnap = false;
 let palEdit = false;
-function savePalOv() {
-  try {
-    localStorage.setItem('mm.pal', JSON.stringify(palOv));
-  } catch (e) {}
-}
 /** @param {StyleKey} k @param {MapStyle[StyleKey]} v @param {boolean} [commit] koniec gestu */
 function setStyle(k, v, commit) {
   if (!sideSnap) {
@@ -138,42 +168,96 @@ function choosePal(n) {
 const sideAll = sel => /** @type {T[]} */ ([...$('side').querySelectorAll(sel)]);
 /** @param {HTMLElement} el */
 const styleKey = el => /** @type {StyleKey} */ (el.dataset.k);
+/** pozycja szczegółów według klucza @param {StyleKey} k */
+const sideItem = k => /** @type {SideItem} */ (SIDE.flatMap(s => s[1]).find(i => i.k === k));
+/** liczba po polsku (przecinek dziesiętny) @param {number | undefined} v */
+const num = v => String(v).replace('.', ',');
+/* wspólna skala trzech odstępów: ta sama wartość stoi w tym samym miejscu każdego suwaka */
+const GAP_MAX = 240;
+const GAP_TICKS = [0, 40, 80, 120, 160, 200, 240];
 /** @param {SideItem} it */
 function sideItemHTML(it) {
+  if (it.font)
+    return `<select id="st-font" data-k="font">${(it.opts || [])
+      .map(([v, l]) => `<option value="${v}">${l}</option>`)
+      .join('')}</select>`;
   if (it.opts)
-    return `<label>${it.t}</label><div class="seg${it.font ? ' fonts' : ''}" data-k="${it.k}">${it.opts
-      .map(
-        ([v, l]) =>
-          `<button type="button" data-v="${v}"${it.font ? ` style='font-family:${FONTS[v][1]}'` : ''}>${l}</button>`
-      )
-      .join('')}</div>`;
-  return `<label for="st-${it.k}">${it.t}<output id="so-${it.k}"></output></label><input type="range" id="st-${it.k}" data-k="${it.k}" min="${it.min}" max="${it.max}" step="${it.step}">`;
+    return `<div class="row"><div class="rl">${it.t}</div><div class="seg" data-k="${it.k}">${it.opts
+      .map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`)
+      .join('')}</div></div>`;
+  const range = `${num(it.min)}–${num(it.max)} ${it.u}`,
+    numIn = `<input type="number" class="num" id="sn-${it.k}" data-k="${it.k}" min="${it.min}" max="${it.max}" step="${it.step}" aria-label="${it.t} (${it.u})"><span class="u">${it.u}</span>`;
+  if (it.gap)
+    return (
+      `<div class="row"><div class="rl"><label for="st-${it.k}">${it.t}</label><small>można ${range}</small></div>` +
+      `<div class="rr"><div class="gw"><input type="range" class="scale" id="st-${it.k}" data-k="${it.k}" min="0" max="${GAP_MAX}" step="${it.step}" style="--a:${(it.min || 0) / GAP_MAX};--b:${(it.max || 0) / GAP_MAX}">` +
+      `<div class="ticks" aria-hidden="true">${GAP_TICKS.map(v => `<span style="left:${(v / GAP_MAX) * 100}%">${v}</span>`).join('')}</div></div>${numIn}</div></div>`
+    );
+  return (
+    `<div class="row"><label for="st-${it.k}">${it.t}</label>` +
+    `<div class="rr"><div class="gw"><input type="range" id="st-${it.k}" data-k="${it.k}" min="${it.min}" max="${it.max}" step="${it.step}"><small class="mm">${range}</small></div>${numIn}</div></div>`
+  );
 }
+/** wartość z suwaka albo pola przycięta do dozwolonego zakresu @param {StyleKey} k @param {number} v */
+const clampStyle = (k, v) => {
+  const it = sideItem(k);
+  return Math.max(it.min || 0, Math.min(it.max || 0, v));
+};
 function buildSide() {
+  const font = sideItem('font');
   $('side').innerHTML =
     `<div class="hh"><b>Wygląd mapy</b><button id="sx" type="button" aria-label="Zamknij" title="Zamknij (Esc)">${icon('close')}</button></div><div class="sb">` +
+    /* tu staną motywy (5.7) – przed układem */
     /* układ – z tabeli czynności, nowe układy dochodzą same */
-    `<h3>Układ</h3><div class="seg lays">${Object.keys(LAY)
+    `<h3>Układ <span id="slay"></span></h3><div class="seg lays">${Object.keys(LAY)
       .map(
         d =>
           `<button type="button" data-act="lay-${d}" title="${actOf('lay-' + d).t}">${icon(LAY[d][0])}<span>${LAY[d][1]}</span></button>`
       )
       .join('')}</div>` +
-    SIDE.map(([h, items]) => `<h3>${h}</h3>` + items.map(sideItemHTML).join('')).join('') +
-    `<h3>Kolory gałęzi</h3><div class="pals">${Object.keys(PAL0)
-      .map(
-        n =>
-          `<button type="button" data-pal="${n}" title="Paleta: ${n}"><span class="sw"></span><span>${n}</span></button>`
-      )
+    `<h3>Kolory gałęzi <span id="spal"></span></h3><div class="pals">${Object.keys(PAL0)
+      .map(n => `<button type="button" data-pal="${n}" title="Paleta: ${n}" aria-label="Paleta: ${n}"></button>`)
       .join('')}</div>` +
-    `<button type="button" id="paledit" class="wide"></button><div id="paled" hidden><div class="cols">${DEF.colors.map((_, i) => `<input type="color" data-ci="${i}" title="Kolor ${i + 1}. gałęzi">`).join('')}</div>` +
-    `<button type="button" id="palreset" class="wide">Przywróć oryginalną paletę</button></div>` +
-    `<button type="button" class="reset" id="sreset">Przywróć domyślne</button></div>`;
+    `<button type="button" id="paledit" class="link"></button><div id="paled" hidden><div class="cols">${DEF.colors.map((_, i) => `<input type="color" data-ci="${i}" title="Kolor ${i + 1}. gałęzi">`).join('')}</div>` +
+    `<button type="button" id="palreset" class="link">Przywróć oryginalną paletę</button></div>` +
+    `<h3><label for="st-font">${font.t}</label></h3>${sideItemHTML(font)}` +
+    `<div class="det">Szczegóły</div>` +
+    SIDE.map(
+      ([h, items]) =>
+        `<h4>${h}</h4>` +
+        items
+          .filter(i => !i.font)
+          .map(sideItemHTML)
+          .join('')
+    ).join('') +
+    `<div class="acts"><button type="button" id="sdef" class="pri">Ustaw jako domyślny wygląd nowych map</button>` +
+    `<p class="note">Nowe mapy zaczną z tym wyglądem. Zapisane mapy się nie zmienią.</p>` +
+    `<button type="button" id="sreset">Przywróć domyślny wygląd</button></div></div>`;
   $('sx').onclick = toggleSide;
   for (const r of sideAll('input[type=range]')) {
-    const el = /** @type {HTMLInputElement} */ (r);
-    el.oninput = () => setStyle(styleKey(el), +el.value);
+    const el = /** @type {HTMLInputElement} */ (r),
+      k = styleKey(el);
+    el.oninput = () => {
+      const v = clampStyle(k, +el.value);
+      if (v !== +el.value) el.value = String(v); /* wspólna skala odstępów: poza zakresem suwak staje na granicy */
+      if (v !== ST[k]) setStyle(k, v);
+    };
     el.onchange = () => (sideSnap = false);
+  }
+  /* pole liczbowe: w trakcie pisania tylko poprawne wartości; po zatwierdzeniu przycięte do zakresu */
+  for (const n of sideAll('input.num')) {
+    const el = /** @type {HTMLInputElement} */ (n),
+      k = styleKey(el);
+    el.oninput = () => {
+      const v = el.valueAsNumber;
+      if (!isNaN(v) && v === clampStyle(k, v) && v !== ST[k]) setStyle(k, v);
+    };
+    el.onchange = () => {
+      const v = el.valueAsNumber;
+      if (!isNaN(v) && clampStyle(k, v) !== ST[k]) setStyle(k, clampStyle(k, v), true);
+      else sideSnap = false;
+      el.value = String(ST[k]);
+    };
   }
   for (const b of sideAll('.lays button')) b.onclick = () => actOf(b.dataset.act || '').f?.();
   for (const b of sideAll('.seg[data-k] button')) {
@@ -183,62 +267,68 @@ function buildSide() {
       setStyle(styleKey(seg), b.dataset.v || '', true);
     };
   }
+  const fs = /** @type {HTMLSelectElement} */ (sideAll('#st-font')[0]);
+  fs.onchange = () => {
+    sideSnap = false;
+    setStyle('font', fs.value, true);
+  };
   for (const b of sideAll('[data-pal]')) b.onclick = () => choosePal(b.dataset.pal || '');
   $('paledit').onclick = () => {
     palEdit = !palEdit;
     syncSide();
   };
-  /* edycja zmienia preset (na tym urządzeniu) i kolory bieżącej mapy */
+  /* edycja zmienia tylko kolory otwartej mapy (zapis w pliku) */
   for (const c of sideAll('input[type=color]')) {
     const el = /** @type {HTMLInputElement} */ (c);
     el.oninput = () => {
       const a = ST.colors.slice();
       a[Number(el.dataset.ci)] = el.value;
-      palOv[ST.palette] = a;
-      savePalOv();
       setStyle('colors', a);
     };
     el.onchange = () => (sideSnap = false);
   }
-  $('palreset').onclick = () => {
-    delete palOv[ST.palette];
-    savePalOv();
-    choosePal(ST.palette);
-  };
+  $('palreset').onclick = () => choosePal(ST.palette);
+  $('sdef').onclick = saveNewLook;
   $('sreset').onclick = () => {
     sideSnap = false;
     snap();
-    ST = JSON.parse(JSON.stringify(DEF));
-    stDirty = true;
-    changed(true);
-    syncSide();
+    changed(!useNewLook());
     info('przywrócono domyślny wygląd');
   };
   syncSide();
+  syncLayout();
 }
 /** pola panelu ← bieżący styl */
 function syncSide() {
   if (!$('side').firstChild) return;
+  const a = document.activeElement;
   for (const r of sideAll('input[type=range]')) {
     const el = /** @type {HTMLInputElement} */ (r),
       key = styleKey(el);
     el.value = String(ST[key]);
-    $(`so-${key}`).textContent = ST[key] + ' px';
+    if (el.classList.contains('scale')) el.style.setProperty('--v', String(+ST[key] / GAP_MAX));
   }
-  for (const b of sideAll('.lays button')) b.classList.toggle('on', b.dataset.act === 'lay-' + dir);
+  /* pola, w którym ktoś pisze, nie poprawiamy pod palcami */
+  for (const n of sideAll('input.num'))
+    if (n !== a) /** @type {HTMLInputElement} */ (n).value = String(ST[styleKey(n)]);
   for (const g of sideAll('.seg[data-k]')) {
     const key = styleKey(g);
     g.querySelectorAll('button').forEach(b => b.classList.toggle('on', ST[key] === b.dataset.v));
   }
+  const fs = /** @type {HTMLSelectElement} */ (sideAll('#st-font')[0]);
+  fs.value = ST.font;
+  fs.style.fontFamily = (FONTS[ST.font] || FONTS.system)[1];
   for (const b of sideAll('[data-pal]')) {
     const n = b.dataset.pal || '',
-      sw = b.querySelector('.sw');
+      c = n === ST.palette ? ST.colors : pal(n);
     b.classList.toggle('on', ST.palette === n);
-    if (sw) sw.innerHTML = (n === ST.palette ? ST.colors : pal(n)).map(x => `<i style="background:${x}"></i>`).join('');
+    b.innerHTML = [0, 1, 2, 4].map(i => `<i style="background:${c[i]}"></i>`).join('');
   }
+  $('spal').textContent = ST.palette + (palChanged() ? ' (zmieniona)' : '');
   $('paledit').textContent = (palEdit ? '▾ ' : '▸ ') + 'Edytuj paletę „' + ST.palette + '”';
+  $('paledit').setAttribute('aria-expanded', String(palEdit));
   $('paled').hidden = !palEdit;
-  $('palreset').hidden = !palOv[ST.palette];
+  $('palreset').hidden = !palChanged();
   for (const c of sideAll('input[type=color]'))
     /** @type {HTMLInputElement} */ (c).value = ST.colors[Number(c.dataset.ci)] || '#888888';
 }
@@ -248,7 +338,19 @@ function toggleSide() {
   $('bp').classList.toggle('on', o);
   if (o) {
     if ($('help').classList.contains('open')) toggleHelp();
+    /* podgląd krojów na liście dopiero teraz: zamknięty panel nie może pobierać plików czcionek przy starcie */
+    for (const op of sideAll('#st-font option'))
+      op.style.fontFamily = (FONTS[/** @type {HTMLOptionElement} */ (op).value] || FONTS.system)[1];
     syncSide();
+    /* panel stoi obok mapy: mapa jedzie w lewo tylko tyle, żeby nie wejść pod panel (lewa krawędź zostaje na ekranie) */
+    const r = $('sv').getBoundingClientRect(),
+      b = bounds(),
+      W = r.width - rightIn(r),
+      x0 = b.x0 * k + tx,
+      x1 = b.x1 * k + tx;
+    if (x1 > W - 30) tx -= Math.max(0, Math.min(x1 - (W - 30), x0 - 30));
+    ensureVisible();
+    apply();
     return;
   }
   /* fokus nie może zostać w ukrytym panelu (połykałby skróty) */

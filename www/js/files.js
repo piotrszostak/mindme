@@ -254,6 +254,7 @@ function newMap(t) {
   fh = null;
   fhSkip = 0;
   fhConflict = false;
+  useNewLook(); /* wygląd nowych map, nie otwartej (decyzja 2026-11-28) */
   changed();
 }
 /** otwarty plik: linie spoza mapy wstrzymują zapis do niego (zob. save) @param {string} txt */

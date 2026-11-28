@@ -228,6 +228,8 @@ interface SideItem {
   max?: number;
   step?: number;
   u?: string;
+  /** odstęp: suwak na wspólnej skali 0–240 px */
+  gap?: number;
 }
 
 /** Elementy strony według id – typ zwracany przez `$()`. */
@@ -275,7 +277,10 @@ interface Elements {
   paledit: HTMLButtonElement;
   palreset: HTMLButtonElement;
   paled: HTMLDivElement;
-  [k: `so-${string}`]: HTMLOutputElement;
+  sdef: HTMLButtonElement;
+  slay: HTMLSpanElement;
+  spal: HTMLSpanElement;
+  [k: `sn-${string}`]: HTMLInputElement;
 }
 
 // File System Access API (Chrome/Edge) – brak w lib.dom

@@ -32,7 +32,7 @@ try {
   if (s) {
     root = parse(s);
     sel = first().id;
-  }
+  } else useNewLook(); /* pierwszy start: mapa startowa z wyglądem nowych map */
 } catch (e) {}
 syncLayout();
 syncText();

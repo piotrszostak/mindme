@@ -263,15 +263,21 @@ function apply() {
 function topIn(r) {
   return Math.max(0, $('tl').getBoundingClientRect().bottom - r.top);
 }
+/** ile prawej części mapy zajmuje otwarty panel wyglądu (px; 0, gdy panel zamknięty albo na cały ekran) @param {DOMRect} r */
+function rightIn(r) {
+  const s = $('side');
+  return s.classList.contains('open') && s.offsetWidth < r.width ? s.offsetWidth : 0;
+}
 function ensureVisible() {
   const f = S();
   if (!f) return;
   const n = f.n,
     r = $('sv').getBoundingClientRect(),
     T = topIn(r),
+    W = r.width - rightIn(r),
     sx = n.x * k + tx,
     sy = n.y * k + ty;
-  if (sx < 30 || sx + n.w * k > r.width - 30) tx = r.width / 2 - (n.x + n.w / 2) * k;
+  if (sx < 30 || sx + n.w * k > W - 30) tx = W / 2 - (n.x + n.w / 2) * k;
   if (sy < T + 30 || sy > r.height - 30 || ty === 0) ty = (T + r.height) / 2 - n.y * k;
 }
 function bounds(v = vis()) {
@@ -290,9 +296,10 @@ function fitView() {
   const b = bounds(),
     r = $('sv').getBoundingClientRect(),
     T = topIn(r),
+    W = r.width - rightIn(r),
     P = 30;
-  k = Math.max(0.2, Math.min(1.5, (r.width - 2 * P) / (b.x1 - b.x0), (r.height - T - 2 * P) / (b.y1 - b.y0)));
-  tx = r.width / 2 - ((b.x0 + b.x1) / 2) * k;
+  k = Math.max(0.2, Math.min(1.5, (W - 2 * P) / (b.x1 - b.x0), (r.height - T - 2 * P) / (b.y1 - b.y0)));
+  tx = W / 2 - ((b.x0 + b.x1) / 2) * k;
   ty = (T + r.height) / 2 - ((b.y0 + b.y1) / 2) * k;
   apply();
 }
@@ -304,7 +311,7 @@ function centerSel(zoom) {
   const n = f.n,
     r = $('sv').getBoundingClientRect();
   if (zoom) k = Math.max(k, 1);
-  tx = r.width / 2 - (n.x + n.w / 2) * k;
+  tx = (r.width - rightIn(r)) / 2 - (n.x + n.w / 2) * k;
   ty = (topIn(r) + r.height) / 2 - n.y * k;
   apply();
 }

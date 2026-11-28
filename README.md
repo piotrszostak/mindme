@@ -8,7 +8,7 @@
 - **Edycja bezpośrednio w węźle**, zawijanie długiego tekstu, emoji.
 - **Przeciąganie gałęzi** z animacją: sąsiednie węzły robią miejsce, gałąź „rozciąga się” za kursorem.
 - **4 układy**: w prawo, w lewo, na obie strony, w dół; wiele map (korzeni) w jednym pliku.
-- **Wygląd każdej mapy**: czcionka, linie, obramowania, wypełnienia, odstępy, 8 palet kolorów. Ustawienia zapisują się w pliku.
+- **Wygląd każdej mapy** (panel „Aa”): układ, 8 palet kolorów (kolory można poprawić dla jednej mapy), czcionka (w tym dołączone Nunito, Kalam, Archivo Narrow – licencja OFL, `www/fonts/OFL.txt`), linie, obramowania, wypełnienia, odstępy. Ustawienia zapisują się w pliku. Nowe mapy dostają szersze odstępy albo wygląd ustawiony przyciskiem „Ustaw jako domyślny wygląd nowych map”.
 - **Bez frameworka i bez budowania** – czysty JavaScript sprawdzany przez TypeScript, testy w Playwright.
 
 ## Szybki start

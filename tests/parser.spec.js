@@ -180,9 +180,11 @@ test('frontmatter: przechowują go autozapis, cofanie i widok tekstowy; nowa map
   await page.evaluate(() => undo());
   expect(await page.evaluate(() => serialize(root))).toBe(FORMAT_FM);
 
-  /* nowa mapa zachowuje bieżący układ (tu „obie strony”), ale nie frontmatter */
+  /* nowa mapa nie bierze układu ani stylu otwartej mapy (decyzja 2026-11-28: wygląd nowych map), ani frontmattera */
   await page.evaluate(() => newMap('Nowa'));
-  expect(await page.evaluate(() => serialize(root))).toBe('# Nowa\n<!--layout:both-->\n\n');
+  expect(await page.evaluate(() => serialize(root))).toBe(
+    '# Nowa\n<!--style:{"gapX":100,"gapY":20,"gapTree":100}-->\n\n'
+  );
 });
 
 // Strażnik formatu (wiele linii w węźle, od 2026-11-25): wcięta linia tuż pod punktem to dalszy ciąg tekstu węzła.
