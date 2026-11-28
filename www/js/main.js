@@ -1,10 +1,11 @@
 /* Start: górny pasek, wczytanie zapisanej mapy, pierwszy render. */
 buildHelp();
 buildSide();
-/* ---- górny pasek: tylko ikony + objaśnienia ---- */
-document.querySelectorAll('[data-ic]').forEach(b => {
+/* ---- górny pasek: ikony (przełącznik widoków także z podpisem) + objaśnienia ---- */
+document.querySelectorAll('#top [data-tip]').forEach(b => {
   if (!(b instanceof HTMLElement)) return;
-  b.innerHTML = icon(b.dataset.ic || '');
+  if (b.dataset.ic)
+    b.innerHTML = icon(b.dataset.ic) + (b.dataset.lbl ? `<span class="vl">${b.dataset.lbl}</span>` : '');
   b.setAttribute('aria-label', b.dataset.tip || '');
 });
 /** punkt pod przyciskiem (pozycja menu) @param {Element} b @returns {[number, number]} */
@@ -16,15 +17,8 @@ $('bp').onclick = toggleSide;
 $('bu').onclick = undo;
 $('br').onclick = redo;
 $('bf').onclick = fitView;
-$('bt').onclick = toggleText;
-$('bl').onclick = () => {
-  const [x, y] = below($('bl'));
-  openMenu(
-    Object.keys(LAY).map(d => mi('lay-' + d, { on: dir === d, k: undefined })),
-    x,
-    y
-  );
-};
+$('bt').onclick = () => tv || toggleText();
+$('bv').onclick = () => tv && toggleText();
 $('bm').onclick = () => {
   const [x, y] = below($('bm'));
   moreMenu(x, y);

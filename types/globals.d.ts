@@ -260,11 +260,12 @@ interface Elements {
   info: HTMLSpanElement;
   hint: HTMLSpanElement;
   save: HTMLSpanElement;
+  tl: HTMLDivElement;
   bm: HTMLButtonElement;
   bu: HTMLButtonElement;
   br: HTMLButtonElement;
-  bl: HTMLButtonElement;
   bf: HTMLButtonElement;
+  bv: HTMLButtonElement;
   bt: HTMLButtonElement;
   bp: HTMLButtonElement;
   // tworzone dynamicznie (pomoc, panel wyglądu)

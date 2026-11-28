@@ -85,12 +85,42 @@ button:disabled {
   stroke-linejoin: round;
   flex: none;
 }
+/* górny pasek (3.2, wariant C): wyspy nad mapą – z lewej menu i historia, z prawej widoki i „Aa” */
+:root {
+  --topH: 52px; /* dolna krawędź wysp – stąd zaczynają się panele i tekst .md */
+}
 #top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  gap: 4px;
-  padding: 6px;
-  background: var(--bar);
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px;
+  pointer-events: none; /* mapa między wyspami dostaje mysz i dotyk */
+  z-index: 20;
+}
+#top .island {
+  pointer-events: auto;
+}
+#tl,
+#views,
+#tr > .island {
+  display: flex;
   align-items: center;
+  padding: 3px;
+  gap: 2px;
+}
+#tr {
+  display: flex;
+  gap: 8px;
+}
+.island {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px #0002;
 }
 #top button {
   width: 36px;
@@ -98,6 +128,37 @@ button:disabled {
   padding: 0;
   display: grid;
   place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+#top button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+#top button[aria-pressed='true'],
+#top button.on {
+  background: color-mix(in srgb, var(--acc) 22%, transparent);
+  color: var(--acc);
+}
+#views button {
+  width: auto;
+  display: inline-flex;
+  gap: 6px;
+  padding: 0 10px;
+}
+#views button[aria-pressed='true'] {
+  font-weight: 600;
+}
+#bp {
+  width: 40px;
+  font:
+    600 16px Georgia,
+    serif;
+}
+#tl .sep {
+  height: auto;
+  align-self: stretch;
+  margin: 6px 3px;
 }
 .sep {
   width: 1px;
@@ -165,7 +226,7 @@ svg {
   background: var(--bg);
   color: var(--fg);
   border: 0;
-  padding: 12px;
+  padding: calc(var(--topH) + 8px) 12px 12px; /* pierwsze linie nie pod wyspami */
   font:
     14px ui-monospace,
     monospace;
@@ -341,7 +402,7 @@ svg {
 }
 @media (max-width: 700px), (hover: none) {
   #help {
-    top: 0;
+    top: var(--topH);
     height: auto;
     border-top: 0;
     font-size: 16px;
@@ -449,8 +510,11 @@ svg {
     display: none;
   }
   #top button {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+  }
+  :root {
+    --topH: 56px;
   }
 }
 .n {
@@ -475,7 +539,7 @@ svg {
 /* panel „Wygląd mapy” wysuwany z prawej */
 #side {
   position: absolute;
-  top: 0;
+  top: var(--topH);
   right: 0;
   bottom: 0;
   width: 300px;
@@ -1018,7 +1082,40 @@ path.phe {
 svg.dnd {
   cursor: grabbing;
 }
-#top button.on {
-  color: var(--acc);
-  border-color: var(--acc);
+
+/* telefon: przełącznik widoków same ikony, bez kresek – pasek mieści się w 360 px */
+@media (max-width: 600px) {
+  #top {
+    padding: 8px 6px;
+  }
+  #tr {
+    gap: 6px;
+  }
+  #views .vl,
+  #tl .sep {
+    display: none;
+  }
+  #views button {
+    padding: 0;
+    width: 40px;
+  }
+}
+/* do kroków 2 i 6 planu 3.3 (układ do panelu, widoki na dolny pasek) u góry jest 8 przycisków – na 360 px mniejsze */
+@media (max-width: 400px) {
+  #top button,
+  #views button {
+    width: 36px;
+    height: 36px;
+  }
+  #bp {
+    width: 38px;
+  }
+}
+/* układ w panelu wyglądu: ikona nad nazwą */
+#side .lays button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
 }

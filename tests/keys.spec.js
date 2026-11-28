@@ -270,12 +270,13 @@ test('pokaż zaznaczony węzeł: Shift+2 (środek i przybliżenie do 100%) | zz 
       tx = ty = 0;
       apply();
     }, z);
-  /** odległość środka węzła od środka widoku [px] i powiększenie */
+  /** odległość środka węzła od środka widocznej części mapy (pod wyspami górnego paska) [px] i powiększenie */
   const where = () =>
     page.evaluate(() => {
       const r = document.querySelector(`#g .n[data-id="${sel}"] rect`).getBoundingClientRect(),
         v = $('sv').getBoundingClientRect();
-      return { dx: r.x + r.width / 2 - v.x - v.width / 2, dy: r.y + r.height / 2 - v.y - v.height / 2, k };
+      const top = $('tl').getBoundingClientRect().bottom - v.y;
+      return { dx: r.x + r.width / 2 - v.x - v.width / 2, dy: r.y + r.height / 2 - v.y - (top + v.height) / 2, k };
     });
   for (const [z, combo, zoom] of [
     [0.5, ['z', 'z'], 0.5],

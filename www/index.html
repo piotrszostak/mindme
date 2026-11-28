@@ -11,22 +11,22 @@
   </head>
   <body>
     <div id="top">
-      <button id="bm" data-ic="more" data-tip="Menu: otwórz, zapisz, nowa mapa, eksport, jasny/ciemny, pomoc"></button>
-      <span class="sep"></span>
-      <button id="bu" data-ic="undo" data-tip="Cofnij (Ctrl+Z, u)"></button>
-      <button id="br" data-ic="redo" data-tip="Ponów (Ctrl+Shift+Z, Ctrl+R)"></button>
-      <span class="sep"></span>
-      <button id="bl" data-ic="lright" data-tip="Układ mapy"></button>
-      <button id="bf" data-ic="fit" data-tip="Dopasuj całą mapę (Shift+1, =)"></button>
-      <span class="sep"></span>
-      <button id="bt" data-ic="text" data-tip="Edytuj jako tekst Markdown (:text)"></button>
-      <span style="flex: 1"></span>
-      <button
-        id="bp"
-        class="tr"
-        data-ic="sliders"
-        data-tip="Wygląd mapy: tekst, linie, węzły, odstępy, kolory"
-      ></button>
+      <div id="tl" class="island" role="toolbar" aria-label="Menu i historia">
+        <button id="bm" data-ic="menu" data-tip="Menu: plik, eksport, tryb jasny / ciemny, pomoc"></button>
+        <span class="sep"></span>
+        <button id="bu" data-ic="undo" data-tip="Cofnij (Ctrl+Z, u)"></button>
+        <button id="br" data-ic="redo" data-tip="Ponów (Ctrl+Shift+Z, Ctrl+R)"></button>
+        <button id="bf" data-ic="fit" data-tip="Dopasuj całą mapę (Shift+1, =)"></button>
+      </div>
+      <div id="tr">
+        <div id="views" class="island" role="group" aria-label="Widok">
+          <button id="bv" class="tr" data-ic="map" data-lbl="Mapa" data-tip="Mapa (Esc w widoku .md)"></button>
+          <button id="bt" class="tr" data-ic="text" data-lbl=".md" data-tip="Tekst Markdown (:text)"></button>
+        </div>
+        <div class="island">
+          <button id="bp" class="tr" data-tip="Wygląd mapy: tekst, linie, węzły, odstępy, kolory">Aa</button>
+        </div>
+      </div>
     </div>
     <div id="main">
       <svg id="sv"><g id="g"></g></svg><textarea id="txt" spellcheck="false"></textarea

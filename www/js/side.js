@@ -152,6 +152,13 @@ function sideItemHTML(it) {
 function buildSide() {
   $('side').innerHTML =
     `<div class="hh"><b>Wygląd mapy</b><button id="sx" type="button" aria-label="Zamknij" title="Zamknij (Esc)">${icon('close')}</button></div><div class="sb">` +
+    /* układ – z tabeli czynności, nowe układy dochodzą same */
+    `<h3>Układ</h3><div class="seg lays">${Object.keys(LAY)
+      .map(
+        d =>
+          `<button type="button" data-act="lay-${d}" title="${actOf('lay-' + d).t}">${icon(LAY[d][0])}<span>${LAY[d][1]}</span></button>`
+      )
+      .join('')}</div>` +
     SIDE.map(([h, items]) => `<h3>${h}</h3>` + items.map(sideItemHTML).join('')).join('') +
     `<h3>Kolory gałęzi</h3><div class="pals">${Object.keys(PAL0)
       .map(
@@ -168,7 +175,8 @@ function buildSide() {
     el.oninput = () => setStyle(styleKey(el), +el.value);
     el.onchange = () => (sideSnap = false);
   }
-  for (const b of sideAll('.seg button')) {
+  for (const b of sideAll('.lays button')) b.onclick = () => actOf(b.dataset.act || '').f?.();
+  for (const b of sideAll('.seg[data-k] button')) {
     const seg = /** @type {HTMLElement} */ (b.closest('.seg'));
     b.onclick = () => {
       sideSnap = false;
@@ -217,7 +225,8 @@ function syncSide() {
     el.value = String(ST[key]);
     $(`so-${key}`).textContent = ST[key] + ' px';
   }
-  for (const g of sideAll('.seg')) {
+  for (const b of sideAll('.lays button')) b.classList.toggle('on', b.dataset.act === 'lay-' + dir);
+  for (const g of sideAll('.seg[data-k]')) {
     const key = styleKey(g);
     g.querySelectorAll('button').forEach(b => b.classList.toggle('on', ST[key] === b.dataset.v));
   }

@@ -207,7 +207,7 @@ test.describe('dotyk', () => {
     await loadMap(page, MD);
     const sv = await page.locator('#sv').boundingBox(),
       r0 = await box(page, 'Środek');
-    await swipe(page, [sv.x + 20, sv.y + 20], [sv.x + 100, sv.y + 60]);
+    await swipe(page, [sv.x + 20, sv.y + 80], [sv.x + 100, sv.y + 120]); // tło pod wyspami górnego paska
     const r1 = await box(page, 'Środek');
     expect(r1.x - r0.x).toBeCloseTo(80, 0);
     expect(await texts(page)).toBe('# Środek\n\n- Jeden\n  - 1a\n  - 1b\n- Dwa\n- Trzy\n');

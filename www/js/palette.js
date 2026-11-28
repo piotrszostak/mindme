@@ -1,4 +1,4 @@
-/* Paleta komend (Ctrl+K, „:”, menu „…”): czynności z ACT, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd).
+/* Paleta komend (Ctrl+K, „:”, menu ☰): czynności z ACT, filtrowanie, komendy „:”, ostatnio użyte (mm.cmd).
    Tryb listy (`openList`): ta sama paleta z dowolnymi pozycjami – lista trafień (2.5), „Przenieś do…”, `:lint`. */
 /* ---- paleta komend ---- */
 let palOpen = false;
@@ -256,7 +256,7 @@ function palMove(d) {
   const j = on.indexOf(palHi);
   palSet(j < 0 ? on[d > 0 ? 0 : on.length - 1] : on[(j + d + on.length) % on.length]);
 }
-/** @param {string} [pre] początek tekstu: '' (Ctrl+K, menu „…”) albo ':' (komenda) @param {PalList | null} [L] tryb listy */
+/** @param {string} [pre] początek tekstu: '' (Ctrl+K, menu ☰) albo ':' (komenda) @param {PalList | null} [L] tryb listy */
 function openPal(pre = '', L = null) {
   if (tv) return;
   if (editing) endEdit();

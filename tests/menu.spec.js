@@ -156,7 +156,7 @@ test.describe('menu podręczne węzła', () => {
   test('PPM na tle: zwiń wszystko; menu nie ma już przycisków układu', async ({ page }) => {
     await loadMap(page, MD);
     const sv = await page.locator('#sv').boundingBox();
-    await page.mouse.click(sv.x + 15, sv.y + 15, { button: 'right' });
+    await page.mouse.click(sv.x + 15, sv.y + 80, { button: 'right' }); // tło pod wyspami górnego paska
     await expect(page.locator('#menu [data-act^="lay-"]')).toHaveCount(0);
     await act(page, 'foldall').click();
     expect(await texts(page)).toContain('- Jeden <!--c-->');

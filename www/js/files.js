@@ -309,11 +309,16 @@ async function textLossOk(go) {
   $('txt').focus();
   return false;
 }
+/** panel wyglądu był otwarty przed wejściem w widok .md */
+let sideBack = false;
 async function toggleText() {
   if (editing) endEdit();
   closeMenu();
   const t = $('txt');
   if (!tv) {
+    /* panel wyglądu chowa się na czas widoku .md i wraca razem z mapą */
+    sideBack = $('side').classList.contains('open');
+    if (sideBack) toggleSide();
     tv = true;
     t.value = tvOrig = serialize(root);
     t.style.display = 'block';
@@ -327,16 +332,16 @@ async function toggleText() {
     setMode('NORMAL');
     hint('');
     if (t.value !== tvOrig) load(t.value);
+    if (sideBack) toggleSide();
+    sideBack = false;
   }
   syncText();
 }
 function syncText() {
-  const b = $('bt');
-  b.innerHTML = icon(tv ? 'map' : 'text');
-  b.dataset.tip = tv ? 'Wróć do mapy (Esc)' : 'Edytuj jako tekst Markdown (:text)';
-  b.setAttribute('aria-label', b.dataset.tip);
-  b.classList.toggle('on', tv);
-  /** @type {const} */ (['bu', 'br', 'bl', 'bf']).forEach(i => ($(i).disabled = tv));
+  $('bt').setAttribute('aria-pressed', String(tv));
+  $('bv').setAttribute('aria-pressed', String(!tv));
+  /* „Aa” wyszarzone w widoku .md (makieta 3.2 C) */
+  /** @type {const} */ (['bu', 'br', 'bf', 'bp']).forEach(i => ($(i).disabled = tv));
 }
 $('txt').addEventListener('keydown', e => {
   e.stopPropagation();

@@ -259,15 +259,20 @@ function apply() {
   $('g').setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
   placeEd();
 }
+/** ile góry mapy zasłaniają wyspy górnego paska (px od górnej krawędzi mapy) @param {DOMRect} r prostokąt mapy */
+function topIn(r) {
+  return Math.max(0, $('tl').getBoundingClientRect().bottom - r.top);
+}
 function ensureVisible() {
   const f = S();
   if (!f) return;
   const n = f.n,
     r = $('sv').getBoundingClientRect(),
+    T = topIn(r),
     sx = n.x * k + tx,
     sy = n.y * k + ty;
   if (sx < 30 || sx + n.w * k > r.width - 30) tx = r.width / 2 - (n.x + n.w / 2) * k;
-  if (sy < 30 || sy > r.height - 30 || ty === 0) ty = r.height / 2 - n.y * k;
+  if (sy < T + 30 || sy > r.height - 30 || ty === 0) ty = (T + r.height) / 2 - n.y * k;
 }
 function bounds(v = vis()) {
   return v.reduce(
@@ -284,10 +289,11 @@ function fitView() {
   lay();
   const b = bounds(),
     r = $('sv').getBoundingClientRect(),
+    T = topIn(r),
     P = 30;
-  k = Math.max(0.2, Math.min(1.5, (r.width - 2 * P) / (b.x1 - b.x0), (r.height - 2 * P) / (b.y1 - b.y0)));
+  k = Math.max(0.2, Math.min(1.5, (r.width - 2 * P) / (b.x1 - b.x0), (r.height - T - 2 * P) / (b.y1 - b.y0)));
   tx = r.width / 2 - ((b.x0 + b.x1) / 2) * k;
-  ty = r.height / 2 - ((b.y0 + b.y1) / 2) * k;
+  ty = (T + r.height) / 2 - ((b.y0 + b.y1) / 2) * k;
   apply();
 }
 /** zaznaczony węzeł na środku widoku; `zoom` – przybliż co najmniej do 100% @param {boolean} [zoom] */
@@ -299,7 +305,7 @@ function centerSel(zoom) {
     r = $('sv').getBoundingClientRect();
   if (zoom) k = Math.max(k, 1);
   tx = r.width / 2 - (n.x + n.w / 2) * k;
-  ty = r.height / 2 - n.y * k;
+  ty = (topIn(r) + r.height) / 2 - n.y * k;
   apply();
 }
 /** po zmianie modelu: render + autozapis @param {boolean} [keepView] */

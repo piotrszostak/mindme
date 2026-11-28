@@ -18,35 +18,60 @@ const {
 test.beforeEach(async ({ page }) => open(page));
 
 test.describe('górny pasek', () => {
-  test('tylko ikony z objaśnieniami; operacje na węzłach przeniesione do menu', async ({ page }) => {
+  test('ikony z objaśnieniami („Aa” i podpisy widoków to napisy); operacje na węzłach w menu', async ({ page }) => {
     const btns = page.locator('#top button');
     await expect(btns).toHaveCount(7);
+    const text = { bv: 'Mapa', bt: '.md', bp: 'Aa' };
     for (const b of await btns.all()) {
-      await expect(b.locator('svg.ic')).toHaveCount(1);
-      expect((await b.innerText()).trim()).toBe('');
+      const id = await b.getAttribute('id');
+      await expect(b.locator('svg.ic')).toHaveCount(id === 'bp' ? 0 : 1);
+      expect((await b.innerText()).trim()).toBe(text[id] || '');
       expect(await b.getAttribute('data-tip')).toBeTruthy();
       expect(await b.getAttribute('aria-label')).toBe(await b.getAttribute('data-tip'));
     }
     for (const id of ['bn', 'bc', 'be', 'bd', 'bh']) await expect(page.locator('#' + id)).toHaveCount(0);
   });
 
-  test('przełącznik Markdown/mapa jest widoczny i zmienia ikonę', async ({ page }) => {
-    const bt = page.locator('#bt'),
-      path = () => bt.locator('path').getAttribute('d');
-    await expect(bt).toBeVisible();
-    const mapIcon = await path();
-    await expect(bt).toHaveAttribute('data-tip', /Markdown/);
+  test('przełącznik Mapa / .md: wciśnięty bieżący widok; w .md historia, układ, dopasuj i „Aa” wyszarzone', async ({
+    page,
+  }) => {
+    const bv = page.locator('#bv'),
+      bt = page.locator('#bt'),
+      off = ['bu', 'br', 'bf', 'bp'];
+    await expect(bv).toHaveAttribute('aria-pressed', 'true');
+    await expect(bt).toHaveAttribute('aria-pressed', 'false');
     await bt.click();
     await expect(page.locator('#txt')).toBeVisible();
-    expect(await path()).not.toBe(mapIcon);
-    await expect(bt).toHaveClass(/on/);
-    await expect(bt).toHaveAttribute('data-tip', /Wróć do mapy/);
-    for (const id of ['bu', 'br', 'bl', 'bf']) await expect(page.locator('#' + id)).toBeDisabled();
-    await bt.click();
+    await expect(bt).toHaveAttribute('aria-pressed', 'true');
+    await expect(bv).toHaveAttribute('aria-pressed', 'false');
+    for (const id of off) await expect(page.locator('#' + id)).toBeDisabled();
+    await bt.click(); // wciśnięty widok – bez zmiany
+    await expect(page.locator('#txt')).toBeVisible();
+    await bv.click();
     await expect(page.locator('#txt')).toBeHidden();
-    expect(await path()).toBe(mapIcon);
-    await expect(bt).not.toHaveClass(/on/);
-    for (const id of ['bu', 'br', 'bl', 'bf']) await expect(page.locator('#' + id)).toBeEnabled();
+    await expect(bv).toHaveAttribute('aria-pressed', 'true');
+    await expect(bt).toHaveAttribute('aria-pressed', 'false');
+    for (const id of off) await expect(page.locator('#' + id)).toBeEnabled();
+  });
+
+  test('panel wyglądu chowa się na czas widoku .md i wraca razem z mapą', async ({ page }) => {
+    await page.click('#bp');
+    await expect(page.locator('#side')).toHaveClass(/open/);
+    await page.click('#bt');
+    await expect(page.locator('#side')).not.toHaveClass(/open/);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#txt')).toBeHidden();
+    await expect(page.locator('#side')).toHaveClass(/open/);
+    await expect(page.locator('#bp')).toHaveClass(/on/);
+  });
+
+  test('wyspy nad mapą: mapa od górnej krawędzi, „Dopasuj” nie chowa węzłów pod przyciskami', async ({ page }) => {
+    await loadMap(page, LONG);
+    expect((await page.locator('#sv').boundingBox()).y).toBeLessThanOrEqual(1);
+    await page.click('#bf');
+    const under = (await page.locator('#tl').boundingBox()).y + (await page.locator('#tl').boundingBox()).height;
+    const tops = await page.$$eval('#g .n', ns => ns.map(n => n.getBoundingClientRect().top));
+    expect(Math.min(...tops)).toBeGreaterThanOrEqual(under);
   });
 
   test('zapis w widoku tekstowym zapisuje to, co jest w tekście', async ({ page }) => {
@@ -69,11 +94,16 @@ test.describe('górny pasek', () => {
     expect(tip).toContain('Cofnij');
   });
 
-  test('przycisk układu pokazuje bieżący układ', async ({ page }) => {
-    await page.click('#bl');
-    await act(page, 'lay-both').click();
-    await expect(page.locator('#bl')).toHaveAttribute('data-tip', /obie strony/);
+  test('układ wybiera się w panelu „Aa” – bieżący wciśnięty; na pasku nie ma przycisku układu', async ({ page }) => {
+    await expect(page.locator('#bl')).toHaveCount(0);
+    await page.click('#bp');
+    const lays = page.locator('#side .lays button');
+    await expect(lays).toHaveCount(4);
+    await expect(page.locator('#side .lays [data-act="lay-right"]')).toHaveClass(/on/);
+    await page.click('#side .lays [data-act="lay-both"]');
     expect(await page.evaluate(() => dir)).toBe('both');
+    await expect(page.locator('#side .lays .on')).toHaveAttribute('data-act', 'lay-both');
+    await expect(page.locator('#side')).toHaveClass(/open/); // panel zostaje otwarty
   });
 
   test('menu „więcej”: tryb jasny / ciemny, pomoc', async ({ page }) => {
@@ -91,8 +121,8 @@ test.describe('górny pasek', () => {
   });
 });
 
-test.describe('pasek: menu po lewej, panel wyglądu po prawej', () => {
-  test('„…” jest pierwsze i zawiera „Otwórz”; po prawej przycisk wyglądu', async ({ page }) => {
+test.describe('pasek: ☰ po lewej, widoki i panel wyglądu po prawej', () => {
+  test('☰ jest pierwsze, zaczyna się od „Plik” i „Otwórz”; ostatnie „Aa”', async ({ page }) => {
     const ids = await page.$$eval('#top button', bs => bs.map(b => b.id));
     expect(ids[0]).toBe('bm');
     expect(ids[ids.length - 1]).toBe('bp');
@@ -101,24 +131,34 @@ test.describe('pasek: menu po lewej, panel wyglądu po prawej', () => {
     const m = await menu(page).boundingBox(),
       b = await page.locator('#bm').boundingBox();
     expect(Math.abs(m.x - b.x)).toBeLessThan(2); // rozwija się pod przyciskiem, przy lewej krawędzi
+    await expect(page.locator('#menu .mh').first()).toHaveText('Plik');
+    await expect(page.locator('#menu .mh').nth(1)).toHaveText('Eksport');
     await expect(page.locator('#menu button').first()).toHaveAttribute('data-act', 'open');
     await expect(act(page, 'open').locator('kbd')).toHaveText('Ctrl+O');
   });
 });
 
 test.describe('pasek: kolejność', () => {
-  test('wszystko po lewej (menu, cofnij, ponów, układ, dopasuj, tekst/mapa); po prawej tylko wygląd', async ({
-    page,
-  }) => {
+  test('z lewej ☰, cofnij, ponów, dopasuj; z prawej Mapa / .md i „Aa”', async ({ page }) => {
     const ids = await page.$$eval('#top button', bs => bs.map(b => b.id));
-    expect(ids).toEqual(['bm', 'bu', 'br', 'bl', 'bf', 'bt', 'bp']);
+    expect(ids).toEqual(['bm', 'bu', 'br', 'bf', 'bv', 'bt', 'bp']);
     await expect(page.locator('#bs')).toHaveCount(0);
     const x = async id => (await page.locator('#' + id).boundingBox()).x;
     const w = page.viewportSize().width;
-    expect(await x('bt')).toBeLessThan(w / 3); // ostatni z lewej grupy nadal przy lewej krawędzi
+    expect(await x('bf')).toBeLessThan(w / 3); // ostatni z lewej grupy nadal przy lewej krawędzi
+    expect(await x('bv')).toBeGreaterThan(w / 2);
     expect(await x('bp')).toBeGreaterThan(w - 60); // panel wyglądu przy prawej krawędzi
-    for (const id of ['bm', 'bu', 'br', 'bl', 'bf', 'bt']) await expect(page.locator('#' + id)).not.toHaveClass(/tr/);
-    await expect(page.locator('#bp')).toHaveClass(/tr/);
+    for (const id of ['bm', 'bu', 'br', 'bf']) await expect(page.locator('#' + id)).not.toHaveClass(/tr/);
+    for (const id of ['bv', 'bt', 'bp']) await expect(page.locator('#' + id)).toHaveClass(/tr/); // objaśnienie w lewo
+  });
+
+  test('telefon 360 px: wyspy się nie nakładają', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    const l = await page.locator('#tl').boundingBox(),
+      r = await page.locator('#tr').boundingBox();
+    expect(l.x).toBeGreaterThanOrEqual(0);
+    expect(l.x + l.width).toBeLessThan(r.x);
+    expect(r.x + r.width).toBeLessThanOrEqual(360);
   });
 
   test('„Zapisz” jest w menu „…” zaraz pod „Otwórz”, ze skrótem Ctrl+S', async ({ page }) => {

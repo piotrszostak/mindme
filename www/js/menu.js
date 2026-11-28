@@ -1,4 +1,4 @@
-/* Menu: podręczne (PPM / przytrzymanie / klawisz Menu), „…”, układ. */
+/* Menu: podręczne (PPM / przytrzymanie / klawisz Menu), ☰, układ. */
 /* ---- menu kontekstowe (PPM / długie przytrzymanie / klawisz Menu) ---- */
 /** @param {MenuEntry[]} items @param {number} x @param {number} y @param {boolean} [touch] otwarte palcem */
 function openMenu(items, x, y, touch) {
@@ -124,7 +124,19 @@ function ctxMenu(x, y, touch) {
 /** @param {number} x @param {number} y */
 function moreMenu(x, y) {
   openMenu(
-    [mi('open'), mi('save'), mi('new'), '-', mi('svg'), mi('png'), '-', mi('theme'), mi('help'), mi('pal')],
+    [
+      { head: 'Plik' },
+      mi('open'),
+      mi('save'),
+      mi('new'),
+      { head: 'Eksport' },
+      mi('svg'),
+      mi('png'),
+      '-',
+      mi('theme'),
+      mi('help'),
+      mi('pal'),
+    ],
     x,
     y
   );
@@ -146,9 +158,8 @@ function setLayout(d) {
   syncLayout();
   changed();
 }
+/** bieżący układ wciśnięty w panelu wyglądu */
 function syncLayout() {
-  const b = $('bl');
-  b.innerHTML = icon(LAY[dir][0]);
-  b.dataset.tip = 'Układ mapy: ' + LAY[dir][1];
-  b.setAttribute('aria-label', b.dataset.tip);
+  for (const b of document.querySelectorAll('#side .lays button'))
+    b.classList.toggle('on', b instanceof HTMLElement && b.dataset.act === 'lay-' + dir);
 }

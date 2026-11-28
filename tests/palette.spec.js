@@ -65,7 +65,8 @@ test.describe('jedna tabela czynności (ACT)', () => {
     const r = await page.evaluate(() => {
       const ids = new Set(ACT.map(a => a.id)),
         menus = [];
-      for (const open of [() => ctxMenu(10, 10), () => moreMenu(10, 10), () => $('bl').click()]) {
+      menus.push(...[...document.querySelectorAll('#side [data-act]')].map(b => b.getAttribute('data-act'))); // układ w panelu
+      for (const open of [() => ctxMenu(10, 10), () => moreMenu(10, 10)]) {
         open();
         menus.push(...[...$('menu').querySelectorAll('button')].map(b => b.dataset.act));
         closeMenu();

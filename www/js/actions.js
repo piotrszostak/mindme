@@ -1,4 +1,4 @@
-/* Czynności: jedna tabela (`ACT`) dla pomocy (sekcja „Klawiatura”), menu podręcznego, menu „…”, menu układu i palety komend. */
+/* Czynności: jedna tabela (`ACT`) dla pomocy (sekcja „Klawiatura”), menu podręcznego, menu ☰, menu układu i palety komend. */
 /* Skróty są tu tylko do wyświetlania – naciśnięcia obsługuje `normal()` w keys.js. Nowy albo zmieniony skrót: oba miejsca. */
 /* ---- dostępność: powód albo '' (dostępna) ---- */
 const needSel = () => (S() ? '' : 'najpierw zaznacz węzeł');
@@ -182,7 +182,13 @@ const ACT = [
       })
   ),
   { id: 'text', ic: 'text', t: 'Widok Markdown', c: 'text', f: () => toggleText() },
-  { id: 'side', ic: 'sliders', t: 'Wygląd mapy', f: () => toggleSide() },
+  {
+    id: 'side',
+    ic: 'sliders',
+    t: 'Wygląd mapy',
+    f: () => toggleSide(),
+    off: () => (tv ? 'najpierw wróć do mapy' : ''),
+  },
   { id: 'theme', ic: 'theme', t: 'Tryb jasny / ciemny', c: 'theme', f: () => toggleTheme() },
   /* układy – z listy układów, nowe dochodzą same */
   ...Object.keys(LAY).map(

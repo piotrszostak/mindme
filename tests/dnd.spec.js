@@ -96,9 +96,9 @@ test.describe('mysz: przeciąganie (drag and drop)', () => {
     await loadMap(page, MD);
     const sv = await page.locator('#sv').boundingBox(),
       b0 = await box(page, 'Środek');
-    await page.mouse.move(sv.x + 20, sv.y + 20);
+    await page.mouse.move(sv.x + 20, sv.y + 80); // tło pod wyspami górnego paska
     await page.mouse.down();
-    await page.mouse.move(sv.x + 120, sv.y + 70, { steps: 5 });
+    await page.mouse.move(sv.x + 120, sv.y + 130, { steps: 5 });
     await page.mouse.up();
     const b1 = await box(page, 'Środek');
     expect(b1.x - b0.x).toBeCloseTo(100, 0);

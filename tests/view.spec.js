@@ -76,8 +76,10 @@ test.describe('pomoc', () => {
       await act(page, 'help').click();
       const h = await page.locator('#help').boundingBox(),
         m = await page.locator('#main').boundingBox();
-      expect(h.y).toBeCloseTo(m.y, 0);
-      expect(h.height).toBeCloseTo(m.height, 0);
+      const tl = await page.locator('#tl').boundingBox();
+      expect(h.y).toBeGreaterThanOrEqual(tl.y + tl.height); // pod wyspami górnego paska, nagłówek pomocy widoczny
+      expect(h.y).toBeLessThan(tl.y + tl.height + 10);
+      expect(h.y + h.height).toBeCloseTo(m.y + m.height, 0); // do dołu mapy
       expect(await page.$eval('#help .hb', e => getComputedStyle(e).gridTemplateColumns.split(' ').length)).toBe(1);
       expect(await page.$eval('#help dd', e => parseFloat(getComputedStyle(e).fontSize))).toBeGreaterThanOrEqual(16);
       await expect(page.locator('#help h3').first()).toHaveText('Dotyk');

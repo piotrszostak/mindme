@@ -144,27 +144,28 @@ test('SVG odpowiada modelowi (prostokąty i krawędzie)', async ({ page }) => {
   await expect(page.locator('#g path')).toHaveCount(list.length - 1);
 });
 
-test(':layout i przycisk układu zmieniają układ i są zapisywane w markdownie', async ({ page }) => {
+test(':layout i układ w panelu wyglądu zmieniają układ i są zapisywane w markdownie', async ({ page }) => {
   await loadMap(page, MD('right'));
   await page.keyboard.press(':');
   await page.keyboard.type('layout down');
   await page.keyboard.press('Enter');
-  await expect(page.locator('#bl')).toHaveAttribute('data-tip', /w dół/);
+  await expect(page.locator('#side .lays .on')).toHaveAttribute('data-act', 'lay-down');
   expect(await page.evaluate(() => serialize(root))).toContain('<!--layout:down-->');
-  await page.click('#bl');
-  await page.click('#menu [data-act="lay-left"]');
+  await page.click('#bp');
+  await page.click('#side .lays [data-act="lay-left"]');
   expect(await page.evaluate(() => dir)).toBe('left');
   const b = byText(await boxes(page));
   expect(b['Jeden'].right).toBeLessThan(b['Środek'].x);
 });
 
 test('cofanie obejmuje układ: zmianę układu i wczytanie pliku z innym układem', async ({ page }) => {
-  const state = () => page.evaluate(() => [dir, first().text, $('bl').dataset.tip]);
+  const state = () =>
+    page.evaluate(() => [dir, first().text, document.querySelector('#side .lays .on')?.getAttribute('data-act')]);
   await page.evaluate(() => load('# A\n<!--layout:both-->\n\n- a\n'));
   await page.evaluate(() => setLayout('down'));
   expect((await state())[0]).toBe('down');
   await page.evaluate(() => undo());
-  expect(await state()).toEqual(['both', 'A', 'Układ mapy: ' + (await page.evaluate(() => LAY.both[1]))]);
+  expect(await state()).toEqual(['both', 'A', 'lay-both']);
   await page.evaluate(() => redo());
   expect((await state())[0]).toBe('down');
 

@@ -303,7 +303,7 @@ test('układ z pliku: nieznana nazwa = układ domyślny, a pasek stanu ją wymie
     await page.evaluate(() => info(''));
     await page.evaluate(m => load(m), `# T\n<!--layout:${d}-->\n\n- a\n`);
     expect(await page.evaluate(() => [dir, serialize(root)])).toEqual(['right', '# T\n\n- a\n']);
-    await expect(page.locator('#bl')).toHaveAttribute('data-tip', 'Układ mapy: w prawo');
+    await expect(page.locator('#side .lays .on')).toHaveAttribute('data-act', 'lay-right');
     await expect(page.locator('#info')).toHaveText('pominięto niepoprawne ustawienia z pliku: layout');
   }
 });
